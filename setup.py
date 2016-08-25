@@ -8,7 +8,7 @@ ldesc = open(os.path.join(os.path.dirname(__file__), 'README.md')).read()
 
 setup(
 	name='isbg',
-	version='0.99',
+	version='1.01',
 	description=('a script that makes it easy to scan an IMAP inbox for spam using SpamAssassin and get your spam moved to another folder.'),
 	long_description=ldesc,
 	keywords='email imap spamassasin filter',
@@ -16,6 +16,7 @@ setup(
 	author_email='thomas@lecavelier.name',
 	license='See LICENCE file.',
 	scripts=['isbg.py'],
+	install_requires=['docopt'],
 	url='http://redmine.ookook.fr/projects/isbg/wiki',
 	classifiers=[
 		'Development Status :: 5 - Production/Stable',
