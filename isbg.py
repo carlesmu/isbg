@@ -475,7 +475,7 @@ def sa_learn_spam(opts, learnspambox, exitcodeimap, alreadylearnt,
         s_tolearn = int(res[1][0])
         s_learnt = 0
         typ, uids = imap.uid("SEARCH", None, "ALL")
-        uids = uids[0].split()
+        uids = sorted(uids[0].split(), reverse=True)
         for u in uids:
             body = getmessage(opts, u)
             p = Popen(["spamc", "--learntype=spam"],
@@ -519,7 +519,7 @@ def sa_learn_ham(opts, learnhambox, exitcodeimap, alreadylearnt, movehamto,
         h_tolearn = int(res[1][0])
         h_learnt = 0
         typ, uids = imap.uid("SEARCH", None, "ALL")
-        uids = uids[0].split()
+        uids = sorted(uids[0].split(), reverse=True)
         for u in uids:
             body = getmessage(opts, u)
             p = Popen(["spamc", "--learntype=ham"],
@@ -564,7 +564,7 @@ def filter_uids(opts, spaminbox, exitcodeimap, imapinbox, maxsize,
     
         # get the uids of all mails with a size less then the maxsize
         typ, inboxuids = imap.uid("SEARCH", None, "SMALLER", maxsize)
-        inboxuids = inboxuids[0].split()
+        inboxuids = sorted(inboxuids[0].split(), reverse=True)
     
     # pastuids keeps track of which uids we have already seen, so
     # that we don't analyze them multiple times. We store its
