@@ -474,6 +474,7 @@ def sa_learn_spam(opts, learnspambox, exitcodeimap, alreadylearnt,
         assertok(opts, exitcodeimap, res, 'select', learnspambox)
         s_tolearn = int(res[1][0])
         s_learnt = 0
+        s_learnt_err = 0
         typ, uids = imap.uid("SEARCH", None, "ALL")
         uids = sorted(uids[0].split(), reverse=True)
         for u in uids:
@@ -489,7 +490,8 @@ def sa_learn_spam(opts, learnspambox, exitcodeimap, alreadylearnt,
                 errorexit("spamd is misconfigured (use --allow-tell)")
             p.stdin.close()
             if not out.strip() == alreadylearnt:
-                s_learnt += 1
+                if code == 0: s_learnt += 1
+                else:         s_learnt_err += 1
             if opts["--verbose"] is True:
                 print(u, out)
             if opts["--learnthendestroy"] is True:
@@ -504,10 +506,12 @@ def sa_learn_spam(opts, learnspambox, exitcodeimap, alreadylearnt,
     else:
         s_tolearn = None
         s_learnt = None
-    return s_tolearn, s_learnt
+        s_learnt_err = None
+    return s_tolearn, s_learnt, s_learnt_err
 
-s_tolearn, s_learnt = sa_learn_spam(opts, learnspambox, exitcodeimap,
-                                    alreadylearnt, spamflagscmd)
+s_tolearn, s_learnt, s_learnt_err = sa_learn_spam(opts, learnspambox,
+                                                  exitcodeimap, alreadylearnt,
+                                                  spamflagscmd)
 
 def sa_learn_ham(opts, learnhambox, exitcodeimap, alreadylearnt, movehamto,
                  spamflagscmd):
@@ -518,6 +522,7 @@ def sa_learn_ham(opts, learnhambox, exitcodeimap, alreadylearnt, movehamto,
         assertok(opts, exitcodeimap, res, 'select', learnhambox)
         h_tolearn = int(res[1][0])
         h_learnt = 0
+        h_learnt_err = 0
         typ, uids = imap.uid("SEARCH", None, "ALL")
         uids = sorted(uids[0].split(), reverse=True)
         for u in uids:
@@ -532,7 +537,9 @@ def sa_learn_ham(opts, learnhambox, exitcodeimap, alreadylearnt, movehamto,
             if code == 69 or code == 74:
                 errorexit("spamd is misconfigured (use --allow-tell)")
             p.stdin.close()
-            if not out.strip() == alreadylearnt: h_learnt += 1
+            if not out.strip() == alreadylearnt:
+                if code == 0: h_learnt += 1
+                else:         h_learnt_err += 1
             if opts["--verbose"] is True:
                 print(u, out)
             if opts["--movehamto"] is not None:
@@ -546,10 +553,12 @@ def sa_learn_ham(opts, learnhambox, exitcodeimap, alreadylearnt, movehamto,
     else:
         h_tolearn = None
         h_learnt = None
-    return h_tolearn, h_learnt
+        h_learnt_err = None
+    return h_tolearn, h_learnt, h_learnt_err
 
-h_tolearn, h_learnt = sa_learn_ham(opts, learnhambox, exitcodeimap,
-                                   alreadylearnt, movehamto, spamflagscmd)
+h_tolearn, h_learnt, h_learnt_err = sa_learn_ham(opts, learnhambox,
+                                                 exitcodeimap, alreadylearnt,
+                                                 movehamto, spamflagscmd)
 
 def filter_uids(opts, spaminbox, exitcodeimap, imapinbox, maxsize,
                 pastuidsfile, partialrun):
@@ -733,19 +742,21 @@ def logout(imap):
 logout(imap)
 
 
-def print_stats(opts, s_learnt, s_tolearn, h_learnt, h_tolearn, numspam,
-                nummsg, spamdeleted):
+def print_stats(opts, s_learnt, s_learnt_err, s_tolearn, h_learnt,
+                h_learnt_err, h_tolearn, numspam, nummsg, spamdeleted):
     if opts["--nostats"] is False:
         if opts["--learnspambox"] is not None:
-            print("%d/%d spams learnt") % (s_learnt, s_tolearn)
+            print("%d/%d spams learnt (%d errors)") % (s_learnt, s_tolearn,
+                                                       s_learnt_err)
         if opts["--learnhambox"] is not None:
-            print("%d/%d hams learnt") % (h_learnt, h_tolearn)
+            print("%d/%d hams learnt (%d errors)") % (h_learnt, h_tolearn,
+                                                      h_learnt_err)
         if opts["--teachonly"] is False:
             print("%d spams found in %d messages") % (numspam, nummsg)
             print("%d/%d was automatically deleted") % (spamdeleted, numspam)
 
-print_stats(opts, s_learnt, s_tolearn, h_learnt, h_tolearn, numspam, nummsg,
-            spamdeleted)
+print_stats(opts, s_learnt, s_learnt_err, s_tolearn, h_learnt, h_learnt_err,
+            h_tolearn, numspam, nummsg, spamdeleted)
 
 def exitcodes(opts, nummsg, exitcodenewmsgs, numspam, exitcodenewspam):
     if opts["--exitcodes"] is True and nummsg:
