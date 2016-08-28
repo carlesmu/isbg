@@ -660,7 +660,7 @@ def check_if_spam(opts, pastuids, exitcodespamc, deletehigherthan, spaminbox):
    
             spamlist.append(u)
 
-        return pastuids, spamdeletelist, spamlist
+    return pastuids, spamdeletelist, spamlist
 
 pastuids, spamdeletelist, spamlist = check_if_spam(opts,
                                                    pastuids,
