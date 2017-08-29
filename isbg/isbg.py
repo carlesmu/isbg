@@ -563,7 +563,7 @@ class ISBG:
                 else:
                     p = Popen(self.satest, stdin=PIPE, stdout=PIPE, close_fds=True)
                 try:
-                    score = p.communicate(body)[0].decode()
+                    score = p.communicate(body)[0].decode(errors='ignore')
                     if not self.spamc:
                         m = re.search("score=(-?\d+(?:\.\d+)?) required=(\d+(?:\.\d+)?)",
                                       score)
