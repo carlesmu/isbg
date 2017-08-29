@@ -318,7 +318,7 @@ class ISBG:
     def getpw(self, data, hash):
         res = ""
         for i in range(0, self.passwordhashlen):
-            c = ord(data[i]) ^ hash[i]
+            c = ord(data[i]) ^ ord(hash[i])
             if c == 0:
                 break
             res = res + chr(c)
@@ -330,7 +330,6 @@ class ISBG:
                              store (max accepted is %d)"""
                              % (len(pw), self.passwordhashlen))
         res = list(hash)
-        res = [chr(x) for x in res]
         for i in range(0, len(pw)):
             res[i] = chr(ord(res[i]) ^ ord(pw[i]))
         return ''.join(res)
