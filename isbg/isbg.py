@@ -516,7 +516,7 @@ class ISBG:
         newpastuids = []
 
         # filter away uids that was previously scanned
-        uids = [u for u in inboxuids if u not in origpastuids]
+        uids = [u for u in inboxuids if int(u) not in origpastuids]
 
         # Take only X elements if partialrun is enabled
         if self.partialrun:
