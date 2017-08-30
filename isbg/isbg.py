@@ -638,10 +638,10 @@ class ISBG:
                 res = self.imap.select(self.imapinbox)
                 self.assertok(res, 'select', self.imapinbox)
                 # Only set message flags if there are any
-                if len(spamflags) > 2:
+                if len(self.spamflags) > 0:
                     for u in spamlist:
                         res = self.imap.uid("STORE", u, self.spamflagscmd, imapflags(self.spamflags))
-                        self.assertok(res, "uid store", u, self.spamflagscmd, imapflags(spamflags))
+                        self.assertok(res, "uid store", u, self.spamflagscmd, imapflags(self.spamflags))
                         newpastuids.append(u)
                 # If its gmail, and --delete was passed, we actually copy!
                 if self.delete and self.gmail:
