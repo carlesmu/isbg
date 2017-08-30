@@ -508,7 +508,7 @@ class ISBG:
 
         # get the uids of all mails with a size less then the maxsize
         typ, inboxuids = self.imap.uid("SEARCH", None, "SMALLER", str(self.maxsize))
-        inboxuids = inboxuids[0].split()
+        inboxuids = sorted(inboxuids[0].split(), key=int, reverse=True)
         inboxuids = [x.decode() for x in inboxuids]
 
         # remember what pastuids looked like so that we can compare at the end
@@ -694,7 +694,7 @@ class ISBG:
                     typ, uids = self.imap.uid("SEARCH", None, "(FLAGGED)")
                 else:
                     typ, uids = self.imap.uid("SEARCH", None, "ALL")
-                uids = uids[0].split()
+                uids = sorted(uids[0].split(), key=int, reverse=True)
                 uids = [u for u in uids if int(u) not in origpastuids]
                 n_tolearn = len(uids)
 
