@@ -1,15 +1,15 @@
 #!/usr/bin/python
 
-""" parse an rfc2822 email message and unwrap it if it contains an x-spam-type=original payload
-
-    Works on python 2.7+ and 3.x (uses some fairly ugly hacks to do so)
-
-    Does not perfectly preserve whitespace (esp. \r\n vs. \n and \t vs space), also does that
-    differently between python 2 and python 3, but this should not impact spam-learning purposes.
-
 """
+parse an rfc2822 email message and unwrap it if it contains an
+x-spam-type=original payload
 
-from email.message import Message
+Works on python 2.7+ and 3.x (uses some fairly ugly hacks to do so)
+
+Does not perfectly preserve whitespace (esp. \r\n vs. \n and \t vs space), also
+does that differently between python 2 and python 3, but this should not impact
+spam-learning purposes.
+"""
 
 # import byte parser if it exists (on python 3)
 try:
@@ -19,6 +19,7 @@ except ImportError:
     from email.parser import Parser
     BytesParser = Parser
 import sys
+
 
 def unwrap(msg_stream):
     """ Parse and unwrap message """
@@ -34,16 +35,20 @@ def unwrap(msg_stream):
                 else:
                     pl_bytes = pl.as_string()
                 el_idx = pl_bytes.index(b'\n\n')
-                parts.append(pl_bytes[el_idx+2:])
+                parts.append(pl_bytes[el_idx + 2:])
         if len(parts) > 0:
             return parts
     return None
 
+
 def run():
     # select byte streams if they exist (on python 3)
     if hasattr(sys.stdin, 'buffer'):
-        inb = sys.stdin.buffer
-        outb = sys.stdout.buffer
+        # pylint complains Instance of 'file' has no 'buffer' member
+        # (no-member) using:
+        # inb = sys.stdin.buffer
+        inb = getattr(sys.stdin, 'buffer')
+        outb = getattr(sys.stdout, 'buffer')
     else:
         # on python 2 use regular streams
         inb = sys.stdin
@@ -54,7 +59,8 @@ def run():
         for spam in spams:
             outb.write(spam)
     else:
-        outb.write(inp)
+        print("No spam into the mail detected.")
+
 
 if __name__ == '__main__':
     run()
