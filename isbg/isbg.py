@@ -102,6 +102,15 @@ try:
 except ImportError:
     from md5 import md5
 
+# xdg base dir specification (only xdg_cache_home is used)
+try:
+    from xdg.BaseDirectory import xdg_cache_home
+except ImportError:
+    xdg_cache_home = ""
+if xdg_cache_home == "":
+    xdg_cache_home = os.path.expanduser("~" + os.sep + ".cache")
+
+
 class ISBGError(Exception):
     pass
 
@@ -175,6 +184,10 @@ class ISBG:
         self.logger = logging.getLogger(__name__)
         self.logger.setLevel(logging.DEBUG)
 
+        # We create the dir for store cached information (if needed)
+        if not os.path.isdir(os.path.join(xdg_cache_home, "isbg")):
+            os.makedirs(os.path.join(xdg_cache_home, "isbg"))
+
         self.set_imap_opts(
             imaphost='localhost',
             imapport=143,
@@ -205,7 +218,7 @@ class ISBG:
         )
         self.set_lockfile_opts(
             ignorelockfile=False,
-            lockfilename=os.path.expanduser("~" + os.sep + ".isbg-lock"),
+            lockfilename=os.path.join(xdg_cache_home, "isbg", "lock"),
             lockfilegrace=240
         )
         self.set_password_opts(
@@ -756,7 +769,7 @@ class ISBG:
             self.spamflags.append("\\Deleted")
 
         if self.pastuidsfile is None:
-            self.pastuidsfile = os.path.expanduser("~" + os.sep + ".isbg-track")
+            self.pastuidsfile = os.path.join(xdg_cache_home, "isbg", "track")
             m = md5()
             m.update(self.imaphost.encode())
             m.update(self.imapuser.encode())
@@ -769,7 +782,7 @@ class ISBG:
             m.update(self.imaphost.encode())
             m.update(self.imapuser.encode())
             m.update(repr(self.imapport).encode())
-            self.passwdfilename = os.path.expanduser("~" + os.sep +
+            self.passwdfilename = os.path.join(xdg_cache_home, "isbg",
                                                      ".isbg-" + m.hexdigest())
 
         if self.passwordhash is None:
