@@ -856,6 +856,8 @@ class ISBG:
                 else:
                     time.sleep(retry_time)
 
+        self.logger.info('Server capabilities: {}'.format(self.imap.capability()))
+
         # Authenticate (only simple supported)
         res = self.imap.login(self.imapuser, self.imappasswd)
         self.assertok(res, "login", self.imapuser, 'xxxxxxxx')
