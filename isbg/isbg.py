@@ -877,9 +877,8 @@ class ISBG:
             if (os.path.exists(self.lockfilename) and
                     (os.path.getmtime(self.lockfilename) +
                      (self.lockfilegrace * 60) > time.time())):
-                self.logger.debug("""\nLock file is present. Guessing isbg
-                      is already running. Exit.""")
-                errorexit(self.exitcodelocked)
+                errorexit("Lock file is present. Guessing isbg is already "
+                          + "running. Exit.", self.exitcodelocked)
             else:
                 lockfile = open(self.lockfilename, 'w')
                 lockfile.write(repr(os.getpid()))
