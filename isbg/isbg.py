@@ -371,16 +371,15 @@ class ISBG:
             try:
                 body = res[1][0][1]
             except Exception:
-                self.exception('IMAP Message not in expected format!')
-                if self.verbose:
-                    self.logger.warning(
-                        ("Confused - rfc822 fetch gave {} - The message "
-                         + " was probably deleted while we were running"
-                         ).format("res"))
-                if append_to is not None:
-                    append_to.append(int(uid))
+                self.logger.warning(
+                    ("Confused - rfc822 fetch gave {} - The message "
+                     + " was probably deleted while we were running"
+                     ).format(res))
         else:
             body = res[1][0][1]
+            if append_to is not None:
+                append_to.append(int(uid))
+
         return body
 
     # This function checks that the return code is OK
