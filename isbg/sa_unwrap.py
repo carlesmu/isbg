@@ -1,8 +1,10 @@
 #!/usr/bin/python
+# -*- coding: utf-8 -*-
 
-"""
-parse an rfc2822 email message and unwrap it if it contains an
-x-spam-type=original payload
+r"""
+parse an rfc2822 email message and unwrap it if contains spam attached.
+
+Toknow it it chechks for an x-spam-type=original payload.
 
 Works on python 2.7+ and 3.x (uses some fairly ugly hacks to do so)
 
@@ -22,7 +24,7 @@ import sys
 
 
 def unwrap(msg_stream):
-    """ Parse and unwrap message """
+    """Parse and unwrap message."""
     parser = BytesParser()
     msg = parser.parse(msg_stream)
     if msg.is_multipart():
@@ -42,6 +44,7 @@ def unwrap(msg_stream):
 
 
 def run():
+    """It runs when this module is called from the command line."""
     # select byte streams if they exist (on python 3)
     if hasattr(sys.stdin, 'buffer'):
         # pylint complains Instance of 'file' has no 'buffer' member

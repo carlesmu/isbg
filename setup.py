@@ -1,5 +1,6 @@
 #!/usr/bin/env python2
 # -*- coding: utf-8 -*-
+"""Installation and build information for isbg."""
 
 from setuptools import setup
 import os

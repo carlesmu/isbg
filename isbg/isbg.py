@@ -3,6 +3,7 @@
 
 """
 isbg scans an IMAP Inbox and runs every entry against SpamAssassin.
+
 For any entries that match, the message is copied to another folder,
 and the original marked or deleted.
 
@@ -80,7 +81,9 @@ except Exception:
             'Cannot load sa_unwrap, please install isbg package properly!\n')
 
         # Create No-Op dummy function
-        def unwrap(x): return None
+        def unwrap(x):
+            """No-op dummy function."""
+            return None
 
 try:
     from docopt import docopt  # Creating command-line interface
@@ -114,10 +117,13 @@ if xdg_cache_home == "":
 
 
 class ISBGError(Exception):
+    """Class for the ISBG exceptions."""
+
     pass
 
 
 def errorexit(msg, exitcode):
+    """Raise an ISBGError and exits."""
     sys.stderr.write(msg)
     sys.stderr.write("\nUse --help to see valid options and arguments\n")
     if exitcode == -1:
@@ -126,6 +132,7 @@ def errorexit(msg, exitcode):
 
 
 def hexof(x):
+    """Translate a string to a string with its hexadecimal value."""
     res = ""
     for i in x:
         res = res + ("%02x" % ord(i))
@@ -133,6 +140,7 @@ def hexof(x):
 
 
 def hexdigit(c):
+    """Tanslate a hexadecimal character his decimal (int) value."""
     if c >= '0' and c <= '9':
         return ord(c) - ord('0')
     if c >= 'a' and c <= 'f':
@@ -143,6 +151,7 @@ def hexdigit(c):
 
 
 def dehexof(x):
+    """Tanslate a hexadecimal string to his string value."""
     res = ""
     while(len(x)):
         res = res + chr(16 * hexdigit(x[0]) + hexdigit(x[1]))
@@ -156,12 +165,14 @@ crnlre = re.compile("([^\r])\n", re.DOTALL)
 
 
 def crnlify(text):
+    r"""Force that all the lines of a text ends with \r\n."""
     # we have to do it twice to work right since the re includes
     # the char preceding \n
     return re.sub(crnlre, "\\1\r\n", re.sub(crnlre, "\\1\r\n", text))
 
 
 def truncate(inp, length):
+    """Truncate a string to  a maximus length."""
     if len(inp) > length:
         return repr(inp)[:length - 3] + '...'
     else:
@@ -169,6 +180,7 @@ def truncate(inp, length):
 
 
 def shorten(inp, length):
+    """Short a dict or a list or other object to a maximus length."""
     if isinstance(inp, dict):
         return dict([(k, shorten(v, length)) for k, v in inp.items()])
     elif isinstance(inp, list) or isinstance(inp, tuple):
@@ -178,10 +190,13 @@ def shorten(inp, length):
 
 
 def imapflags(flaglist):
+    """Transform a list to a string as expected for the IMAP4 standard."""
     return '(' + ','.join(flaglist) + ')'
 
 
 class ISBG:
+    """Main ISBG class."""
+
     exitcodeok = 0          # all went well
     exitcodenewmsgs = 1     # there were new messages - none of them spam
     exitcodenewspam = 2     # they were all spam
@@ -193,6 +208,7 @@ class ISBG:
     exitcodelocked = 30     # there's certainly another isbg running
 
     def __init__(self):
+        """Initialize a ISBG object."""
         self.logger = logging.getLogger(__name__)
         self.logger.setLevel(logging.DEBUG)
 
@@ -280,6 +296,7 @@ class ISBG:
         self.passwordhashlen = 256  # should be a multiple of 16
 
     def set_imap_opts(self, imaphost, imapport, imapuser, imappasswd, nossl):
+        """Set imap options."""
         self.imaphost = imaphost
         self.imapport = imapport
         self.imapuser = imapuser
@@ -287,6 +304,7 @@ class ISBG:
         self.nossl = nossl
 
     def set_mailboxes(self, inbox, spaminbox, learnspambox, learnhambox):
+        """Set mailboxes."""
         self.imapinbox = inbox
         self.spaminbox = spaminbox
         self.learnspambox = learnspambox
@@ -294,6 +312,7 @@ class ISBG:
 
     def set_reporting_opts(self, imaplist, nostats, noreport, exitcodes,
                            verbose, verbose_mails):
+        """Set reporting options."""
         self.imaplist = imaplist
         self.nostats = nostats
         self.noreport = noreport
@@ -302,6 +321,7 @@ class ISBG:
         self.verbose_mails = verbose_mails
 
     def set_processing_opts(self, dryrun, maxsize, teachonly, spamc, gmail):
+        """Set processing options."""
         self.dryrun = dryrun
         self.maxsize = maxsize
         self.teachonly = teachonly
@@ -309,19 +329,23 @@ class ISBG:
         self.gmail = gmail
 
     def set_lockfile_opts(self, ignorelockfile, lockfilename, lockfilegrace):
+        """Set lockfile options."""
         self.ignorelockfile = ignorelockfile
         self.lockfilename = lockfilename
         self.lockfilegrace = lockfilegrace
 
     def set_password_opts(self, passwdfilename, savepw):
+        """Set password options."""
         self.passwdfilename = passwdfilename
         self.savepw = savepw
 
     def set_trackfile_opts(self, trackfile, partialrun):
+        """Set trackfile options."""
         self.pastuidsfile = trackfile
         self.partialrun = partialrun
 
     def set_sa_opts(self, movehamto, delete, deletehigherthan, flag, expunge):
+        """Set spamassassin options."""
         self.movehamto = movehamto
         self.delete = delete
         self.deletehigherthan = deletehigherthan
@@ -330,6 +354,7 @@ class ISBG:
 
     def set_learning_opts(self, learnflagged, learnunflagged, learnthendestroy,
                           learnthenflag):
+        """Set learning options."""
         if learnflagged and learnunflagged:
             raise ValueError(
                 'Cannot pass learnflagged and learnunflagged at same time')
@@ -339,11 +364,13 @@ class ISBG:
         self.learnthenflag = learnthenflag
 
     def removelock(self):
+        """Remove the lockfile."""
         if os.path.exists(self.lockfilename):
             os.remove(self.lockfilename)
 
     # Password stuff
     def getpw(self, data, hash):
+        """Deobfuscate IMAP password."""
         res = ""
         for i in range(0, self.passwordhashlen):
             c = ord(data[i]) ^ ord(hash[i])
@@ -353,6 +380,7 @@ class ISBG:
         return res
 
     def setpw(self, pw, hash):
+        """Obfuscate password."""
         if len(pw) > self.passwordhashlen:
             raise ValueError(("Password of length %d is too long to "
                               + "store (max accepted is %d)"
@@ -362,8 +390,8 @@ class ISBG:
             res[i] = chr(ord(res[i]) ^ ord(pw[i]))
         return ''.join(res)
 
-    # Retrieve the entire message
     def getmessage(self, uid, append_to=None):
+        """Get a message by uid and optionaly append its uid to a list."""
         res = self.imap.uid("FETCH", uid, "(BODY.PEEK[])")
         self.assertok(res, 'uid fetch', uid, '(BODY.PEEK[])')
         if res[0] != "OK":
@@ -382,10 +410,12 @@ class ISBG:
 
         return body
 
-    # This function checks that the return code is OK
-    # It also prints out what happened (which would end
-    # up /dev/null'ed in non-verbose mode)
     def assertok(self, res, *args):
+        """Check that the return code is OK.
+
+        It also prints out what happened (which would end
+        up /dev/null'ed in non-verbose mode)
+        """
         if 'fetch' in args[0] and not self.verbose_mails:
             res = shorten(res, 100)
         self.logger.debug("{} = {}".format(args, res))
@@ -396,7 +426,7 @@ class ISBG:
                       self.exitcodeimap if self.exitcodes else -1)
 
     def parse_args(self):
-        # Argument processing
+        """Argument processing."""
         try:
             self.opts = docopt(__doc__, version="isbg version 2.0")
             self.opts = dict([(k, v) for k, v in self.opts.items()
@@ -494,6 +524,7 @@ class ISBG:
                 self.imapport = 993
 
     def get_uidvalidity(self, mailbox):
+        """Validate a mailbox."""
         uidvalidity = 0
         mbstatus = self.imap.status(mailbox, '(UIDVALIDITY)')
         if mbstatus[0] == 'OK':
@@ -504,11 +535,14 @@ class ISBG:
         return uidvalidity
 
     def pastuid_read(self, uidvalidity, folder='inbox'):
-        # pastuids keeps track of which uids we have already seen, so
-        # that we don't analyze them multiple times. We store its
-        # contents between sessions by saving into a file as Python
-        # code (makes loading it here real easy since we just source
-        # the file)
+        """Read the uids stored in a file for  a folder.
+
+        pastuids_read keeps track of which uids we have already seen, so
+        that we don't analyze them multiple times. We store its
+        contents between sessions by saving into a file as Python
+        code (makes loading it here real easy since we just source
+        the file)
+        """
         pastuids = []
         try:
             with open(self.pastuidsfile + folder, 'r') as f:
@@ -521,6 +555,7 @@ class ISBG:
 
     def pastuid_write(self, uidvalidity, origpastuids, newpastuids,
                       folder='inbox'):
+        """Write the uids in a file for the folder."""
         f = open(self.pastuidsfile + folder, "w+")
         try:
             os.chmod(self.pastuidsfile + folder, 0o600)
@@ -537,6 +572,7 @@ class ISBG:
         f.close()
 
     def spamassassin(self):
+        """Run spamassassin in the imbox mails."""
         uids = []
 
         # check spaminbox exists by examining it
@@ -727,6 +763,7 @@ class ISBG:
         return (numspam, nummsg, spamdeleted)
 
     def spamlearn(self):
+        """Learn the spams (and if requested deleted or move them)."""
         learns = [
             {
                 'inbox': self.learnspambox,
@@ -826,7 +863,10 @@ class ISBG:
         return result
 
     def do_isbg(self):
+        """Main isbg process.
 
+        It should be called to process the IMAP account.
+        """
         if self.spamc:
             self.satest = ["spamc", "-c"]
             self.sasave = ["spamc"]
@@ -999,6 +1039,7 @@ class ISBG:
 
 
 def isbg_run():
+    """Run when this module is called from the command line."""
     isbg = ISBG()
     isbg.parse_args()
     ch = logging.StreamHandler()
