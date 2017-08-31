@@ -837,13 +837,24 @@ class ISBG:
             f.write(hexof(self.setpw(self.imappasswd, self.passwordhash)).encode())
             f.close()
 
-
         # Main code starts here
 
-        if self.nossl:
-            self.imap = imaplib.IMAP4(self.imaphost, self.imapport)
-        else:
-            self.imap = imaplib.IMAP4_SSL(self.imaphost, self.imapport)
+        # Connection with the imaplib server
+        max_retry = 10
+        retry_time = 0.60 # seconds
+        for retry in range(1, max_retry + 1):
+            try:
+                if self.nossl:
+                    self.imap = imaplib.IMAP4(self.imaphost, self.imapport)
+                else:
+                    self.imap = imaplib.IMAP4_SSL(self.imaphost, self.imapport)
+                break # ok, exit for loop
+            except Exception, e:
+                self.logger.warning('Error in IMAP connection: {} ... retry {} of {}'.format(e, retry, max_retry))
+                if retry >= max_retry:
+                    raise e
+                else:
+                    time.sleep(retry_time)
 
         # Authenticate (only simple supported)
         res = self.imap.login(self.imapuser, self.imappasswd)
