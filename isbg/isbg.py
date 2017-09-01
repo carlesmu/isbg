@@ -852,7 +852,9 @@ class ISBG:
     def do_isbg(self):
         """Main isbg process.
 
-        It should be called to process the IMAP account.
+        It should be called to process the IMAP account. It returns a
+        exitcode if its called from the command line and have the --exitcodes
+        param.
         """
         if self.spamc:
             self.satest = ["spamc", "-c"]
@@ -1013,24 +1015,26 @@ class ISBG:
                     ("%d/%d was automatically deleted") % (spamdeleted,
                                                            numspam))
 
-        if self.exitcodes:
+        if self.exitcodes and __name__ == '__main__':
             if not self.teachonly:
                 res = 0
                 if numspam == 0:
-                    sys.exit(self.exitcodenewmsgs)
+                    return self.exitcodenewmsgs
                 if numspam == nummsg:
-                    sys.exit(self.exitcodenewspam)
-                sys.exit(self.exitcodenewmsgspam)
+                    return self.exitcodenewspam
+                return self.exitcodenewmsgspam
 
-            sys.exit(self.exitcodeok)
+            return self.exitcodeok
 
 
 def isbg_run():
     """Run when this module is called from the command line."""
     isbg = ISBG()
     isbg.parse_args()
-    isbg.do_isbg()
+    return isbg.do_isbg()  # return the exit code.
 
 
 if __name__ == '__main__':
-    isbg_run()
+    res = isbg_run()
+    if res is not None:
+        sys.exit(res)
