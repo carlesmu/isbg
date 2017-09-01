@@ -234,7 +234,6 @@ class ISBG:
             self.set_trackfile_opts()
             self.set_sa_opts()
             self.set_learning_opts()
-        print self.__dict__
 
         self.interactive = sys.stdin.isatty()
         self.alreadylearnt = "Message was already un/learned"
@@ -972,7 +971,7 @@ class ISBG:
                 else:
                     time.sleep(retry_time)
 
-        self.logger.info(
+        self.logger.debug(
             'Server capabilities: {}'.format(self.imap.capability()))
 
         # Authenticate (only simple supported)
