@@ -3,13 +3,21 @@
 """Installation and build information for isbg."""
 
 from setuptools import setup
+import ast
 import os
+import re
 
 ldesc = open(os.path.join(os.path.dirname(__file__), 'README.md')).read()
 
+# We get the version from isbg/isbg.py
+_version_re = re.compile(r'__version__\s+=\s+(.*)')
+with open('isbg/isbg.py', 'rb') as f:
+    version = str(ast.literal_eval(_version_re.search(
+        f.read().decode('utf-8')).group(1)))
+
 setup(
     name='isbg',
-    version='2.0',
+    version=version,  # to chenge it dot it in isbg/isbg.py: __version__
     description=(
         'a script that makes it easy to scan an IMAP inbox for spam using'
         + 'SpamAssassin and get your spam moved to another folder.'),

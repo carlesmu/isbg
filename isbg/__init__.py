@@ -34,6 +34,6 @@ Examples:
 """
 
 
-from isbg import ISBG
+from isbg import ISBG, __version__
 
-__all__ = ["ISBG"]
+__all__ = ["ISBG", "__version__"]
