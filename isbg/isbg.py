@@ -216,66 +216,25 @@ class ISBG:
     def __init__(self):
         """Initialize a ISBG object."""
         self.logger = logging.getLogger(__name__)
-        self.logger.setLevel(logging.DEBUG)
+        self.logger.addHandler(logging.StreamHandler())
+        self.set_loglevel(logging.DEBUG)
 
         # We create the dir for store cached information (if needed)
         if not os.path.isdir(os.path.join(xdg_cache_home, "isbg")):
             os.makedirs(os.path.join(xdg_cache_home, "isbg"))
 
-        self.set_imap_opts(
-            imaphost='localhost',
-            imapport=143,
-            imapuser='',
-            imappasswd=None,
-            nossl=False
-        )
-        self.set_mailboxes(
-            inbox="INBOX",
-            spaminbox="INBOX.spam",
-            learnspambox=None,
-            learnhambox=None
-        )
-        self.set_reporting_opts(
-            imaplist=False,
-            nostats=False,
-            noreport=False,
-            exitcodes=True,
-            verbose=False,
-            verbose_mails=False
-        )
-        self.set_processing_opts(
-            dryrun=False,
-            maxsize=120000,
-            teachonly=False,
-            spamc=False,
-            gmail=False
-        )
-        self.set_lockfile_opts(
-            ignorelockfile=False,
-            lockfilename=os.path.join(xdg_cache_home, "isbg", "lock"),
-            lockfilegrace=240
-        )
-        self.set_password_opts(
-            passwdfilename=None,
-            savepw=False
-        )
-        self.set_trackfile_opts(
-            trackfile=None,
-            partialrun=False
-        )
-        self.set_sa_opts(
-            movehamto=None,
-            delete=False,
-            deletehigherthan=None,
-            flag=False,
-            expunge=False
-        )
-        self.set_learning_opts(
-            learnflagged=False,
-            learnunflagged=False,
-            learnthendestroy=False,
-            learnthenflag=False
-        )
+        # Initializes variables
+        if __name__ is not '__main__':
+            self.set_imap_opts()
+            self.set_mailboxes()
+            self.set_reporting_opts()
+            self.set_processing_opts()
+            self.set_lockfile_opts()
+            self.set_password_opts()
+            self.set_trackfile_opts()
+            self.set_sa_opts()
+            self.set_learning_opts()
+        print self.__dict__
 
         self.interactive = sys.stdin.isatty()
         self.alreadylearnt = "Message was already un/learned"
@@ -301,7 +260,8 @@ class ISBG:
         self.passwordhash = None
         self.passwordhashlen = 256  # should be a multiple of 16
 
-    def set_imap_opts(self, imaphost, imapport, imapuser, imappasswd, nossl):
+    def set_imap_opts(self, imaphost='localhost', imapport=143, imapuser='',
+                      imappasswd=None, nossl=False):
         """Set imap options."""
         self.imaphost = imaphost
         self.imapport = imapport
@@ -309,24 +269,30 @@ class ISBG:
         self.imappasswd = imappasswd
         self.nossl = nossl
 
-    def set_mailboxes(self, inbox, spaminbox, learnspambox, learnhambox):
+    def set_mailboxes(self, inbox="INBOX", spaminbox="INBOX.spam",
+                      learnspambox=None, learnhambox=None):
         """Set mailboxes."""
         self.imapinbox = inbox
         self.spaminbox = spaminbox
         self.learnspambox = learnspambox
         self.learnhambox = learnhambox
 
-    def set_reporting_opts(self, imaplist, nostats, noreport, exitcodes,
-                           verbose, verbose_mails):
+    def set_reporting_opts(self, imaplist=False, nostats=False, noreport=False,
+                           exitcodes=True, verbose=False, verbose_mails=False):
         """Set reporting options."""
         self.imaplist = imaplist
         self.nostats = nostats
         self.noreport = noreport
         self.exitcodes = exitcodes
         self.verbose = verbose
+        if self.verbose:
+            self.set_loglevel(logging.DEBUG)
+        else:
+            self.set_loglevel(logging.INFO)
         self.verbose_mails = verbose_mails
 
-    def set_processing_opts(self, dryrun, maxsize, teachonly, spamc, gmail):
+    def set_processing_opts(self, dryrun=False, maxsize=120000,
+                            teachonly=False, spamc=False, gmail=False):
         """Set processing options."""
         self.dryrun = dryrun
         self.maxsize = maxsize
@@ -334,23 +300,27 @@ class ISBG:
         self.spamc = spamc
         self.gmail = gmail
 
-    def set_lockfile_opts(self, ignorelockfile, lockfilename, lockfilegrace):
+    def set_lockfile_opts(self, ignorelockfile=False,
+                          lockfilename=os.path.join(xdg_cache_home,
+                                                    "isbg", "lock"),
+                          lockfilegrace=240):
         """Set lockfile options."""
         self.ignorelockfile = ignorelockfile
         self.lockfilename = lockfilename
         self.lockfilegrace = lockfilegrace
 
-    def set_password_opts(self, passwdfilename, savepw):
+    def set_password_opts(self, passwdfilename=None, savepw=False):
         """Set password options."""
         self.passwdfilename = passwdfilename
         self.savepw = savepw
 
-    def set_trackfile_opts(self, trackfile, partialrun):
+    def set_trackfile_opts(self, trackfile=None, partialrun=False):
         """Set trackfile options."""
         self.pastuidsfile = trackfile
         self.partialrun = partialrun
 
-    def set_sa_opts(self, movehamto, delete, deletehigherthan, flag, expunge):
+    def set_sa_opts(self, movehamto=None, delete=False, deletehigherthan=None,
+                    flag=False, expunge=False):
         """Set spamassassin options."""
         self.movehamto = movehamto
         self.delete = delete
@@ -358,8 +328,8 @@ class ISBG:
         self.flag = flag
         self.expunge = expunge
 
-    def set_learning_opts(self, learnflagged, learnunflagged, learnthendestroy,
-                          learnthenflag):
+    def set_learning_opts(self, learnflagged=False, learnunflagged=False,
+                          learnthendestroy=False, learnthenflag=False):
         """Set learning options."""
         if learnflagged and learnunflagged:
             raise ValueError(
@@ -368,6 +338,12 @@ class ISBG:
         self.learnunflagged = learnunflagged
         self.learnthendestroy = learnthendestroy
         self.learnthenflag = learnthenflag
+
+    def set_loglevel(self, level):
+        """Set the log level."""
+        self.logger.setLevel(level)
+        for x in self.logger.handlers:
+            x.setLevel(level)
 
     def removelock(self):
         """Remove the lockfile."""
@@ -501,6 +477,11 @@ class ISBG:
                           self.exitcodeflags)
 
         self.verbose = self.opts.get('--verbose', False)
+        if self.verbose:
+            self.set_loglevel(logging.DEBUG)
+        else:
+            self.set_loglevel(logging.INFO)
+
         self.verbose_mails = self.opts.get('--verbose-mails', False)
         self.ignorelockfile = self.opts.get("--ignorelockfile", False)
         self.savepw = self.opts.get('--savepw', False)
@@ -1048,12 +1029,6 @@ def isbg_run():
     """Run when this module is called from the command line."""
     isbg = ISBG()
     isbg.parse_args()
-    ch = logging.StreamHandler()
-    isbg.logger.addHandler(ch)
-    if isbg.verbose:
-        ch.setLevel(logging.DEBUG)
-    else:
-        ch.setLevel(logging.INFO)
     isbg.do_isbg()
 
 
