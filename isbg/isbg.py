@@ -399,7 +399,7 @@ class ISBG:
         up /dev/null'ed in non-verbose mode)
         """
         if 'fetch' in args[0] and not self.verbose_mails:
-            res = shorten(res, 100)
+            res = shorten(res, 140)
         self.logger.debug("{} = {}".format(args, res))
         if res[0] != "OK":
             self.logger.error("{} returned {} - aborting")
