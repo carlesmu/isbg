@@ -65,6 +65,8 @@ Options:
 
 """
 
+__version__ = "2.0-dev"
+
 import sys  # Because sys.stderr.write() is called bellow
 from io import BytesIO
 
@@ -409,7 +411,7 @@ class ISBG:
     def parse_args(self):
         """Argument processing."""
         try:
-            self.opts = docopt(__doc__, version="isbg version 2.0")
+            self.opts = docopt(__doc__, version="isbg version " + __version__)
             self.opts = dict([(k, v) for k, v in self.opts.items()
                               if v is not None])
         except Exception as e:
