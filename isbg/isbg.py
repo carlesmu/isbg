@@ -123,12 +123,18 @@ class ISBGError(Exception):
 
 
 def errorexit(msg, exitcode):
-    """Raise an ISBGError and exits."""
-    sys.stderr.write(msg)
-    sys.stderr.write("\nUse --help to see valid options and arguments\n")
-    if exitcode == -1:
+    """Raise an ISBGError.
+
+    If its runed as a commandline also show a help message and exits.
+    """
+    if __name__ == '__main__':
+        sys.stderr.write(msg)
+        sys.stderr.write("\nUse --help to see valid options and arguments\n")
+        if exitcode == -1:
+            raise ISBGError((exitcode, msg))
+        sys.exit(exitcode)
+    else:
         raise ISBGError((exitcode, msg))
-    sys.exit(exitcode)
 
 
 def hexof(x):
