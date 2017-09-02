@@ -439,8 +439,12 @@ class ISBG:
         self.imapsets.port = self.opts.get('--imapport', self.imapsets.port)
         self.imapsets.user = self.opts.get('--imapuser', self.imapsets.user)
         self.imapsets.inbox = self.opts.get('--imapinbox', self.imapsets.inbox)
+        self.imapsets.spaminbox = self.opts.get('--spaminbox',
+                                                self.imapsets.spaminbox)
         self.imapsets.learnspambox = self.opts.get('--learnspambox')
         self.imapsets.learnhambox = self.opts.get('--learnhambox')
+        self.imapsets.nossl = self.opts.get('--nossl', False)
+
         self.lockfilegrace = self.opts.get('--lockfilegrace',
                                            self.lockfilegrace)
         self.nostats = self.opts.get('--nostats', False)
@@ -465,8 +469,6 @@ class ISBG:
 
         self.noreport = self.opts.get('--noreport', self.noreport)
 
-        self.spaminbox = self.opts.get('--spaminbox', self.spaminbox)
-
         self.lockfilename = self.opts.get('--lockfilename', self.lockfilename)
 
         self.pastuidsfile = self.opts.get('--trackfile', self.pastuidsfile)
@@ -489,7 +491,6 @@ class ISBG:
         self.passwdfilename = self.opts.get('--passwdfilename',
                                             self.passwdfilename)
 
-        self.nossl = self.opts.get('--nossl', False)
         self.imaplist = self.opts.get('--imaplist', False)
 
         self.learnunflagged = self.opts.get('--learnunflagged', False)
@@ -507,9 +508,9 @@ class ISBG:
 
         if self.opts.get("--imapport") is None:
             if self.opts["--nossl"] is True:
-                self.imapport = 143
+                self.imapsets.port = 143
             else:
-                self.imapport = 993
+                self.imapsets.port = 993
 
     def get_uidvalidity(self, mailbox):
         """Validate a mailbox."""
@@ -922,7 +923,7 @@ class ISBG:
             if (self.savepw is False and
                     os.path.exists(self.passwdfilename) is True):
                 try:
-                    self.imappasswd = self.getpw(dehexof(open(
+                    self.imapsets.passwd = self.getpw(dehexof(open(
                         self.passwdfilename,
                         "rb").read().decode()),
                         self.passwordhash)
@@ -949,7 +950,7 @@ class ISBG:
             except Exception:
                 self.logger.exception('Error saving pw!')
                 pass
-            f.write(hexof(self.setpw(self.imappasswd,
+            f.write(hexof(self.setpw(self.imapsets.passwd,
                                      self.passwordhash)).encode())
             f.close()
 
@@ -960,19 +961,19 @@ class ISBG:
         retry_time = 0.60   # seconds
         for retry in range(1, max_retry + 1):
             try:
-                if self.nossl:
+                if self.imapsets.nossl:
                     self.imap = imaplib.IMAP4(self.imapsets.host,
                                               self.imapsets.port)
                 else:
                     self.imap = imaplib.IMAP4_SSL(self.imapsets.host,
                                                   self.imapsets.port)
                 break   # ok, exit for loop
-            except Exception, e:
+            except Exception as e:
                 self.logger.warning(('Error in IMAP connection: {} ... '
                                      + 'retry {} of {}').format(e, retry,
                                                                 max_retry))
                 if retry >= max_retry:
-                    raise e
+                    raise Exception(e)
                 else:
                     time.sleep(retry_time)
 
