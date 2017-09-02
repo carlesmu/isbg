@@ -17,7 +17,7 @@ Examples:
     >>> import isbg
     >>> isbg = isbg.ISBG()
     >>> isbg.imapsets.host = "imap.example.org"
-    >>> isbg.imapsets.port = imapport=993
+    >>> isbg.imapsets.port = 993
     >>> isbg.imapsets.user = "example@example.org"
     >>> isbg.imapsets.passwd = "xxxxxxxx"
     >>> isbg.imapsets.inbox = "INBOX"
