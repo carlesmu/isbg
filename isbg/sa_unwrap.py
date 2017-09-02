@@ -11,6 +11,18 @@ Works on python 2.7+ and 3.x (uses some fairly ugly hacks to do so)
 Does not perfectly preserve whitespace (esp. \r\n vs. \n and \t vs space), also
 does that differently between python 2 and python 3, but this should not impact
 spam-learning purposes.
+
+Example:
+
+    It will return the original mail into a spamassassin mail:
+    >>> import io
+    >>> import isbg.sa_unwrap
+    >>> f = open('examples/spam.from.spamassassin.eml','rb')
+    >>> isbg.sa_unwrap.unwrap(io.BytesIO(f.read()))
+    >>> f.close()
+    or
+    $ cat examples/spam.from.spamassassin.eml | python isbg/sa_unwrap.py
+
 """
 
 # import byte parser if it exists (on python 3)

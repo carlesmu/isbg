@@ -74,10 +74,10 @@ from io import BytesIO
 # installed / as an import.  We should probably decide to not care about
 # running isbg as top-level script straight from the repo.
 try:
-    from .sa_unwrap import unwrap
+    from .sa_unwrap import unwrap  # Imported the isbg module
 except Exception:
     try:
-        from sa_unwrap import unwrap
+        from sa_unwrap import unwrap  # when excuted the script
     except ImportError:
         sys.stderr.write(
             'Cannot load sa_unwrap, please install isbg package properly!\n')
