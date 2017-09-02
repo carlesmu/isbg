@@ -2,10 +2,11 @@
 # -*- coding: utf-8 -*-
 """Installation and build information for isbg."""
 
-from setuptools import setup
 import ast
 import os
 import re
+
+from setuptools import setup
 
 LDESC = open(os.path.join(os.path.dirname(__file__), 'README.md')).read()
 

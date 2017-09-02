@@ -59,11 +59,8 @@ def run():
     """It runs when this module is called from the command line."""
     # select byte streams if they exist (on python 3)
     if hasattr(sys.stdin, 'buffer'):
-        # pylint complains Instance of 'file' has no 'buffer' member
-        # (no-member) using:
-        # inb = sys.stdin.buffer
-        inb = getattr(sys.stdin, 'buffer')
-        outb = getattr(sys.stdout, 'buffer')
+        inb = sys.stdin.buffer    # pylint: disable=no-member
+        outb = sys.stdout.buffer  # pylint: disable=no-member
     else:
         # on python 2 use regular streams
         inb = sys.stdin
@@ -74,7 +71,7 @@ def run():
         for spam in spams:
             outb.write(spam)
     else:
-        print("No spam into the mail detected.")
+        print "No spam into the mail detected."
 
 
 if __name__ == '__main__':

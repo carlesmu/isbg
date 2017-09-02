@@ -67,7 +67,8 @@ Options:
 
 __version__ = "2.0-dev"
 
-import sys  # Because sys.stderr.write() is called bellow
+import socket  # to catch the socket.error exception
+import sys     # Because sys.stderr.write() is called bellow
 from io import BytesIO
 
 # FIXME: This is necessary to allow using isbg both straight from the repo and
@@ -75,7 +76,7 @@ from io import BytesIO
 # running isbg as top-level script straight from the repo.
 try:
     from .sa_unwrap import unwrap  # Imported the isbg module
-except Exception:
+except (ValueError, ImportError):
     try:
         from sa_unwrap import unwrap  # when excuted the script
     except ImportError:
@@ -113,9 +114,9 @@ except ImportError:
 try:
     from xdg.BaseDirectory import xdg_cache_home
 except ImportError:
-    xdg_cache_home = ""    # pylint: disable-msg=C0103
+    xdg_cache_home = ""    # pylint: disable=invalid-name
 if xdg_cache_home == "":
-    # pylint: disable-msg=C0103
+    # pylint: disable=invalid-name
     xdg_cache_home = os.path.expanduser("~" + os.sep + ".cache")
 
 
@@ -162,7 +163,7 @@ def hexdigit(char):
 def dehexof(string):
     """Tanslate a hexadecimal string to his string value."""
     res = ""
-    while(len(string)):
+    while len(string):
         res = res + chr(16 * hexdigit(string[0]) + hexdigit(string[1]))
         string = string[2:]
     return res
@@ -203,7 +204,7 @@ def imapflags(flaglist):
     return '(' + ','.join(flaglist) + ')'
 
 
-class ImapSettings:
+class ImapSettings(object):
     """Class used to store the IMAP settigs."""
 
     def __init__(self):
@@ -220,7 +221,7 @@ class ImapSettings:
         self.learnhambox = None
 
 
-class ISBG:
+class ISBG(object):
     """Main ISBG class."""
 
     exitcodeok = 0          # all went well
@@ -277,6 +278,13 @@ class ISBG:
         self.passwdfilename = None
         self.passwordhash = None
         self.passwordhashlen = 256  # should be a multiple of 16
+
+    def _popen(self, cmd):
+        """Helper to call Popen."""
+        if os.name == 'nt':
+            return Popen(self.satest, stdin=PIPE, stdout=PIPE)
+        else:
+            return Popen(self.satest, stdin=PIPE, stdout=PIPE, close_fds=True)
 
     def set_reporting_opts(self, imaplist=False, nostats=False, noreport=False,
                            exitcodes=True, verbose=False, verbose_mails=False):
@@ -381,7 +389,7 @@ class ISBG:
             self.assertok(res, 'uid fetch', uid, '(BODY.PEEK[])')
             try:
                 body = res[1][0][1]
-            except Exception:
+            except Exception:  # pylint: disable=broad-except
                 self.logger.warning(
                     ("Confused - rfc822 fetch gave {} - The message "
                      + " was probably deleted while we were running"
@@ -414,14 +422,14 @@ class ISBG:
             self.opts = docopt(__doc__, version="isbg version " + __version__)
             self.opts = dict([(k, v) for k, v in self.opts.items()
                               if v is not None])
-        except Exception as exc:
+        except Exception as exc:  # pylint: disable=broad-except
             errorexit("Option processing failed - " + str(exc),
                       self.exitcodeflags)
 
         if self.opts.get("--deletehigherthan") is not None:
             try:
                 self.deletehigherthan = float(self.opts["--deletehigherthan"])
-            except Exception:
+            except Exception:  # pylint: disable=broad-except
                 errorexit("Unrecognized score - "
                           + self.opts["--deletehigherthan"],
                           self.exitcodeflags)
@@ -456,7 +464,7 @@ class ISBG:
         if self.opts.get("--maxsize") is not None:
             try:
                 self.maxsize = int(self.opts["--maxsize"])
-            except Exception:
+            except (TypeError, ValueError):
                 errorexit("Unrecognised size - " + self.opts["--maxsize"],
                           self.exitcodeflags)
             if self.maxsize < 1:
@@ -539,7 +547,7 @@ class ISBG:
                 struct = json.load(rfile)
                 if struct['uidvalidity'] == uidvalidity:
                     pastuids = struct['uids']
-        except Exception:
+        except Exception:  # pylint: disable=broad-except
             pass
         return pastuids
 
@@ -549,7 +557,7 @@ class ISBG:
         wfile = open(self.pastuidsfile + folder, "w+")
         try:
             os.chmod(self.pastuidsfile + folder, 0o600)
-        except Exception:
+        except Exception:  # pylint: disable=broad-except
             pass
         self.logger.debug(('Writing pastuids, {} origpastuids, '
                            + 'newpastuids: {}'
@@ -628,11 +636,7 @@ class ISBG:
                     code = 0
                 processednum = processednum + 1
             else:
-                if os.name == 'nt':
-                    proc = Popen(self.satest, stdin=PIPE, stdout=PIPE)
-                else:
-                    proc = Popen(self.satest, stdin=PIPE, stdout=PIPE,
-                                 close_fds=True)
+                proc = self._popen(self.satest)
                 try:
                     score = proc.communicate(body)[0].decode(errors='ignore')
                     if not self.spamc:
@@ -641,7 +645,7 @@ class ISBG:
                             score)
                         score = res.group(1) + "/" + res.group(2) + "\n"
                     code = proc.returncode
-                except Exception:
+                except Exception:  # pylint: disable=broad-except
                     self.logger.exception(
                         'Error communicating with {}!'.format(self.satest))
                     continue
@@ -673,13 +677,10 @@ class ISBG:
                     else:
                         # filter it through sa
                         if os.name == 'nt':
-                            proc = Popen(self.sasave, stdin=PIPE, stdout=PIPE)
-                        else:
-                            proc = Popen(self.sasave, stdin=PIPE, stdout=PIPE,
-                                         close_fds=True)
+                            proc = self._popen(self.sasave)
                         try:
                             body = proc.communicate(body)[0]
-                        except Exception:
+                        except Exception:  # pylint: disable=broad-except
                             self.logger.exception(
                                 'Error communicating with {}!'.format(
                                     self.sasave))
@@ -803,18 +804,11 @@ class ISBG:
                         out = self.alreadylearnt
                         code = 0
                     else:
-                        if os.name == 'nt':
-                            proc = Popen(["spamc", "--learntype="
-                                          + learntype['learntype']],
-                                         stdin=PIPE, stdout=PIPE)
-                        else:
-                            proc = Popen(["spamc", "--learntype="
-                                          + learntype['learntype']],
-                                         stdin=PIPE, stdout=PIPE,
-                                         close_fds=True)
+                        proc = self._popen(["spamc", "--learntype="
+                                            + learntype['learntype']])
                         try:
                             out = proc.communicate(body)[0]
-                        except Exception:
+                        except Exception:  # pylint: disable=broad-except
                             self.logger.exception(
                                 'spamc error for mail {}'.format(uid))
                             self.logger.debug(repr(body))
@@ -824,7 +818,7 @@ class ISBG:
                     if code == 69 or code == 74:
                         errorexit("spamd is misconfigured (use --allow-tell)",
                                   self.exitcodeflags)
-                    if not out.strip().decode() == self.alreadylearnt:
+                    if out.strip().decode() != self.alreadylearnt:
                         n_learnt += 1
                     newpastuids.append(int(uid))
                     self.logger.debug("{} {}".format(uid, out))
@@ -934,7 +928,7 @@ class ISBG:
                         "rb").read().decode()),
                         self.passwordhash)
                     self.logger.debug("Successfully read password file")
-                except Exception:
+                except Exception:  # pylint: disable=broad-except
                     self.logger.exception('Error reading pw!')
                     pass
 
@@ -953,7 +947,7 @@ class ISBG:
             wfile = open(self.passwdfilename, "wb+")
             try:
                 os.chmod(self.passwdfilename, 0o600)
-            except Exception:
+            except Exception:  # pylint: disable=broad-except
                 self.logger.exception('Error saving pw!')
                 pass
             wfile.write(hexof(self.setpw(self.imapsets.passwd,
@@ -974,7 +968,7 @@ class ISBG:
                     self.imap = imaplib.IMAP4_SSL(self.imapsets.host,
                                                   self.imapsets.port)
                 break   # ok, exit for loop
-            except Exception as exc:
+            except socket.error as exc:
                 self.logger.warning(('Error in IMAP connection: {} ... '
                                      + 'retry {} of {}').format(exc, retry,
                                                                 max_retry))
@@ -1015,16 +1009,16 @@ class ISBG:
         if self.nostats is False:
             if self.imapsets.learnspambox is not None:
                 self.logger.info(
-                    ("%d/%d spams learnt") % (s_learnt, s_tolearn))
+                    "{}/{} spams learnt".format(s_learnt, s_tolearn))
             if self.imapsets.learnhambox:
                 self.logger.info(
-                    ("%d/%d hams learnt") % (h_learnt, h_tolearn))
+                    "{}/{} hams learnt".format(h_learnt, h_tolearn))
             if not self.teachonly:
                 self.logger.info(
-                    ("%d spams found in %d messages") % (numspam, nummsg))
+                    "{} spams found in {} messages".format(numspam, nummsg))
                 self.logger.info(
-                    ("%d/%d was automatically deleted") % (spamdeleted,
-                                                           numspam))
+                    "{}/{} was automatically deleted".format(spamdeleted,
+                                                             numspam))
 
         if self.exitcodes and __name__ == '__main__':
             if not self.teachonly:
@@ -1046,6 +1040,6 @@ def isbg_run():
 
 
 if __name__ == '__main__':
-    res = isbg_run()  # pylint: disable-msg=C0103
+    res = isbg_run()  # pylint: disable=invalid-name
     if res is not None:
         sys.exit(res)
