@@ -21,7 +21,7 @@ Example:
     >>> isbg.sa_unwrap.unwrap(io.BytesIO(f.read()))
     >>> f.close()
     or
-    $ cat examples/spam.from.spamassassin.eml | python isbg/sa_unwrap.py
+    $ cat examples/spam.from.spamassassin.eml | sa_unwrap
 
 """
 

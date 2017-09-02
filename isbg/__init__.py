@@ -16,21 +16,20 @@ Examples:
 
     >>> import isbg
     >>> isbg = isbg.ISBG()
-    >>> isbg.set_imap_opts(imaphost="imap.example.org",
-    >>>                    imapport=993,
-    >>>                    imapuser="example@example.org",
-    >>>                    imappasswd="xxxxxxxx",
-    >>>                    nossl=False)   # Set the imap options
-    >>> isbg.set_mailboxes(inbox="INBOX",
-    >>>                    spaminbox="Spam",
-    >>>                    learnspambox="Spam",
-    >>>                    learnhambox="NOSPAM")  # Set the mailbox info
+    >>> isbg.imapsets.host = "imap.example.org"
+    >>> isbg.imapsets.port = imapport=993
+    >>> isbg.imapsets.user = "example@example.org"
+    >>> isbg.imapsets.passwd = "xxxxxxxx"
+    >>> isbg.imapsets.inbox = "INBOX"
+    >>> isbg.imapsets.spaminbox = "Spam"
+    >>> isbg.imapsets.learnspambox = "Spam"
+    >>> isbg.imapsets.learnhambox = "NOSPAM"
     >>> # Set the number of mails to chech
     >>> isbg.set_trackfile_opts(partialrun=4)
-    >>> isbg.set_reporting_opts(verbose=True) # Show more info
-    >>> isbg.do_isbg()    # Connects to the imap and checks for spam
-    >>> # Before rerun it after an interrupted process.
-    >>> isbg.removelock()
+    >>> isbg.set_reporting_opts(verbose=True)  # Show more info
+    >>> isbg.set_lockfile_opts(ignorelockfile=True)
+    >>> isbg.removelock()  # if there is a lock file
+    >>> isbg.do_isbg()     # Connects to the imap and checks for spam
 """
 
 
