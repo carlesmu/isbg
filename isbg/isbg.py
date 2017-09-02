@@ -83,7 +83,7 @@ except Exception:
             'Cannot load sa_unwrap, please install isbg package properly!\n')
 
         # Create No-Op dummy function
-        def unwrap(x):
+        def unwrap(msg):
             """No-op dummy function."""
             return None
 
@@ -113,8 +113,9 @@ except ImportError:
 try:
     from xdg.BaseDirectory import xdg_cache_home
 except ImportError:
-    xdg_cache_home = ""
+    xdg_cache_home = ""    # pylint: disable-msg=C0103
 if xdg_cache_home == "":
+    # pylint: disable-msg=C0103
     xdg_cache_home = os.path.expanduser("~" + os.sep + ".cache")
 
 
@@ -139,44 +140,44 @@ def errorexit(msg, exitcode):
         raise ISBGError((exitcode, msg))
 
 
-def hexof(x):
+def hexof(string):
     """Translate a string to a string with its hexadecimal value."""
     res = ""
-    for i in x:
+    for i in string:
         res = res + ("%02x" % ord(i))
     return res
 
 
-def hexdigit(c):
+def hexdigit(char):
     """Tanslate a hexadecimal character his decimal (int) value."""
-    if c >= '0' and c <= '9':
-        return ord(c) - ord('0')
-    if c >= 'a' and c <= 'f':
-        return 10 + ord(c) - ord('a')
-    if c >= 'A' and c <= 'F':
-        return 10 + ord(c) - ord('A')
-    raise ValueError(repr(c) + " is not a valid hexadecimal digit")
+    if char >= '0' and char <= '9':
+        return ord(char) - ord('0')
+    if char >= 'a' and char <= 'f':
+        return 10 + ord(char) - ord('a')
+    if char >= 'A' and char <= 'F':
+        return 10 + ord(char) - ord('A')
+    raise ValueError(repr(char) + " is not a valid hexadecimal digit")
 
 
-def dehexof(x):
+def dehexof(string):
     """Tanslate a hexadecimal string to his string value."""
     res = ""
-    while(len(x)):
-        res = res + chr(16 * hexdigit(x[0]) + hexdigit(x[1]))
-        x = x[2:]
+    while(len(string)):
+        res = res + chr(16 * hexdigit(string[0]) + hexdigit(string[1]))
+        string = string[2:]
     return res
 
 
 # This function makes sure that each lines ends in <CR><LF>
 # SpamAssassin strips out the <CR> normally
-crnlre = re.compile("([^\r])\n", re.DOTALL)
+_CRNLRE = re.compile("([^\r])\n", re.DOTALL)
 
 
 def crnlify(text):
     r"""Force that all the lines of a text ends with \r\n."""
     # we have to do it twice to work right since the re includes
     # the char preceding \n
-    return re.sub(crnlre, "\\1\r\n", re.sub(crnlre, "\\1\r\n", text))
+    return re.sub(_CRNLRE, "\\1\r\n", re.sub(_CRNLRE, "\\1\r\n", text))
 
 
 def truncate(inp, length):
@@ -342,8 +343,8 @@ class ISBG:
     def set_loglevel(self, level):
         """Set the log level."""
         self.logger.setLevel(level)
-        for x in self.logger.handlers:
-            x.setLevel(level)
+        for handler in self.logger.handlers:
+            handler.setLevel(level)
 
     def removelock(self):
         """Remove the lockfile."""
@@ -355,21 +356,21 @@ class ISBG:
         """Deobfuscate IMAP password."""
         res = ""
         for i in range(0, self.passwordhashlen):
-            c = ord(data[i]) ^ ord(hash[i])
-            if c == 0:
+            j = ord(data[i]) ^ ord(hash[i])
+            if j == 0:
                 break
-            res = res + chr(c)
+            res = res + chr(j)
         return res
 
-    def setpw(self, pw, hash):
+    def setpw(self, passwd, hash):
         """Obfuscate password."""
-        if len(pw) > self.passwordhashlen:
+        if len(passwd) > self.passwordhashlen:
             raise ValueError(("Password of length %d is too long to "
                               + "store (max accepted is %d)"
-                              ) % (len(pw), self.passwordhashlen))
+                              ) % (len(passwd), self.passwordhashlen))
         res = list(hash)
-        for i in range(0, len(pw)):
-            res[i] = chr(ord(res[i]) ^ ord(pw[i]))
+        for i in range(0, len(passwd)):
+            res[i] = chr(ord(res[i]) ^ ord(passwd[i]))
         return ''.join(res)
 
     def getmessage(self, uid, append_to=None):
@@ -413,8 +414,8 @@ class ISBG:
             self.opts = docopt(__doc__, version="isbg version " + __version__)
             self.opts = dict([(k, v) for k, v in self.opts.items()
                               if v is not None])
-        except Exception as e:
-            errorexit("Option processing failed - " + str(e),
+        except Exception as exc:
+            errorexit("Option processing failed - " + str(exc),
                       self.exitcodeflags)
 
         if self.opts.get("--deletehigherthan") is not None:
@@ -518,9 +519,9 @@ class ISBG:
         mbstatus = self.imap.status(mailbox, '(UIDVALIDITY)')
         if mbstatus[0] == 'OK':
             body = mbstatus[1][0].decode()
-            m = re.search('UIDVALIDITY ([0-9]+)', body)
-            if m is not None:
-                uidvalidity = int(m.groups()[0])
+            uidval = re.search('UIDVALIDITY ([0-9]+)', body)
+            if uidval is not None:
+                uidvalidity = int(uidval.groups()[0])
         return uidvalidity
 
     def pastuid_read(self, uidvalidity, folder='inbox'):
@@ -534,8 +535,8 @@ class ISBG:
         """
         pastuids = []
         try:
-            with open(self.pastuidsfile + folder, 'r') as f:
-                struct = json.load(f)
+            with open(self.pastuidsfile + folder, 'r') as rfile:
+                struct = json.load(rfile)
                 if struct['uidvalidity'] == uidvalidity:
                     pastuids = struct['uids']
         except Exception:
@@ -545,7 +546,7 @@ class ISBG:
     def pastuid_write(self, uidvalidity, origpastuids, newpastuids,
                       folder='inbox'):
         """Write the uids in a file for the folder."""
-        f = open(self.pastuidsfile + folder, "w+")
+        wfile = open(self.pastuidsfile + folder, "w+")
         try:
             os.chmod(self.pastuidsfile + folder, 0o600)
         except Exception:
@@ -557,8 +558,8 @@ class ISBG:
             'uidvalidity': uidvalidity,
             'uids': list(set(newpastuids + origpastuids))
         }
-        json.dump(struct, f)
-        f.close()
+        json.dump(struct, wfile)
+        wfile.close()
 
     def spamassassin(self):
         """Run spamassassin in the imbox mails."""
@@ -605,9 +606,9 @@ class ISBG:
             processmax = 5
 
         # Main loop that iterates over each new uid we haven't seen before
-        for u in uids:
+        for uid in uids:
             # Retrieve the entire message
-            body = self.getmessage(u, newpastuids)
+            body = self.getmessage(uid, newpastuids)
             # Unwrap spamassassin reports
             unwrapped = unwrap(BytesIO(body))
             if unwrapped is not None and len(unwrapped) > 0:
@@ -628,18 +629,18 @@ class ISBG:
                 processednum = processednum + 1
             else:
                 if os.name == 'nt':
-                    p = Popen(self.satest, stdin=PIPE, stdout=PIPE)
+                    proc = Popen(self.satest, stdin=PIPE, stdout=PIPE)
                 else:
-                    p = Popen(self.satest, stdin=PIPE, stdout=PIPE,
-                              close_fds=True)
+                    proc = Popen(self.satest, stdin=PIPE, stdout=PIPE,
+                                 close_fds=True)
                 try:
-                    score = p.communicate(body)[0].decode(errors='ignore')
+                    score = proc.communicate(body)[0].decode(errors='ignore')
                     if not self.spamc:
-                        m = re.search(
+                        res = re.search(
                             "score=(-?\d+(?:\.\d+)?) required=(\d+(?:\.\d+)?)",
                             score)
-                        score = m.group(1) + "/" + m.group(2) + "\n"
-                    code = p.returncode
+                        score = res.group(1) + "/" + res.group(2) + "\n"
+                    code = proc.returncode
                 except Exception:
                     self.logger.exception(
                         'Error communicating with {}!'.format(self.satest))
@@ -648,7 +649,7 @@ class ISBG:
                 errorexit("spamc -> spamd error - aborting",
                           self.exitcodespamc)
 
-            self.logger.debug("[{}] score: {}".format(u, score))
+            self.logger.debug("[{}] score: {}".format(uid, score))
 
             if code == 0:
                 # Message is below threshold
@@ -658,11 +659,11 @@ class ISBG:
             else:
                 # Message is spam, delete it or move it to spaminbox
                 # (optionally with report)
-                self.logger.debug("{} is spam".format(u))
+                self.logger.debug("{} is spam".format(uid))
 
                 if (self.deletehigherthan is not None and
                         float(score.split('/')[0]) > self.deletehigherthan):
-                    spamdeletelist.append(u)
+                    spamdeletelist.append(uid)
                     continue
 
                 # do we want to include the spam report
@@ -672,18 +673,18 @@ class ISBG:
                     else:
                         # filter it through sa
                         if os.name == 'nt':
-                            p = Popen(self.sasave, stdin=PIPE, stdout=PIPE)
+                            proc = Popen(self.sasave, stdin=PIPE, stdout=PIPE)
                         else:
-                            p = Popen(self.sasave, stdin=PIPE, stdout=PIPE,
-                                      close_fds=True)
+                            proc = Popen(self.sasave, stdin=PIPE, stdout=PIPE,
+                                         close_fds=True)
                         try:
-                            body = p.communicate(body)[0]
+                            body = proc.communicate(body)[0]
                         except Exception:
                             self.logger.exception(
                                 'Error communicating with {}!'.format(
                                     self.sasave))
                             continue
-                        p.stdin.close()
+                        proc.stdin.close()
                         body = crnlify(body)
                         res = self.imap.append(self.imapsets.spaminbox, None,
                                                None, body)
@@ -696,7 +697,7 @@ class ISBG:
                                  + "message alone.").format(
                                     repr(["append",
                                           self.imapsets.spaminbox, "{body}"]),
-                                    repr(u), repr(res)))
+                                    repr(uid), repr(res)))
                             continue
                 else:
                     if self.dryrun:
@@ -704,11 +705,12 @@ class ISBG:
                             "Skipping copy to spambox because of --dryrun")
                     else:
                         # just copy it as is
-                        res = self.imap.uid("COPY", u, self.imapsets.spaminbox)
-                        self.assertok(res, "uid copy", u,
+                        res = self.imap.uid("COPY", uid,
+                                            self.imapsets.spaminbox)
+                        self.assertok(res, "uid copy", uid,
                                       self.imapsets.spaminbox)
 
-                spamlist.append(u)
+                spamlist.append(uid)
 
         self.pastuid_write(uidvalidity, origpastuids, newpastuids)
 
@@ -726,26 +728,26 @@ class ISBG:
                 self.assertok(res, 'select', self.imapsets.inbox)
                 # Only set message flags if there are any
                 if len(self.spamflags) > 0:
-                    for u in spamlist:
-                        res = self.imap.uid("STORE", u, self.spamflagscmd,
+                    for uid in spamlist:
+                        res = self.imap.uid("STORE", uid, self.spamflagscmd,
                                             imapflags(self.spamflags))
-                        self.assertok(res, "uid store", u, self.spamflagscmd,
+                        self.assertok(res, "uid store", uid, self.spamflagscmd,
                                       imapflags(self.spamflags))
-                        newpastuids.append(u)
+                        newpastuids.append(uid)
                 # If its gmail, and --delete was passed, we actually copy!
                 if self.delete and self.gmail:
-                    for u in spamlist:
-                        res = self.imap.uid("COPY", u, "[Gmail]/Trash")
-                        self.assertok(res, "uid copy", u, "[Gmail]/Trash")
+                    for uid in spamlist:
+                        res = self.imap.uid("COPY", uid, "[Gmail]/Trash")
+                        self.assertok(res, "uid copy", uid, "[Gmail]/Trash")
                 # Set deleted flag for spam with high score
-                for u in spamdeletelist:
+                for uid in spamdeletelist:
                     if self.gmail is True:
-                        res = self.imap.uid("COPY", u, "[Gmail]/Trash")
-                        self.assertok(res, "uid copy", u, "[Gmail]/Trash")
+                        res = self.imap.uid("COPY", uid, "[Gmail]/Trash")
+                        self.assertok(res, "uid copy", uid, "[Gmail]/Trash")
                     else:
-                        res = self.imap.uid("STORE", u, self.spamflagscmd,
+                        res = self.imap.uid("STORE", uid, self.spamflagscmd,
                                             "(\\Deleted)")
-                        self.assertok(res, "uid store", u, self.spamflagscmd,
+                        self.assertok(res, "uid store", uid, self.spamflagscmd,
                                       "(\\Deleted)")
                 if self.expunge:
                     self.imap.expunge()
@@ -791,8 +793,8 @@ class ISBG:
                 uids = [u for u in uids if int(u) not in origpastuids]
                 n_tolearn = len(uids)
 
-                for u in uids:
-                    body = self.getmessage(u)
+                for uid in uids:
+                    body = self.getmessage(uid)
                     # Unwrap spamassassin reports
                     unwrapped = unwrap(BytesIO(body))
                     if unwrapped is not None and len(unwrapped) > 0:
@@ -802,49 +804,53 @@ class ISBG:
                         code = 0
                     else:
                         if os.name == 'nt':
-                            p = Popen(["spamc", "--learntype="
-                                       + learntype['learntype']],
-                                      stdin=PIPE, stdout=PIPE)
+                            proc = Popen(["spamc", "--learntype="
+                                          + learntype['learntype']],
+                                         stdin=PIPE, stdout=PIPE)
                         else:
-                            p = Popen(["spamc", "--learntype="
-                                       + learntype['learntype']],
-                                      stdin=PIPE, stdout=PIPE, close_fds=True)
+                            proc = Popen(["spamc", "--learntype="
+                                          + learntype['learntype']],
+                                         stdin=PIPE, stdout=PIPE,
+                                         close_fds=True)
                         try:
-                            out = p.communicate(body)[0]
+                            out = proc.communicate(body)[0]
                         except Exception:
                             self.logger.exception(
-                                'spamc error for mail {}'.format(u))
+                                'spamc error for mail {}'.format(uid))
                             self.logger.debug(repr(body))
                             continue
-                        code = p.returncode
-                        p.stdin.close()
+                        code = proc.returncode
+                        proc.stdin.close()
                     if code == 69 or code == 74:
                         errorexit("spamd is misconfigured (use --allow-tell)",
                                   self.exitcodeflags)
                     if not out.strip().decode() == self.alreadylearnt:
                         n_learnt += 1
-                    newpastuids.append(int(u))
-                    self.logger.debug("{} {}".format(u, out))
+                    newpastuids.append(int(uid))
+                    self.logger.debug("{} {}".format(uid, out))
                     if not self.dryrun:
                         if self.learnthendestroy:
                             if self.gmail:
-                                res = self.imap.uid("COPY", u, "[Gmail]/Trash")
-                                self.assertok(res, "uid copy", u,
+                                res = self.imap.uid("COPY", uid,
+                                                    "[Gmail]/Trash")
+                                self.assertok(res, "uid copy", uid,
                                               "[Gmail]/Trash")
                             else:
-                                res = self.imap.uid("STORE", u,
+                                res = self.imap.uid("STORE", uid,
                                                     self.spamflagscmd,
                                                     "(\\Deleted)")
-                                self.assertok(res, "uid store", u,
+                                self.assertok(res, "uid store", uid,
                                               self.spamflagscmd, "(\\Deleted)")
                         elif learntype['moveto'] is not None:
-                            res = self.imap.uid("COPY", u, learntype['moveto'])
-                            self.assertok(res, "uid copy", u,
+                            res = self.imap.uid("COPY", uid,
+                                                learntype['moveto'])
+                            self.assertok(res, "uid copy", uid,
                                           learntype['moveto'])
                         elif self.learnthenflag:
-                            res = self.imap.uid("STORE", u, self.spamflagscmd,
+                            res = self.imap.uid("STORE", uid,
+                                                self.spamflagscmd,
                                                 "(\\Flagged)")
-                            self.assertok(res, "uid store", u,
+                            self.assertok(res, "uid store", uid,
                                           self.spamflagscmd, "(\\Flagged)")
                 self.pastuid_write(uidvalidity, origpastuids, newpastuids,
                                    folder=learntype['learntype'])
@@ -868,34 +874,34 @@ class ISBG:
 
         if self.pastuidsfile is None:
             self.pastuidsfile = os.path.join(xdg_cache_home, "isbg", "track")
-            m = md5()
-            m.update(self.imapsets.host.encode())
-            m.update(self.imapsets.user.encode())
-            m.update(repr(self.imapsets.port).encode())
-            res = m.hexdigest()
+            newhash = md5()
+            newhash.update(self.imapsets.host.encode())
+            newhash.update(self.imapsets.user.encode())
+            newhash.update(repr(self.imapsets.port).encode())
+            res = newhash.hexdigest()
             self.pastuidsfile = self.pastuidsfile + res
 
         if self.passwdfilename is None:
-            m = md5()
-            m.update(self.imapsets.host.encode())
-            m.update(self.imapsets.user.encode())
-            m.update(repr(self.imapsets.port).encode())
+            newhash = md5()
+            newhash.update(self.imapsets.host.encode())
+            newhash.update(self.imapsets.user.encode())
+            newhash.update(repr(self.imapsets.port).encode())
             self.passwdfilename = os.path.join(xdg_cache_home, "isbg",
-                                               ".isbg-" + m.hexdigest())
+                                               ".isbg-" + newhash.hexdigest())
 
         if self.passwordhash is None:
             # We make hash that the password is xor'ed against
-            m = md5()
-            m.update(self.imapsets.host.encode())
-            m.update(m.digest())
-            m.update(self.imapsets.user.encode())
-            m.update(m.digest())
-            m.update(repr(self.imapsets.port).encode())
-            m.update(m.digest())
-            self.passwordhash = m.digest()
+            mdh = md5()
+            mdh.update(self.imapsets.host.encode())
+            mdh.update(newhash.digest())
+            mdh.update(self.imapsets.user.encode())
+            mdh.update(newhash.digest())
+            mdh.update(repr(self.imapsets.port).encode())
+            mdh.update(newhash.digest())
+            self.passwordhash = newhash.digest()
             while len(self.passwordhash) < self.passwordhashlen:
-                m.update(self.passwordhash)
-                self.passwordhash = self.passwordhash + m.digest()
+                newhash.update(self.passwordhash)
+                self.passwordhash = self.passwordhash + newhash.digest()
 
         self.logger.debug("Lock file is {}".format(self.lockfilename))
         self.logger.debug("Trackfile is {}".format(self.pastuidsfile))
@@ -944,15 +950,15 @@ class ISBG:
 
         # Should we save it?
         if self.savepw:
-            f = open(self.passwdfilename, "wb+")
+            wfile = open(self.passwdfilename, "wb+")
             try:
                 os.chmod(self.passwdfilename, 0o600)
             except Exception:
                 self.logger.exception('Error saving pw!')
                 pass
-            f.write(hexof(self.setpw(self.imapsets.passwd,
-                                     self.passwordhash)).encode())
-            f.close()
+            wfile.write(hexof(self.setpw(self.imapsets.passwd,
+                                         self.passwordhash)).encode())
+            wfile.close()
 
         # Main code starts here
 
@@ -968,12 +974,12 @@ class ISBG:
                     self.imap = imaplib.IMAP4_SSL(self.imapsets.host,
                                                   self.imapsets.port)
                 break   # ok, exit for loop
-            except Exception as e:
+            except Exception as exc:
                 self.logger.warning(('Error in IMAP connection: {} ... '
-                                     + 'retry {} of {}').format(e, retry,
+                                     + 'retry {} of {}').format(exc, retry,
                                                                 max_retry))
                 if retry >= max_retry:
-                    raise Exception(e)
+                    raise Exception(exc)
                 else:
                     time.sleep(retry_time)
 
@@ -1040,6 +1046,6 @@ def isbg_run():
 
 
 if __name__ == '__main__':
-    res = isbg_run()
+    res = isbg_run()  # pylint: disable-msg=C0103
     if res is not None:
         sys.exit(res)

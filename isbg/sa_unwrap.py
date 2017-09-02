@@ -41,13 +41,13 @@ def unwrap(msg_stream):
     msg = parser.parse(msg_stream)
     if msg.is_multipart():
         parts = []
-        pls = msg.get_payload()
-        for pl in pls:
-            if pl.get_param('x-spam-type', '') == 'original':
-                if hasattr(pl, 'as_bytes'):
-                    pl_bytes = pl.as_bytes()
+        ploads = msg.get_payload()
+        for pload in ploads:
+            if pload.get_param('x-spam-type', '') == 'original':
+                if hasattr(pload, 'as_bytes'):
+                    pl_bytes = pload.as_bytes()
                 else:
-                    pl_bytes = pl.as_string()
+                    pl_bytes = pload.as_string()
                 el_idx = pl_bytes.index(b'\n\n')
                 parts.append(pl_bytes[el_idx + 2:])
         if len(parts) > 0:

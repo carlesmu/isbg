@@ -7,21 +7,21 @@ import ast
 import os
 import re
 
-ldesc = open(os.path.join(os.path.dirname(__file__), 'README.md')).read()
+LDESC = open(os.path.join(os.path.dirname(__file__), 'README.md')).read()
 
 # We get the version from isbg/isbg.py
-_version_re = re.compile(r'__version__\s+=\s+(.*)')
+_VERSION_RE = re.compile(r'__version__\s+=\s+(.*)')
 with open('isbg/isbg.py', 'rb') as f:
-    version = str(ast.literal_eval(_version_re.search(
+    _VERSION = str(ast.literal_eval(_VERSION_RE.search(
         f.read().decode('utf-8')).group(1)))
 
 setup(
     name='isbg',
-    version=version,  # to chenge it dot it in isbg/isbg.py: __version__
+    version=_VERSION,  # to chenge it dot it in isbg/isbg.py: __version__
     description=(
         'a script that makes it easy to scan an IMAP inbox for spam using'
         + 'SpamAssassin and get your spam moved to another folder.'),
-    long_description=ldesc,
+    long_description=LDESC,
     keywords='email imap spamassasin filter',
     author='Thomas Lecavelier',
     author_email='thomas@lecavelier.name',
