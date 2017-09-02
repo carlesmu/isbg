@@ -16,7 +16,7 @@ Examples:
 
     >>> import isbg
     >>> isbg = isbg.ISBG()
-    >>> isbg.set_imap_opts(imaphost="mail.example.org",
+    >>> isbg.set_imap_opts(isbg.set_imap_opts(imaphost="imap.example.org",
     >>>                    imapport=993,
     >>>                    imapuser="example",
     >>>                    imappasswd="xxxxxxxx",

@@ -202,6 +202,23 @@ def imapflags(flaglist):
     return '(' + ','.join(flaglist) + ')'
 
 
+class ImapSettings:
+    """Class used to store the IMAP settigs."""
+
+    def __init__(self):
+        """Set Imap settings."""
+        self.host = 'localhost'
+        self.port = 143
+        self.user = ''
+        self.passwd = None
+        self.nossl = False
+        # Set mailboxes.
+        self.inbox = 'INBOX'
+        self.spaminbox = 'INBOX.spam'
+        self.learnspambox = None
+        self.learnhambox = None
+
+
 class ISBG:
     """Main ISBG class."""
 
@@ -217,6 +234,7 @@ class ISBG:
 
     def __init__(self):
         """Initialize a ISBG object."""
+        self.imapsets = ImapSettings()
         self.logger = logging.getLogger(__name__)
         self.logger.addHandler(logging.StreamHandler())
         self.set_loglevel(logging.DEBUG)
@@ -227,8 +245,6 @@ class ISBG:
 
         # Initializes variables
         if __name__ is not '__main__':
-            self.set_imap_opts()
-            self.set_mailboxes()
             self.set_reporting_opts()
             self.set_processing_opts()
             self.set_lockfile_opts()
@@ -260,23 +276,6 @@ class ISBG:
         self.passwdfilename = None
         self.passwordhash = None
         self.passwordhashlen = 256  # should be a multiple of 16
-
-    def set_imap_opts(self, imaphost='localhost', imapport=143, imapuser='',
-                      imappasswd=None, nossl=False):
-        """Set imap options."""
-        self.imaphost = imaphost
-        self.imapport = imapport
-        self.imapuser = imapuser
-        self.imappasswd = imappasswd
-        self.nossl = nossl
-
-    def set_mailboxes(self, inbox="INBOX", spaminbox="INBOX.spam",
-                      learnspambox=None, learnhambox=None):
-        """Set mailboxes."""
-        self.imapinbox = inbox
-        self.spaminbox = spaminbox
-        self.learnspambox = learnspambox
-        self.learnhambox = learnhambox
 
     def set_reporting_opts(self, imaplist=False, nostats=False, noreport=False,
                            exitcodes=True, verbose=False, verbose_mails=False):
@@ -434,13 +433,14 @@ class ISBG:
         if self.opts["--flag"] is True:
             self.spamflags.append("\\Flagged")
 
-        self.imaphost = self.opts.get('--imaphost', self.imaphost)
-        self.imappasswd = self.opts.get('--imappasswd', self.imappasswd)
-        self.imapport = self.opts.get('--imapport', self.imapport)
-        self.imapuser = self.opts.get('--imapuser', self.imapuser)
-        self.imapinbox = self.opts.get('--imapinbox', self.imapinbox)
-        self.learnspambox = self.opts.get('--learnspambox')
-        self.learnhambox = self.opts.get('--learnhambox')
+        self.imapsets.host = self.opts.get('--imaphost', self.imapsets.host)
+        self.imapsets.passwd = self.opts.get('--imappasswd',
+                                             self.imapsets.passwd)
+        self.imapsets.port = self.opts.get('--imapport', self.imapsets.port)
+        self.imapsets.user = self.opts.get('--imapuser', self.imapsets.user)
+        self.imapsets.inbox = self.opts.get('--imapinbox', self.imapsets.inbox)
+        self.imapsets.learnspambox = self.opts.get('--learnspambox')
+        self.imapsets.learnhambox = self.opts.get('--learnhambox')
         self.lockfilegrace = self.opts.get('--lockfilegrace',
                                            self.lockfilegrace)
         self.nostats = self.opts.get('--nostats', False)
@@ -564,14 +564,14 @@ class ISBG:
         uids = []
 
         # check spaminbox exists by examining it
-        res = self.imap.select(self.spaminbox, 1)
-        self.assertok(res, 'select', self.spaminbox, 1)
+        res = self.imap.select(self.imapsets.spaminbox, 1)
+        self.assertok(res, 'select', self.imapsets.spaminbox, 1)
 
         # select inbox
-        res = self.imap.select(self.imapinbox, 1)
-        self.assertok(res, 'select', self.imapinbox, 1)
+        res = self.imap.select(self.imapsets.inbox, 1)
+        self.assertok(res, 'select', self.imapsets.inbox, 1)
 
-        uidvalidity = self.get_uidvalidity(self.imapinbox)
+        uidvalidity = self.get_uidvalidity(self.imapsets.inbox)
 
         # get the uids of all mails with a size less then the maxsize
         typ, inboxuids = self.imap.uid("SEARCH", None, "SMALLER",
@@ -684,8 +684,8 @@ class ISBG:
                             continue
                         p.stdin.close()
                         body = crnlify(body)
-                        res = self.imap.append(self.spaminbox, None, None,
-                                               body)
+                        res = self.imap.append(self.imapsets.spaminbox, None,
+                                               None, body)
                         # The above will fail on some IMAP servers for various
                         # reasons. We print out what happened and continue
                         # processing
@@ -694,7 +694,7 @@ class ISBG:
                                 ("{} failed for uid {}: {}. Leaving original"
                                  + "message alone.").format(
                                     repr(["append",
-                                          self.spaminbox, "{body}"]),
+                                          self.imapsets.spaminbox, "{body}"]),
                                     repr(u), repr(res)))
                             continue
                 else:
@@ -703,8 +703,9 @@ class ISBG:
                             "Skipping copy to spambox because of --dryrun")
                     else:
                         # just copy it as is
-                        res = self.imap.uid("COPY", u, self.spaminbox)
-                        self.assertok(res, "uid copy", u, self.spaminbox)
+                        res = self.imap.uid("COPY", u, self.imapsets.spaminbox)
+                        self.assertok(res, "uid copy", u,
+                                      self.imapsets.spaminbox)
 
                 spamlist.append(u)
 
@@ -720,8 +721,8 @@ class ISBG:
                 self.logger.info('Skipping labelling/expunging of mails '
                                  + 'because of --dryrun')
             else:
-                res = self.imap.select(self.imapinbox)
-                self.assertok(res, 'select', self.imapinbox)
+                res = self.imap.select(self.imapsets.inbox)
+                self.assertok(res, 'select', self.imapsets.inbox)
                 # Only set message flags if there are any
                 if len(self.spamflags) > 0:
                     for u in spamlist:
@@ -754,12 +755,12 @@ class ISBG:
         """Learn the spams (and if requested deleted or move them)."""
         learns = [
             {
-                'inbox': self.learnspambox,
+                'inbox': self.imapsets.learnspambox,
                 'learntype': 'spam',
                 'moveto': None
             },
             {
-                'inbox': self.learnhambox,
+                'inbox': self.imapsets.learnhambox,
                 'learntype': 'ham',
                 'moveto': self.movehamto
             },
@@ -867,28 +868,28 @@ class ISBG:
         if self.pastuidsfile is None:
             self.pastuidsfile = os.path.join(xdg_cache_home, "isbg", "track")
             m = md5()
-            m.update(self.imaphost.encode())
-            m.update(self.imapuser.encode())
-            m.update(repr(self.imapport).encode())
+            m.update(self.imapsets.host.encode())
+            m.update(self.imapsets.user.encode())
+            m.update(repr(self.imapsets.port).encode())
             res = m.hexdigest()
             self.pastuidsfile = self.pastuidsfile + res
 
         if self.passwdfilename is None:
             m = md5()
-            m.update(self.imaphost.encode())
-            m.update(self.imapuser.encode())
-            m.update(repr(self.imapport).encode())
+            m.update(self.imapsets.host.encode())
+            m.update(self.imapsets.user.encode())
+            m.update(repr(self.imapsets.port).encode())
             self.passwdfilename = os.path.join(xdg_cache_home, "isbg",
                                                ".isbg-" + m.hexdigest())
 
         if self.passwordhash is None:
             # We make hash that the password is xor'ed against
             m = md5()
-            m.update(self.imaphost.encode())
+            m.update(self.imapsets.host.encode())
             m.update(m.digest())
-            m.update(self.imapuser.encode())
+            m.update(self.imapsets.user.encode())
             m.update(m.digest())
-            m.update(repr(self.imapport).encode())
+            m.update(repr(self.imapsets.port).encode())
             m.update(m.digest())
             self.passwordhash = m.digest()
             while len(self.passwordhash) < self.passwordhashlen:
@@ -917,7 +918,7 @@ class ISBG:
                 atexit.register(self.removelock)
 
         # Figure out the password
-        if self.imappasswd is None:
+        if self.imapsets.passwd is None:
             if (self.savepw is False and
                     os.path.exists(self.passwdfilename) is True):
                 try:
@@ -931,14 +932,14 @@ class ISBG:
                     pass
 
             # do we have to prompt?
-            if self.imappasswd is None:
+            if self.imapsets.passwd is None:
                 if not self.interactive:
                     errorexit("You need to specify your imap password and "
                               + "save it with the --savepw switch",
                               self.exitcodeok)
-                self.imappasswd = getpass.getpass(
+                self.imapsets.passwd = getpass.getpass(
                     "IMAP password for %s@%s: " % (
-                        self.imapuser, self.imaphost))
+                        self.imapsets.user, self.imapsets.host))
 
         # Should we save it?
         if self.savepw:
@@ -960,9 +961,11 @@ class ISBG:
         for retry in range(1, max_retry + 1):
             try:
                 if self.nossl:
-                    self.imap = imaplib.IMAP4(self.imaphost, self.imapport)
+                    self.imap = imaplib.IMAP4(self.imapsets.host,
+                                              self.imapsets.port)
                 else:
-                    self.imap = imaplib.IMAP4_SSL(self.imaphost, self.imapport)
+                    self.imap = imaplib.IMAP4_SSL(self.imapsets.host,
+                                                  self.imapsets.port)
                 break   # ok, exit for loop
             except Exception, e:
                 self.logger.warning(('Error in IMAP connection: {} ... '
@@ -977,8 +980,8 @@ class ISBG:
             'Server capabilities: {}'.format(self.imap.capability()))
 
         # Authenticate (only simple supported)
-        res = self.imap.login(self.imapuser, self.imappasswd)
-        self.assertok(res, "login", self.imapuser, 'xxxxxxxx')
+        res = self.imap.login(self.imapsets.user, self.imapsets.passwd)
+        self.assertok(res, "login", self.imapsets.user, 'xxxxxxxx')
 
         # List imap directories
         if self.imaplist:
@@ -1003,10 +1006,10 @@ class ISBG:
         del self.imap
 
         if self.nostats is False:
-            if self.learnspambox is not None:
+            if self.imapsets.learnspambox is not None:
                 self.logger.info(
                     ("%d/%d spams learnt") % (s_learnt, s_tolearn))
-            if self.learnhambox:
+            if self.imapsets.learnhambox:
                 self.logger.info(
                     ("%d/%d hams learnt") % (h_learnt, h_tolearn))
             if not self.teachonly:
