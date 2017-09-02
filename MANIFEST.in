@@ -1,0 +1,5 @@
+# Manifest.in file for isbg
+include CONTRIBUTORS LICENSE README.md TODO.md
+
+graft examples
+graft bash_scripts
