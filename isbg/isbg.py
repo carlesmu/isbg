@@ -818,7 +818,7 @@ class ISBG(object):
                     if code == 69 or code == 74:
                         errorexit("spamd is misconfigured (use --allow-tell)",
                                   self.exitcodeflags)
-                    if out.strip().decode() != self.alreadylearnt:
+                    if out.strip() != self.alreadylearnt:
                         n_learnt += 1
                     newpastuids.append(int(uid))
                     self.logger.debug("{} {}".format(uid, out))
