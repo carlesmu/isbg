@@ -185,8 +185,7 @@ def truncate(inp, length):
     """Truncate a string to  a maximus length."""
     if len(inp) > length:
         return repr(inp)[:length - 3] + '...'
-    else:
-        return inp
+    return inp
 
 
 def shorten(inp, length):
@@ -195,8 +194,7 @@ def shorten(inp, length):
         return dict([(k, shorten(v, length)) for k, v in inp.items()])
     elif isinstance(inp, list) or isinstance(inp, tuple):
         return [shorten(x, length) for x in inp]
-    else:
-        return truncate(inp, length)
+    return truncate(inp, length)
 
 
 def imapflags(flaglist):
@@ -237,9 +235,17 @@ class ISBG(object):
     def __init__(self):
         """Initialize a ISBG object."""
         self.imapsets = ImapSettings()
+
+        # FIXME: This could be used when non runed interactivaly, may be with
+        # the --noninteractive argument (instead of the addHandler:
+        # logging.basicConfig(
+        #    format=('%(asctime)s %(levelname)-8s [%(filename)s'
+        #            + '%(lineno)d] %(message)s'),
+        #    datefmt='%Y%m%d %H:%M:%S %Z')
+        # see https://docs.python.org/2/howto/logging-cookbook.html
         self.logger = logging.getLogger(__name__)
         self.logger.addHandler(logging.StreamHandler())
-        self.set_loglevel(logging.DEBUG)
+        self.set_loglevel(logging.INFO)
 
         # We create the dir for store cached information (if needed)
         if not os.path.isdir(os.path.join(xdg_cache_home, "isbg")):
@@ -266,10 +272,6 @@ class ISBG(object):
         # and the flags we set them to (none by default)
         self.spamflags = []
 
-        # ###
-        # ### exitcode maps
-        # ###
-
         # IMAP implementation detail
         # Courier IMAP ignores uid fetches where more than a certain number
         # are listed so we break them down into smaller groups of this size
@@ -282,9 +284,9 @@ class ISBG(object):
     def _popen(self, cmd):
         """Helper to call Popen."""
         if os.name == 'nt':
-            return Popen(self.satest, stdin=PIPE, stdout=PIPE)
+            return Popen(cmd, stdin=PIPE, stdout=PIPE)
         else:
-            return Popen(self.satest, stdin=PIPE, stdout=PIPE, close_fds=True)
+            return Popen(cmd, stdin=PIPE, stdout=PIPE, close_fds=True)
 
     def set_reporting_opts(self, imaplist=False, nostats=False, noreport=False,
                            exitcodes=True, verbose=False, verbose_mails=False):
@@ -390,15 +392,13 @@ class ISBG(object):
             try:
                 body = res[1][0][1]
             except Exception:  # pylint: disable=broad-except
-                self.logger.warning(
-                    ("Confused - rfc822 fetch gave {} - The message "
-                     + " was probably deleted while we were running"
-                     ).format(res))
+                self.logger.warning(("Confused - rfc822 fetch gave {} - The "
+                                     + "message was probably deleted while we "
+                                     + "were running").format(res))
         else:
             body = res[1][0][1]
-            if append_to is not None:
-                append_to.append(int(uid))
-
+        if append_to is not None:
+            append_to.append(int(uid))
         return body
 
     def assertok(self, res, *args):
@@ -653,12 +653,11 @@ class ISBG(object):
                 errorexit("spamc -> spamd error - aborting",
                           self.exitcodespamc)
 
-            self.logger.debug("[{}] score: {}".format(uid, score))
+            self.logger.debug("Score for uid {}: {}".format(uid,
+                                                            score.strip()))
 
             if code == 0:
                 # Message is below threshold
-                # but it was already appended by getmessage...???
-                # self.pastuids.append(u)
                 pass
             else:
                 # Message is spam, delete it or move it to spaminbox
@@ -702,8 +701,8 @@ class ISBG(object):
                             continue
                 else:
                     if self.dryrun:
-                        self.logger.info(
-                            "Skipping copy to spambox because of --dryrun")
+                        self.logger.info("Skipping copy to spambox because"
+                                         + " of --dryrun")
                     else:
                         # just copy it as is
                         res = self.imap.uid("COPY", uid,
@@ -723,7 +722,7 @@ class ISBG(object):
         if numspam or spamdeleted:
             if self.dryrun:
                 self.logger.info('Skipping labelling/expunging of mails '
-                                 + 'because of --dryrun')
+                                 + ' because of --dryrun')
             else:
                 res = self.imap.select(self.imapsets.inbox)
                 self.assertok(res, 'select', self.imapsets.inbox)
@@ -792,12 +791,20 @@ class ISBG(object):
                     typ, uids = self.imap.uid("SEARCH", None, "ALL")
                 uids = sorted(uids[0].split(), key=int, reverse=True)
                 uids = [u for u in uids if int(u) not in origpastuids]
+                # Take only X elements if partialrun is enabled
+                if self.partialrun:
+                    uids = uids[:int(self.partialrun)]
+
                 n_tolearn = len(uids)
 
                 for uid in uids:
                     body = self.getmessage(uid)
                     # Unwrap spamassassin reports
                     unwrapped = unwrap(BytesIO(body))
+                    if unwrapped is not None:
+                        self.logger.debug(
+                            "{} Unwrapped: {}".format(uid, shorten(unwrapped,
+                                                                   140)))
                     if unwrapped is not None and len(unwrapped) > 0:
                         body = unwrapped[0]
                     if self.dryrun:
@@ -818,10 +825,15 @@ class ISBG(object):
                     if code == 69 or code == 74:
                         errorexit("spamd is misconfigured (use --allow-tell)",
                                   self.exitcodeflags)
-                    if out.strip() != self.alreadylearnt:
+                    if out.strip() == self.alreadylearnt or code == 6:
+                        self.logger.debug(("Already learnt {} (spamc return"
+                                           + " code {})").format(uid, code))
+                    else:
                         n_learnt += 1
+                        self.logger.debug(
+                            "Learnt {} (spamc return code {})".format(uid,
+                                                                      code))
                     newpastuids.append(int(uid))
-                    self.logger.debug("{} {}".format(uid, out))
                     if not self.dryrun:
                         if self.learnthendestroy:
                             if self.gmail:
@@ -969,9 +981,9 @@ class ISBG(object):
                                                   self.imapsets.port)
                 break   # ok, exit for loop
             except socket.error as exc:
-                self.logger.warning(('Error in IMAP connection: {} ... '
-                                     + 'retry {} of {}').format(exc, retry,
-                                                                max_retry))
+                self.logger.warning(('Error in IMAP connection: {} ... retry '
+                                     + '{} of {}').format(exc, retry,
+                                                          max_retry))
                 if retry >= max_retry:
                     raise Exception(exc)
                 else:
@@ -1008,17 +1020,16 @@ class ISBG(object):
 
         if self.nostats is False:
             if self.imapsets.learnspambox is not None:
-                self.logger.info(
-                    "{}/{} spams learnt".format(s_learnt, s_tolearn))
+                self.logger.info("{}/{} spams learnt".format(s_learnt,
+                                                             s_tolearn))
             if self.imapsets.learnhambox:
-                self.logger.info(
-                    "{}/{} hams learnt".format(h_learnt, h_tolearn))
+                self.logger.info("{}/{} hams learnt".format(h_learnt,
+                                                            h_tolearn))
             if not self.teachonly:
-                self.logger.info(
-                    "{} spams found in {} messages".format(numspam, nummsg))
-                self.logger.info(
-                    "{}/{} was automatically deleted".format(spamdeleted,
-                                                             numspam))
+                self.logger.info("{} spams found in {} messages".format(
+                    numspam, nummsg))
+                self.logger.info("{}/{} was automatically deleted".format(
+                    spamdeleted, numspam))
 
         if self.exitcodes and __name__ == '__main__':
             if not self.teachonly:
@@ -1040,6 +1051,6 @@ def isbg_run():
 
 
 if __name__ == '__main__':
-    res = isbg_run()  # pylint: disable=invalid-name
-    if res is not None:
-        sys.exit(res)
+    isbgret = isbg_run()  # pylint: disable=invalid-name
+    if isbgret is not None:
+        sys.exit(isbgret)
