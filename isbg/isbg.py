@@ -281,7 +281,7 @@ class ISBG(object):
         self.passwordhash = None
         self.passwordhashlen = 256  # should be a multiple of 16
 
-    def _popen(self, cmd):
+    def popen(self, cmd):
         """Helper to call Popen."""
         if os.name == 'nt':
             return Popen(cmd, stdin=PIPE, stdout=PIPE)
@@ -382,6 +382,33 @@ class ISBG(object):
         for i in range(0, len(passwd)):
             res[i] = chr(ord(res[i]) ^ ord(passwd[i]))
         return ''.join(res)
+
+    def login_imap(self):
+        """Login to the imap server."""
+        max_retry = 10
+        retry_time = 0.60   # seconds
+        for retry in range(1, max_retry + 1):
+            try:
+                if self.imapsets.nossl:
+                    self.imap = imaplib.IMAP4(self.imapsets.host,
+                                              self.imapsets.port)
+                else:
+                    self.imap = imaplib.IMAP4_SSL(self.imapsets.host,
+                                                  self.imapsets.port)
+                break   # ok, exit for loop
+            except socket.error as exc:
+                self.logger.warning(('Error in IMAP connection: {} ... retry '
+                                     + '{} of {}').format(exc, retry,
+                                                          max_retry))
+                if retry >= max_retry:
+                    raise Exception(exc)
+                else:
+                    time.sleep(retry_time)
+        self.logger.debug(
+            'Server capabilities: {}'.format(self.imap.capability()))
+        # Authenticate (only simple supported)
+        res = self.imap.login(self.imapsets.user, self.imapsets.passwd)
+        self.assertok(res, "login", self.imapsets.user, 'xxxxxxxx')
 
     def getmessage(self, uid, append_to=None):
         """Get a message by uid and optionaly append its uid to a list."""
@@ -636,7 +663,7 @@ class ISBG(object):
                     code = 0
                 processednum = processednum + 1
             else:
-                proc = self._popen(self.satest)
+                proc = self.popen(self.satest)
                 try:
                     score = proc.communicate(body)[0].decode(errors='ignore')
                     if not self.spamc:
@@ -648,6 +675,7 @@ class ISBG(object):
                 except Exception:  # pylint: disable=broad-except
                     self.logger.exception(
                         'Error communicating with {}!'.format(self.satest))
+                    uids.remove(uid)
                     continue
             if score == "0/0\n":
                 errorexit("spamc -> spamd error - aborting",
@@ -676,7 +704,7 @@ class ISBG(object):
                     else:
                         # filter it through sa
                         if os.name == 'nt':
-                            proc = self._popen(self.sasave)
+                            proc = self.popen(self.sasave)
                         try:
                             body = proc.communicate(body)[0]
                         except Exception:  # pylint: disable=broad-except
@@ -811,8 +839,8 @@ class ISBG(object):
                         out = self.alreadylearnt
                         code = 0
                     else:
-                        proc = self._popen(["spamc", "--learntype="
-                                            + learntype['learntype']])
+                        proc = self.popen(["spamc", "--learntype="
+                                           + learntype['learntype']])
                         try:
                             out = proc.communicate(body)[0]
                         except Exception:  # pylint: disable=broad-except
@@ -969,32 +997,7 @@ class ISBG(object):
         # Main code starts here
 
         # Connection with the imaplib server
-        max_retry = 10
-        retry_time = 0.60   # seconds
-        for retry in range(1, max_retry + 1):
-            try:
-                if self.imapsets.nossl:
-                    self.imap = imaplib.IMAP4(self.imapsets.host,
-                                              self.imapsets.port)
-                else:
-                    self.imap = imaplib.IMAP4_SSL(self.imapsets.host,
-                                                  self.imapsets.port)
-                break   # ok, exit for loop
-            except socket.error as exc:
-                self.logger.warning(('Error in IMAP connection: {} ... retry '
-                                     + '{} of {}').format(exc, retry,
-                                                          max_retry))
-                if retry >= max_retry:
-                    raise Exception(exc)
-                else:
-                    time.sleep(retry_time)
-
-        self.logger.debug(
-            'Server capabilities: {}'.format(self.imap.capability()))
-
-        # Authenticate (only simple supported)
-        res = self.imap.login(self.imapsets.user, self.imapsets.passwd)
-        self.assertok(res, "login", self.imapsets.user, 'xxxxxxxx')
+        self.login_imap()
 
         # List imap directories
         if self.imaplist:
