@@ -617,7 +617,10 @@ class ISBG(object):
         inboxuids = [x.decode() for x in inboxuids]
 
         # remember what pastuids looked like so that we can compare at the end
+        # and remove the uids not found.
         origpastuids = self.pastuid_read(uidvalidity)
+        origpastuids = [u for u in origpastuids if str(u) in inboxuids]
+
         newpastuids = []
 
         # filter away uids that was previously scanned
@@ -817,6 +820,7 @@ class ISBG(object):
                 else:
                     typ, uids = self.imap.uid("SEARCH", None, "ALL")
                 uids = sorted(uids[0].split(), key=int, reverse=True)
+                origpastuids = [u for u in origpastuids if str(u) in uids]
                 uids = [u for u in uids if int(u) not in origpastuids]
                 # Take only X elements if partialrun is enabled
                 if self.partialrun:
