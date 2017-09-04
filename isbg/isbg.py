@@ -677,6 +677,7 @@ class ISBG(object):
                         'Error communicating with {}!'.format(self.satest))
                     uids.remove(uid)
                     continue
+                proc.stdin.close()
             if score == "0/0\n":
                 errorexit("spamc -> spamd error - aborting",
                           self.exitcodespamc)
@@ -702,9 +703,7 @@ class ISBG(object):
                     if self.dryrun:
                         self.logger.info("Skipping report because of --dryrun")
                     else:
-                        # filter it through sa
-                        if os.name == 'nt':
-                            proc = self.popen(self.sasave)
+                        proc = self.popen(self.sasave)
                         try:
                             body = proc.communicate(body)[0]
                         except Exception:  # pylint: disable=broad-except
