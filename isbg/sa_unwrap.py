@@ -17,18 +17,35 @@ Example:
     It will return the original mail into a spamassassin mail:
     >>> import isbg.sa_unwrap
     >>> f = open('examples/spam.from.spamassassin.eml','rb')
-    >>> spam = isbg.sa_unwrap.unwrap(f.read())
+    >>> spams = isbg.sa_unwrap.unwrap(f)
     >>> f.close()
-    >>> spam
+    >>> for spam in spams:
+    >>>     print(spam)
     or
-    $ cat examples/spam.from.spamassassin.eml | sa_unwrap
+    $ sa_unwrap < examples/spam.from.spamassassin.eml
+    $ sa_unwrap < examples/spam.eml
 
 """
 
+from __future__ import print_function  # Now we can use print(...
 
 import email
 import email.message
+from io import IOBase
 import sys
+
+# works with python 2 and 3
+try:
+    file_types = (file, IOBase)
+except NameError:
+    file_types = (IOBase,)  # Python 3
+
+try:
+    _parse_file = email.message_from_binary_file  # Python3
+    _message = email.message_from_bytes           # Python3
+except AttributeError:
+    _parse_file = email.message_from_file         # Python2
+    _message = email.message_from_string          # Python2+3
 
 
 def sa_unwrap_from_email(msg):
@@ -44,7 +61,7 @@ def sa_unwrap_from_email(msg):
                 else:
                     pl_bytes = pload.as_string()
                 el_idx = pl_bytes.index(b'\n\n')
-                parts.append(email.message_from_string(pl_bytes[el_idx + 2:]))
+                parts.append(_message(pl_bytes[el_idx + 2:]))
         if len(parts) > 0:
             return parts
     return None
@@ -58,8 +75,8 @@ def unwrap(mail):
     """
     if isinstance(mail, email.message.Message):
         return sa_unwrap_from_email(mail)
-    if isinstance(mail, file):  # files are also stdin...
-        return sa_unwrap_from_email(email.message_from_file(mail))
+    if isinstance(mail, file_types):  # files are also stdin...
+        return sa_unwrap_from_email(_parse_file(mail))
     return sa_unwrap_from_email(email.message_from_string(mail))
 
 
@@ -68,18 +85,16 @@ def run():
     # select byte streams if they exist (on python 3)
     if hasattr(sys.stdin, 'buffer'):
         inb = sys.stdin.buffer    # pylint: disable=no-member
-        outb = sys.stdout.buffer  # pylint: disable=no-member
     else:
         # on python 2 use regular streams
         inb = sys.stdin
-        outb = sys.stdout
 
     spams = unwrap(inb)
     if spams is not None:
         for spam in spams:
-            outb.write(spam.as_string())
+            print(spam.as_string())
     else:
-        print "No spam into the mail detected."
+        print("No spam into the mail detected.")
 
 
 if __name__ == '__main__':
