@@ -96,6 +96,7 @@ except ImportError:
 
 from subprocess import Popen, PIPE
 
+import email      # To eassily encapsulated emails messages
 import imaplib
 import re
 import os
@@ -167,18 +168,6 @@ def dehexof(string):
         res = res + chr(16 * hexdigit(string[0]) + hexdigit(string[1]))
         string = string[2:]
     return res
-
-
-# This function makes sure that each lines ends in <CR><LF>
-# SpamAssassin strips out the <CR> normally
-_CRNLRE = re.compile("([^\r])\n", re.DOTALL)
-
-
-def crnlify(text):
-    r"""Force that all the lines of a text ends with \r\n."""
-    # we have to do it twice to work right since the re includes
-    # the char preceding \n
-    return re.sub(_CRNLRE, "\\1\r\n", re.sub(_CRNLRE, "\\1\r\n", text))
 
 
 def truncate(inp, length):
@@ -414,19 +403,22 @@ class ISBG(object):
         """Get a message by uid and optionaly append its uid to a list."""
         res = self.imap.uid("FETCH", uid, "(BODY.PEEK[])")
         self.assertok(res, 'uid fetch', uid, '(BODY.PEEK[])')
+        mail = email.message.Message()
         if res[0] != "OK":
             self.assertok(res, 'uid fetch', uid, '(BODY.PEEK[])')
             try:
                 body = res[1][0][1]
+                mail = email.message_from_string(body)
             except Exception:  # pylint: disable=broad-except
                 self.logger.warning(("Confused - rfc822 fetch gave {} - The "
                                      + "message was probably deleted while we "
                                      + "were running").format(res))
         else:
             body = res[1][0][1]
+            mail = email.message_from_string(body)
         if append_to is not None:
             append_to.append(int(uid))
-        return body
+        return mail
 
     def assertok(self, res, *args):
         """Check that the return code is OK.
@@ -646,11 +638,11 @@ class ISBG(object):
         # Main loop that iterates over each new uid we haven't seen before
         for uid in uids:
             # Retrieve the entire message
-            body = self.getmessage(uid, newpastuids)
+            mail = self.getmessage(uid, newpastuids)
             # Unwrap spamassassin reports
-            unwrapped = unwrap(BytesIO(body))
+            unwrapped = unwrap(BytesIO(mail.as_string()))
             if unwrapped is not None and len(unwrapped) > 0:
-                body = unwrapped[0]
+                mail = email.message_from_string(unwrapped[0])
 
             # Feed it to SpamAssassin in test mode
             if self.dryrun:
@@ -668,7 +660,8 @@ class ISBG(object):
             else:
                 proc = self.popen(self.satest)
                 try:
-                    score = proc.communicate(body)[0].decode(errors='ignore')
+                    score = proc.communicate(mail.as_string()
+                                             )[0].decode(errors='ignore')
                     if not self.spamc:
                         res = re.search(
                             "score=(-?\d+(?:\.\d+)?) required=(\d+(?:\.\d+)?)",
@@ -708,16 +701,16 @@ class ISBG(object):
                     else:
                         proc = self.popen(self.sasave)
                         try:
-                            body = proc.communicate(body)[0]
+                            mail = email.message_from_string(proc.communicate(
+                                mail.as_string())[0])
                         except Exception:  # pylint: disable=broad-except
                             self.logger.exception(
                                 'Error communicating with {}!'.format(
                                     self.sasave))
                             continue
                         proc.stdin.close()
-                        body = crnlify(body)
                         res = self.imap.append(self.imapsets.spaminbox, None,
-                                               None, body)
+                                               None, mail.as_string())
                         # The above will fail on some IMAP servers for various
                         # reasons. We print out what happened and continue
                         # processing
@@ -726,7 +719,7 @@ class ISBG(object):
                                 ("{} failed for uid {}: {}. Leaving original"
                                  + "message alone.").format(
                                     repr(["append",
-                                          self.imapsets.spaminbox, "{body}"]),
+                                          self.imapsets.spaminbox, "{email}"]),
                                     repr(uid), repr(res)))
                             continue
                 else:
@@ -829,15 +822,15 @@ class ISBG(object):
                 n_tolearn = len(uids)
 
                 for uid in uids:
-                    body = self.getmessage(uid)
+                    mail = self.getmessage(uid)
                     # Unwrap spamassassin reports
-                    unwrapped = unwrap(BytesIO(body))
+                    unwrapped = unwrap(BytesIO(mail.as_string()))
                     if unwrapped is not None:
                         self.logger.debug(
                             "{} Unwrapped: {}".format(uid, shorten(unwrapped,
                                                                    140)))
                     if unwrapped is not None and len(unwrapped) > 0:
-                        body = unwrapped[0]
+                        mail = email.message_from_string(unwrapped[0])
                     if self.dryrun:
                         out = self.alreadylearnt
                         code = 0
@@ -845,11 +838,11 @@ class ISBG(object):
                         proc = self.popen(["spamc", "--learntype="
                                            + learntype['learntype']])
                         try:
-                            out = proc.communicate(body)[0]
+                            out = proc.communicate(mail.as_string())[0]
                         except Exception:  # pylint: disable=broad-except
                             self.logger.exception(
                                 'spamc error for mail {}'.format(uid))
-                            self.logger.debug(repr(body))
+                            self.logger.debug(repr(mail.as_string()))
                             continue
                         code = proc.returncode
                         proc.stdin.close()
