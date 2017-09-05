@@ -69,7 +69,6 @@ __version__ = "2.0-dev"
 
 import socket  # to catch the socket.error exception
 import sys     # Because sys.stderr.write() is called bellow
-from io import BytesIO
 
 # FIXME: This is necessary to allow using isbg both straight from the repo and
 # installed / as an import.  We should probably decide to not care about
@@ -640,9 +639,9 @@ class ISBG(object):
             # Retrieve the entire message
             mail = self.getmessage(uid, newpastuids)
             # Unwrap spamassassin reports
-            unwrapped = unwrap(BytesIO(mail.as_string()))
+            unwrapped = unwrap(mail)
             if unwrapped is not None and len(unwrapped) > 0:
-                mail = email.message_from_string(unwrapped[0])
+                mail = unwrapped[0]
 
             # Feed it to SpamAssassin in test mode
             if self.dryrun:
@@ -824,13 +823,14 @@ class ISBG(object):
                 for uid in uids:
                     mail = self.getmessage(uid)
                     # Unwrap spamassassin reports
-                    unwrapped = unwrap(BytesIO(mail.as_string()))
+                    unwrapped = unwrap(mail)
                     if unwrapped is not None:
                         self.logger.debug(
-                            "{} Unwrapped: {}".format(uid, shorten(unwrapped,
-                                                                   140)))
+                            "{} Unwrapped: {}".format(uid, shorten(
+                                unwrapped[0].as_string(), 140)))
+
                     if unwrapped is not None and len(unwrapped) > 0:
-                        mail = email.message_from_string(unwrapped[0])
+                        mail = unwrapped[0]
                     if self.dryrun:
                         out = self.alreadylearnt
                         code = 0

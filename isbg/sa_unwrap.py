@@ -15,44 +15,52 @@ spam-learning purposes.
 Example:
 
     It will return the original mail into a spamassassin mail:
-    >>> import io
     >>> import isbg.sa_unwrap
     >>> f = open('examples/spam.from.spamassassin.eml','rb')
-    >>> isbg.sa_unwrap.unwrap(io.BytesIO(f.read()))
+    >>> spam = isbg.sa_unwrap.unwrap(f.read())
     >>> f.close()
+    >>> spam
     or
     $ cat examples/spam.from.spamassassin.eml | sa_unwrap
 
 """
 
-# import byte parser if it exists (on python 3)
-try:
-    from email.parser import BytesParser
-except ImportError:
-    # on python 2, use old parser
-    from email.parser import Parser
-    BytesParser = Parser
+
+import email
+import email.message
 import sys
 
 
-def unwrap(msg_stream):
-    """Parse and unwrap message."""
-    parser = BytesParser()
-    msg = parser.parse(msg_stream)
+def sa_unwrap_from_email(msg):
+    """Unwrap a email from the spamassasin email."""
     if msg.is_multipart():
         parts = []
         ploads = msg.get_payload()
         for pload in ploads:
             if pload.get_param('x-spam-type', '') == 'original':
+                # We remove the headers added by spamassassin:
                 if hasattr(pload, 'as_bytes'):
                     pl_bytes = pload.as_bytes()
                 else:
                     pl_bytes = pload.as_string()
                 el_idx = pl_bytes.index(b'\n\n')
-                parts.append(pl_bytes[el_idx + 2:])
+                parts.append(email.message_from_string(pl_bytes[el_idx + 2:]))
         if len(parts) > 0:
             return parts
     return None
+
+
+def unwrap(mail):
+    """Unwrap a email from the spamassasin email.
+
+    the mail could be a email.message.Email, a file or a string or buffer.
+    It ruturns a list with all the email.message.Email founds.
+    """
+    if isinstance(mail, email.message.Message):
+        return sa_unwrap_from_email(mail)
+    if isinstance(mail, file):  # files are also stdin...
+        return sa_unwrap_from_email(email.message_from_file(mail))
+    return sa_unwrap_from_email(email.message_from_string(mail))
 
 
 def run():
@@ -69,7 +77,7 @@ def run():
     spams = unwrap(inb)
     if spams is not None:
         for spam in spams:
-            outb.write(spam)
+            outb.write(spam.as_string())
     else:
         print "No spam into the mail detected."
 
