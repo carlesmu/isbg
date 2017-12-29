@@ -6,7 +6,10 @@
 
 def test_unwrap_spam_from_spamassassin():
     """Test unwrap of examples/spam.from.spamassassin.eml --> 1 message."""
-    import sa_unwrap
+    try:
+        import sa_unwrap            # Python 2
+    except ImportError:
+        from isbg import sa_unwrap  # Python 3
     import email.message
     f = open('examples/spam.from.spamassassin.eml', 'rb')
     mails = sa_unwrap.unwrap(f)
@@ -21,7 +24,10 @@ def test_unwrap_spam_from_spamassassin():
 
 def test_unwrap_spam():
     """Test unwrap of examples/spam.eml --> None."""
-    import sa_unwrap
+    try:
+        import sa_unwrap             # Python 2
+    except ImportError:
+        from isbg import sa_unwrap   # Python 3
     f = open('examples/spam.eml', 'rb')
     mails = sa_unwrap.unwrap(f)
     f.close()

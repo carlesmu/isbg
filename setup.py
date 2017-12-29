@@ -35,6 +35,7 @@ setup(
         ]
     },
     install_requires=['docopt'],
+    tests_require=['pytest'],
     url='https://github.com/isbg/isbg',
     classifiers=[
         'Development Status :: 5 - Production/Stable',

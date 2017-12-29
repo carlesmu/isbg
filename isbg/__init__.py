@@ -33,6 +33,6 @@ Examples:
 """
 
 
-from isbg import ISBG, __version__
+from .isbg import ISBG, __version__
 
 __all__ = ["ISBG", "__version__"]
