@@ -437,7 +437,8 @@ class ISBG(object):
     def parse_args(self):
         """Argument processing."""
         try:
-            self.opts = docopt(__doc__, version="isbg version " + __version__)
+            self.opts = docopt(__doc__, version="isbg version " + __version__ +
+                               ", from " + os.path.abspath(__file__))
             self.opts = dict([(k, v) for k, v in self.opts.items()
                               if v is not None])
         except Exception as exc:  # pylint: disable=broad-except
