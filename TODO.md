@@ -1,12 +1,12 @@
-<h1> Todo list </h1>
+# Todo list
 
-<h2> High priority </h2>
+## High priority
 * Write program as main()
 * Correct the use of subprocess Popen (pipe.communicate() is the way to go)
 * Delete the semi-encryption of passwords (Security through obscurity !=
   security)
 
-<h2> Other stuff </h2>
+# Other stuff
 * Auto report messages to Razor (high scoring ones that are definitely spam)
 * Delete the semi-encryption of passwords (Security through obscurity !=
   security)
