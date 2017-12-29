@@ -1,4 +1,4 @@
-# IMAP Spam Begone
+# IMAP Spam Begone [![Build Status](https://travis-ci.org/carlesmu/isbg.svg?branch=v2.0-dev)](https://travis-ci.org/carlesmu/isbg)
 
 isbg is a script that makes it easy to scan an IMAP inbox for spam using
 SpamAssassin and get your spam moved to another folder.
