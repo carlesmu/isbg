@@ -350,23 +350,23 @@ class ISBG(object):
             os.remove(self.lockfilename)
 
     # Password stuff
-    def getpw(self, data, hash):
+    def getpw(self, data, shash):
         """Deobfuscate IMAP password."""
         res = ""
         for i in range(0, self.passwordhashlen):
-            j = ord(data[i]) ^ ord(hash[i])
+            j = ord(data[i]) ^ ord(shash[i])
             if j == 0:
                 break
             res = res + chr(j)
         return res
 
-    def setpw(self, passwd, hash):
+    def setpw(self, passwd, shash):
         """Obfuscate password."""
         if len(passwd) > self.passwordhashlen:
             raise ValueError(("Password of length %d is too long to "
                               + "store (max accepted is %d)"
                               ) % (len(passwd), self.passwordhashlen))
-        res = list(hash)
+        res = list(shash)
         for i in range(0, len(passwd)):
             res[i] = chr(ord(res[i]) ^ ord(passwd[i]))
         return ''.join(res)
@@ -385,15 +385,15 @@ class ISBG(object):
                                                   self.imapsets.port)
                 break   # ok, exit for loop
             except socket.error as exc:
-                self.logger.warning(('Error in IMAP connection: {} ... retry '
-                                     + '{} of {}').format(exc, retry,
-                                                          max_retry))
+                self.logger.warning(('Error in IMAP connection: %s ... retry '
+                                     + '%d of %d'), exc, retry,
+                                     max_retry)
                 if retry >= max_retry:
                     raise Exception(exc)
                 else:
                     time.sleep(retry_time)
         self.logger.debug(
-            'Server capabilities: {}'.format(self.imap.capability()))
+            'Server capabilities: %s', self.imap.capability)
         # Authenticate (only simple supported)
         res = self.imap.login(self.imapsets.user, self.imapsets.passwd)
         self.assertok(res, "login", self.imapsets.user, 'xxxxxxxx')
@@ -409,9 +409,9 @@ class ISBG(object):
                 body = res[1][0][1]
                 mail = email.message_from_string(body)
             except Exception:  # pylint: disable=broad-except
-                self.logger.warning(("Confused - rfc822 fetch gave {} - The "
+                self.logger.warning(("Confused - rfc822 fetch gave %s - The "
                                      + "message was probably deleted while we "
-                                     + "were running").format(res))
+                                     + "were running"), res)
         else:
             body = res[1][0][1]
             mail = email.message_from_string(body)
@@ -664,7 +664,7 @@ class ISBG(object):
                                              )[0].decode(errors='ignore')
                     if not self.spamc:
                         res = re.search(
-                            "score=(-?\d+(?:\.\d+)?) required=(\d+(?:\.\d+)?)",
+                            r"score=(-?\d+(?:\.\d+)?) required=(\d+(?:\.\d+)?)",
                             score)
                         score = res.group(1) + "/" + res.group(2) + "\n"
                     code = proc.returncode
@@ -1002,7 +1002,7 @@ class ISBG(object):
             self.assertok(imap_list, "list")
             dirlist = str([x.decode() for x in imap_list[1]])
             # string formatting
-            dirlist = re.sub('\(.*?\)| \".\" \"|\"\', \'', " ", dirlist)
+            dirlist = re.sub(r'\(.*?\)| \".\" \"|\"\', \'', " ", dirlist)
             self.logger.info(dirlist)
 
         # Spamassassin training
