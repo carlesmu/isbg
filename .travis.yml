@@ -8,7 +8,8 @@ python:
 
 # command to install dependencies
 install:
-  - pip install -r requirements.txt
+  - pip install -r requirements.txt # install requirements
+  - python setup.py install         # install isbg package
 
 # command to run tests
 script:
