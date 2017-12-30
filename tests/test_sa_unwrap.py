@@ -21,13 +21,17 @@
 
 """Test cases for sa_unwrap module."""
 
+import os
+import sys
+
+# We add the upper dir to the path
+sys.path.insert(0, os.path.abspath(os.path.join(
+    os.path.dirname(__file__), '..')))
+
 
 def test_unwrap_spam_from_spamassassin():
     """Test unwrap of examples/spam.from.spamassassin.eml --> 1 message."""
-    try:
-        import sa_unwrap            # Python 2
-    except ImportError:
-        from isbg import sa_unwrap  # Python 3
+    from isbg import sa_unwrap
     import email.message
     f = open('examples/spam.from.spamassassin.eml', 'rb')
     mails = sa_unwrap.unwrap(f)
@@ -42,10 +46,7 @@ def test_unwrap_spam_from_spamassassin():
 
 def test_unwrap_spam():
     """Test unwrap of examples/spam.eml --> None."""
-    try:
-        import sa_unwrap             # Python 2
-    except ImportError:
-        from isbg import sa_unwrap   # Python 3
+    from isbg import sa_unwrap
     f = open('examples/spam.eml', 'rb')
     mails = sa_unwrap.unwrap(f)
     f.close()
