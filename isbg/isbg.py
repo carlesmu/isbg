@@ -65,8 +65,6 @@ Options:
 
 """
 
-__version__ = "2.0-dev"
-
 import socket  # to catch the socket.error exception
 import sys     # Because sys.stderr.write() is called bellow
 
@@ -118,6 +116,8 @@ except ImportError:
 if xdg_cache_home == "":
     # pylint: disable=invalid-name
     xdg_cache_home = os.path.expanduser("~" + os.sep + ".cache")
+
+__version__ = "2.0-dev"
 
 
 class ISBGError(Exception):
