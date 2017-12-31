@@ -10,12 +10,14 @@ python:
 install:
   - pip install -r requirements.txt # install requirements
   - python setup.py install         # install isbg package
+  - pip install pytest-cov          # for codecov usage
 
 # command to run tests
 script:
   - pytest # or py.test for Python versions 3.5 and below
   - python setup.py bdist     # create binary distribution
   - python setup.py sdist     # create source distribution
+  - pytest --cov              # For codecove usage
   - isbg --version            # show isbg version
 
 after_success:
