@@ -9,6 +9,12 @@ python-targets:
   - 2
   - 3
 autodetect: true
+
 # Force full pep8 checks
 pep8:
   full: true
+
+pep257:
+  disable:
+    - D203
+  run: true
