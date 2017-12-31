@@ -1,5 +1,6 @@
 [![Build Status](https://travis-ci.org/carlesmu/isbg.svg?branch=v2.0-dev)](https://travis-ci.org/carlesmu/isbg)
 [![Code Health](https://landscape.io/github/carlesmu/isbg/v2.0-dev/landscape.svg?style=plastic)](https://landscape.io/github/carlesmu/isbg/v2.0-dev)
+[![Coverage Status](https://coveralls.io/repos/github/carlesmu/isbg/badge.svg)](https://coveralls.io/github/carlesmu/isbg)
 # IMAP Spam Begone
 
 isbg is a script that makes it easy to scan an IMAP inbox for spam using
