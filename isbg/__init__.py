@@ -9,27 +9,26 @@ novembre 2009. You may use isbg under any OSI approved open source
 license such as those listed at http://opensource.org/licenses/alphabetical
 
 See Also:
-
     For command line usage see help(isbg.isbg).
 
 Examples:
-
     >>> import isbg
-    >>> isbg = isbg.ISBG()
-    >>> isbg.imapsets.host = "imap.example.org"
-    >>> isbg.imapsets.port = 993
-    >>> isbg.imapsets.user = "example@example.org"
-    >>> isbg.imapsets.passwd = "xxxxxxxx"
-    >>> isbg.imapsets.inbox = "INBOX"
-    >>> isbg.imapsets.spaminbox = "Spam"
-    >>> isbg.imapsets.learnspambox = "Spam"
-    >>> isbg.imapsets.learnhambox = "NOSPAM"
+    >>> sbg = isbg.ISBG()
+    >>> sbg.imapsets.host = "imap.example.org"
+    >>> sbg.imapsets.port = 993
+    >>> sbg.imapsets.user = "example@example.org"
+    >>> sbg.imapsets.passwd = "xxxxxxxx"
+    >>> sbg.imapsets.inbox = "INBOX"
+    >>> sbg.imapsets.spaminbox = "Spam"
+    >>> sbg.imapsets.learnspambox = "Spam"
+    >>> sbg.imapsets.learnhambox = "NOSPAM"
     >>> # Set the number of mails to chech
-    >>> isbg.set_trackfile_opts(partialrun=4)
-    >>> isbg.set_reporting_opts(verbose=True)  # Show more info
-    >>> isbg.set_lockfile_opts(ignorelockfile=True)
-    >>> isbg.removelock()  # if there is a lock file
-    >>> isbg.do_isbg()     # Connects to the imap and checks for spam
+    >>> sbg.set_trackfile_opts(partialrun=4)
+    >>> sbg.set_reporting_opts(verbose=True)  # Show more info
+    >>> sbg.set_lockfile_opts(ignorelockfile=True)
+    >>> sbg.removelock()  # if there is a lock file
+    >>> sbg.do_isbg()     # Connects to the imap and checks for spam
+
 """
 
 

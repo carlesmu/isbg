@@ -281,7 +281,7 @@ class ISBG(object):
         self.passwordhashlen = 256  # should be a multiple of 16
 
     def popen(self, cmd):
-        """Helper to call Popen."""
+        """Call Popen, helper method."""
         if os.name == 'nt':
             return Popen(cmd, stdin=PIPE, stdout=PIPE)
         else:
@@ -897,7 +897,7 @@ class ISBG(object):
         return result
 
     def do_isbg(self):
-        """Main isbg process.
+        """Execute the main isbg process.
 
         It should be called to process the IMAP account. It returns a
         exitcode if its called from the command line and have the --exitcodes

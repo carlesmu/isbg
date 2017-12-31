@@ -81,7 +81,7 @@ def unwrap(mail):
 
 
 def run():
-    """It runs when this module is called from the command line."""
+    """Run when this module is called from the command line."""
     # select byte streams if they exist (on python 3)
     if hasattr(sys.stdin, 'buffer'):
         inb = sys.stdin.buffer    # pylint: disable=no-member
