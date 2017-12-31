@@ -17,3 +17,6 @@ script:
   - python setup.py bdist     # create binary distribution
   - python setup.py sdist     # create source distribution
   - isbg --version            # show isbg version
+
+after_success:
+  - codecov                   # codecov.io suport
