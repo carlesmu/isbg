@@ -190,6 +190,17 @@ def imapflags(flaglist):
     return '(' + ','.join(flaglist) + ')'
 
 
+def score_from_mail(mail):
+    r"""
+    Search the spam score from a mail as  a string.
+
+    The returning format is 'd.d/d.d\n'.
+    """
+    res = re.search(r"score=(-?\d+(?:\.\d+)?) required=(\d+(?:\.\d+)?)", mail)
+    score = res.group(1) + "/" + res.group(2) + "\n"
+    return score
+
+
 class ImapSettings(object):
     """Class used to store the IMAP settigs."""
 
@@ -386,8 +397,7 @@ class ISBG(object):
                 break   # ok, exit for loop
             except socket.error as exc:
                 self.logger.warning(('Error in IMAP connection: %s ... retry '
-                                     + '%d of %d'), exc, retry,
-                                     max_retry)
+                                     + '%d of %d'), exc, retry, max_retry)
                 if retry >= max_retry:
                     raise Exception(exc)
                 else:
@@ -663,10 +673,7 @@ class ISBG(object):
                     score = proc.communicate(mail.as_string()
                                              )[0].decode(errors='ignore')
                     if not self.spamc:
-                        res = re.search(
-                            r"score=(-?\d+(?:\.\d+)?) required=(\d+(?:\.\d+)?)",
-                            score)
-                        score = res.group(1) + "/" + res.group(2) + "\n"
+                        score = score_from_mail(score)
                     code = proc.returncode
                 except Exception:  # pylint: disable=broad-except
                     self.logger.exception(

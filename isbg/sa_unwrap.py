@@ -36,16 +36,16 @@ import sys
 
 # works with python 2 and 3
 try:
-    file_types = (file, IOBase)
+    File_types = (file, IOBase)
 except NameError:
-    file_types = (IOBase,)  # Python 3
+    File_types = (IOBase,)  # Python 3
 
 try:
-    _parse_file = email.message_from_binary_file  # Python3
-    _message = email.message_from_bytes           # Python3
+    parse_file = email.message_from_binary_file  # Python3
+    message = email.message_from_bytes           # Python3
 except AttributeError:
-    _parse_file = email.message_from_file         # Python2
-    _message = email.message_from_string          # Python2+3
+    parse_file = email.message_from_file         # Python2
+    message = email.message_from_string          # Python2+3
 
 
 def sa_unwrap_from_email(msg):
@@ -61,7 +61,7 @@ def sa_unwrap_from_email(msg):
                 else:
                     pl_bytes = pload.as_string()
                 el_idx = pl_bytes.index(b'\n\n')
-                parts.append(_message(pl_bytes[el_idx + 2:]))
+                parts.append(message(pl_bytes[el_idx + 2:]))
         if len(parts) > 0:
             return parts
     return None
@@ -75,8 +75,8 @@ def unwrap(mail):
     """
     if isinstance(mail, email.message.Message):
         return sa_unwrap_from_email(mail)
-    if isinstance(mail, file_types):  # files are also stdin...
-        return sa_unwrap_from_email(_parse_file(mail))
+    if isinstance(mail, File_types):  # files are also stdin...
+        return sa_unwrap_from_email(parse_file(mail))
     return sa_unwrap_from_email(email.message_from_string(mail))
 
 
