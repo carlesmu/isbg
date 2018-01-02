@@ -24,6 +24,10 @@
 import os
 import sys
 import email.message
+try:
+    from unittest import mock  # Python 3
+except ImportError:
+    import mock                # Python 2
 
 # We add the upper dir to the path
 sys.path.insert(0, os.path.abspath(os.path.join(
@@ -100,7 +104,7 @@ def test_unwrap():
     assert mails is None
 
 
-def test_run_1(capsys):
+def test_run(capsys):
     """Test no multipart spam mail."""
     f = open('examples/spam.eml').read()
     sys.stdin = f
@@ -109,10 +113,12 @@ def test_run_1(capsys):
     assert out == "No spam into the mail detected.\n"
 
 
-def test_run_2(capsys):
+def test_run_main(capsys):
     """Test multipart spam mail. Returns the multipart message."""
-    f = open('examples/spam.from.spamassassin.eml').read()
-    sys.stdin = f
-    sa_unwrap.run()
-    out, err = capsys.readouterr()
-    assert out.startswith("Return-Path: ")
+    with mock.patch.object(sa_unwrap, "__name__", "__main__"):
+        f = open('examples/spam.from.spamassassin.eml').read()
+        sys.stdin = f
+        sa_unwrap.run()
+        out, err = capsys.readouterr()
+        assert (out.startswith("Return-Path: <2587-84-162546-580") or
+                out.startswith("Return-Path: \n <2587-84-162546-580"))
