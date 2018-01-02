@@ -106,7 +106,6 @@ def test_run_1(capsys):
     sys.stdin = f
     sa_unwrap.run()
     out, err = capsys.readouterr()
-    sa_unwrap.run()
     assert out == "No spam into the mail detected.\n"
 
 
