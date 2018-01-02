@@ -18,48 +18,49 @@ Usage:
     isbg.py --version
 
 Options:
-    --dryrun             Do not actually make any changes
-    --delete             The spams will be marked for deletion from your inbox
-    --deletehigherthan # Delete any spam with a score higher than #
-    --exitcodes          Use exitcodes to detail  what happened
-    --expunge            Cause marked for deletion messages to also be deleted
-                         (only useful if --delete is specified)
-    --flag               The spams will be flagged in your inbox
-    --gmail              Delete by copying to '[Gmail]/Trash' folder
-    --help               Show the help screen
-    --ignorelockfile     Don't stop if lock file is present
-    --imaphost hostname  IMAP server name
-    --imaplist           List imap directories
-    --imappasswd passwd  IMAP account password
-    --imapport port      Use a custom port
-    --imapuser username  Who you login as
-    --imapinbox mbox     Name of your inbox folder
-    --learnspambox mbox  Name of your learn spam folder
-    --learnhambox mbox   Name of your learn ham folder
-    --learnthendestroy   Mark learnt messages for deletion
-    --learnthenflag      Flag learnt messages
-    --learnunflagged     Only learn if unflagged (for --learnthenflag)
-    --learnflagged       Only learn flagged
-    --lockfilegrace #    Set the lifetime of the lock file to # (in minutes)
-    --lockfilename file  Override the lock file name
-    --maxsize numbytes   Messages larger than this will be ignored as they are
-                         unlikely to be spam
-    --movehamto mbox     Move ham to folder
-    --noninteractive     Prevent interactive requests
-    --noreport           Don't include the SpamAssassin report in the message
-                         copied to your spam folder
-    --nostats            Don't print stats
-    --partialrun num     Stop operation after scanning 'num' unseen emails
-    --passwdfilename fn  Use a file to supply the password
-    --savepw             Store the password to be used in future runs
-    --spamc              Use spamc instead of standalone SpamAssassin binary
-    --spaminbox mbox     Name of your spam folder
-    --nossl              Don't use SSL to connect to the IMAP server
-    --teachonly          Don't search spam, just learn from folders
-    --trackfile file     Override the trackfile name
-    --verbose            Show IMAP stuff happening
-    --verbose-mails      Show mail bodies (extra-verbose)
-    --version            Show the version information
+    --dryrun               Do not actually make any changes.
+    --delete               The spams will be marked for deletion from your
+                           inbox.
+    --deletehigherthan #   Delete any spam with a score higher than #.
+    --exitcodes            Use exitcodes to detail  what happened.
+    --expunge              Cause marked for deletion messages to also be
+                           deleted (only useful if --delete is specified).
+    --flag                 The spams will be flagged in your inbox.
+    --gmail                Delete by copying to '[Gmail]/Trash' folder.
+    --help                 Show the help screen.
+    --ignorelockfile       Don't stop if lock file is present.
+    --imaphost hostname    IMAP server name.
+    --imaplist             List imap directories.
+    --imappasswd passwd    IMAP account password.
+    --imapport port        Use a custom port.
+    --imapuser username    Who you login as.
+    --imapinbox mbox       Name of your inbox folder.
+    --learnspambox mbox    Name of your learn spam folder.
+    --learnhambox mbox     Name of your learn ham folder.
+    --learnthendestroy     Mark learnt messages for deletion.
+    --learnthenflag        Flag learnt messages.
+    --learnunflagged       Only learn if unflagged (for --learnthenflag).
+    --learnflagged         Only learn flagged.
+    --lockfilegrace=<min>  Set the lifetime of the lock file [default: 240.0].
+    --lockfilename file    Override the lock file name.
+    --maxsize numbytes     Messages larger than this will be ignored as they
+                           are unlikely to be spam.
+    --movehamto mbox       Move ham to folder.
+    --noninteractive       Prevent interactive requests.
+    --noreport             Don't include the SpamAssassin report in the
+                           message copied to your spam folder.
+    --nostats              Don't print stats.
+    --partialrun num       Stop operation after scanning 'num' unseen emails.
+    --passwdfilename fn    Use a file to supply the password.
+    --savepw               Store the password to be used in future runs.
+    --spamc                Use spamc instead of standalone SpamAssassin binary.
+    --spaminbox mbox       Name of your spam folder.
+    --nossl                Don't use SSL to connect to the IMAP server.
+    --teachonly            Don't search spam, just learn from folders.
+    --trackfile file       Override the trackfile name.
+    --verbose              Show IMAP stuff happening.
+    --verbose-mails        Show mail bodies (extra-verbose).
+    --version              Show the version information.
 
     (Your inbox will remain untouched unless you specify --flag or --delete)
 
@@ -123,7 +124,11 @@ __version__ = "2.0-dev"
 class ISBGError(Exception):
     """Class for the ISBG exceptions."""
 
-    pass
+    def __init__(self, exitcode=0, message=""):
+        """Initialize the a ISBGError object."""
+        self.exitcode = exitcode
+        self.message = message
+        Exception.__init__(self)
 
 
 def errorexit(msg, exitcode):
@@ -135,10 +140,10 @@ def errorexit(msg, exitcode):
         sys.stderr.write(msg)
         sys.stderr.write("\nUse --help to see valid options and arguments\n")
         if exitcode == -1:
-            raise ISBGError((exitcode, msg))
+            raise ISBGError(exitcode, msg)
         sys.exit(exitcode)
     else:
-        raise ISBGError((exitcode, msg))
+        raise ISBGError(exitcode, msg)
 
 
 def hexof(string):
@@ -251,14 +256,13 @@ class ISBG(object):
             os.makedirs(os.path.join(xdg_cache_home, "isbg"))
 
         # Initializes variables
-        if __name__ is not '__main__':
-            self.set_reporting_opts()
-            self.set_processing_opts()
-            self.set_lockfile_opts()
-            self.set_password_opts()
-            self.set_trackfile_opts()
-            self.set_sa_opts()
-            self.set_learning_opts()
+        self.set_reporting_opts()
+        self.set_processing_opts()
+        self.set_lockfile_opts()
+        self.set_password_opts()
+        self.set_trackfile_opts()
+        self.set_sa_opts()
+        self.set_learning_opts()
 
         self.interactive = sys.stdin.isatty()
         self.alreadylearnt = "Message was already un/learned"
@@ -313,7 +317,7 @@ class ISBG(object):
     def set_lockfile_opts(self, ignorelockfile=False,
                           lockfilename=os.path.join(xdg_cache_home,
                                                     "isbg", "lock"),
-                          lockfilegrace=240):
+                          lockfilegrace=240.0):
         """Set lockfile options."""
         self.ignorelockfile = ignorelockfile
         self.lockfilename = lockfilename
@@ -483,8 +487,9 @@ class ISBG(object):
         self.imapsets.learnhambox = self.opts.get('--learnhambox')
         self.imapsets.nossl = self.opts.get('--nossl', False)
 
-        self.lockfilegrace = self.opts.get('--lockfilegrace',
-                                           self.lockfilegrace)
+        self.lockfilegrace = float(self.opts.get('--lockfilegrace',
+                                                 self.lockfilegrace))
+
         self.nostats = self.opts.get('--nostats', False)
         self.dryrun = self.opts.get('--dryrun', False)
         self.delete = self.opts.get('--delete', False)
@@ -1052,9 +1057,9 @@ class ISBG(object):
 
 def isbg_run():
     """Run when this module is called from the command line."""
-    isbg = ISBG()
-    isbg.parse_args()
-    return isbg.do_isbg()  # return the exit code.
+    sbg = ISBG()
+    sbg.parse_args()
+    return sbg.do_isbg()  # return the exit code.
 
 
 if __name__ == '__main__':
