@@ -56,6 +56,10 @@ def test_ISBGError():
 def test_isbg_run_01():
     """Test isbg_run()."""
     import atexit
+
+    # Remove pytest options:
+    del sys.argv[1:]
+
     atexit._run_exitfuncs()  # free the lockfile
     try:
         isbg.isbg_run()
@@ -68,6 +72,10 @@ def test_isbg_run_01():
 def test_isbg_run_02(capsys):
     """Test isbg_run() with __name__ = __main__."""
     import atexit
+
+    # Remove pytest options:
+    del sys.argv[1:]
+
     atexit._run_exitfuncs()  # free the lockfile
     with mock.patch.object(isbg, "__name__", "__main__"):
         with pytest.raises(SystemExit) as wrapped_exit:
