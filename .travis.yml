@@ -14,11 +14,10 @@ install:
 
 # command to run tests
 script:
-  - pytest # or py.test for Python versions 3.5 and below
-  - python setup.py bdist     # create binary distribution
-  - python setup.py sdist     # create source distribution
-  - pytest --cov              # For codecove usage
-  - isbg --version            # show isbg version
+  - python setup.py bdist       # create binary distribution
+  - python setup.py sdist       # create source distribution
+  - pytest --cov-append --cov   # For codecove usage
+  - isbg --version              # show isbg version
 
 after_success:
   - codecov                   # codecov.io suport
