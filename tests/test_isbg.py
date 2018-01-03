@@ -58,6 +58,7 @@ def test_isbg_run_01():
     import atexit
 
     # Remove pytest options:
+    args = sys.argv
     del sys.argv[1:]
 
     atexit._run_exitfuncs()  # free the lockfile
@@ -68,12 +69,16 @@ def test_isbg_run_01():
         assert err.exitcode == 0
         assert err.message.startswith("You need to specify your imap passw")
 
+    # Restore pytest options:
+    sys.argv = args
+
 
 def test_isbg_run_02(capsys):
     """Test isbg_run() with __name__ = __main__."""
     import atexit
 
     # Remove pytest options:
+    args = sys.argv
     del sys.argv[1:]
 
     atexit._run_exitfuncs()  # free the lockfile
@@ -83,3 +88,6 @@ def test_isbg_run_02(capsys):
         assert wrapped_exit.type == SystemExit
         out, err = capsys.readouterr()
         assert err.startswith("You need to specify your imap passw")
+
+    # Restore pytest options:
+    sys.argv = args
