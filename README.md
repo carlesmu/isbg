@@ -49,7 +49,7 @@ leave it.
 on any machine that can contact your IMAP server
 *   Highly configurable
 *   Sensible defaults so you don't have to do any configuring :-)
-*   Compatibility with Python 2.4, 2.5, 2.6
+*   Compatibility with Python 2.7, 3.5, 3.6
 *   Possibility to skip spam detection to stick only to the teach feature
 *   Don't fail when meeting horrible and bad formed mail
 *   Lock file to prevent multiple instance to run at the same time 
