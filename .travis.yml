@@ -16,7 +16,7 @@ install:
 script:
   - python setup.py bdist       # create binary distribution
   - python setup.py sdist       # create source distribution
-  - pytest --cov-append --cov tests/   # For codecove usage
+  - pytest --cov-append --cov=isbg tests/   # For codecove usage
   - isbg --version              # show isbg version
 
 after_success:
