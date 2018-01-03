@@ -180,7 +180,7 @@ Options:
     --learnspambox mbox    Name of your learn spam folder
     --learnhambox mbox     Name of your learn ham folder
     --learnthendestroy     Mark learnt messages for deletion
-    --lockfilegrace=<min>  Set the lifetime of the lock file to [Default: 240.0]
+    --lockfilegrace #min#  Set the lifetime of the lock file to [Default: 240.0]
     --lockfilename file    Override the lock file name
     --maxsize numbytes     Messages larger than this will be ignored as they are
                            unlikely to be spam
