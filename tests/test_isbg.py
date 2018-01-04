@@ -23,6 +23,9 @@
 
 """Test cases for isbg module."""
 
+# With atexit._run_exitfuncs()  we free the lockfile, but we lost coverage
+# statistics.
+
 import os
 import sys
 try:
@@ -41,53 +44,33 @@ sys.path.insert(0, os.path.abspath(os.path.join(
 from isbg import isbg  # noqa: E402
 
 
+def test_dehexof():
+    """Test the dehexof function."""
+    dehex = isbg.dehexof("FF")
+    assert dehex == "\xff"
+
+
 def test_ISBGError():
     """Test a ISBGError object creation."""
-    import atexit
-    atexit._run_exitfuncs()  # free the lockfile
-    foo = isbg.ISBGError(0, "foo")
-    try:
-        raise foo
-    except isbg.ISBGError as err:
-        assert err.exitcode == 0
-        assert err.message == "foo"
+    with pytest.raises(isbg.ISBGError, match="foo"):
+        raise isbg.ISBGError(0, "foo")
 
 
 def test_isbg_run_01():
     """Test isbg_run()."""
-    import atexit
-
     # Remove pytest options:
     args = sys.argv
     del sys.argv[1:]
 
-    atexit._run_exitfuncs()  # free the lockfile
-    try:
+    with pytest.raises(isbg.ISBGError,
+                       match="You need to specify your imap password",
+                       message="Not error or unexpected error message"):
         isbg.isbg_run()
-        raise "error. It should raise ISBGError"
-    except isbg.ISBGError as err:
-        assert err.exitcode == 0
-        assert err.message.startswith("You need to specify your imap passw")
 
-    # Restore pytest options:
-    sys.argv = args
-
-
-def test_isbg_run_02(capsys):
-    """Test isbg_run() with __name__ = __main__."""
-    import atexit
-
-    # Remove pytest options:
-    args = sys.argv
-    del sys.argv[1:]
-
-    atexit._run_exitfuncs()  # free the lockfile
     with mock.patch.object(isbg, "__name__", "__main__"):
-        with pytest.raises(SystemExit) as wrapped_exit:
+        with pytest.raises(SystemExit, match="30",
+                           message="Not error or unexpected error message"):
             isbg.isbg_run()
-        assert wrapped_exit.type == SystemExit
-        out, err = capsys.readouterr()
-        assert err.startswith("You need to specify your imap passw")
 
     # Restore pytest options:
     sys.argv = args
