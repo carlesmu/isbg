@@ -128,7 +128,7 @@ class ISBGError(Exception):
         """Initialize the a ISBGError object."""
         self.exitcode = exitcode
         self.message = message
-        Exception.__init__(self)
+        Exception.__init__(self, message)
 
 
 def errorexit(msg, exitcode):
