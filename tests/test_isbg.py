@@ -44,10 +44,15 @@ sys.path.insert(0, os.path.abspath(os.path.join(
 from isbg import isbg  # noqa: E402
 
 
-def test_dehexof():
+def test_hexof_dehexof():
     """Test the dehexof function."""
-    dehex = isbg.dehexof("FF")
-    assert dehex == "\xff"
+    dehex = isbg.dehexof("F02f")
+    assert dehex == "\xf0/"
+    assert isbg.hexof(dehex) == "f02f"
+    with pytest.raises(ValueError,
+                       match=repr("G") + " is not a valid hexadecimal digit",
+                       message="Not error or unexpected error message"):
+        isbg.dehexof("G")
 
 
 def test_ISBGError():
