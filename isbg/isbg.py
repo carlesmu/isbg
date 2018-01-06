@@ -175,7 +175,9 @@ def dehexof(string):
 
 
 def truncate(inp, length):
-    """Truncate a string to  a maximus length."""
+    """Truncate a string to  a maximus length of his repr."""
+    if length < 3:
+        raise ValueError("length should be 3 or greater")
     if len(inp) > length:
         return repr(inp)[:length - 3] + '...'
     return inp
@@ -197,7 +199,7 @@ def imapflags(flaglist):
 
 def score_from_mail(mail):
     r"""
-    Search the spam score from a mail as  a string.
+    Search the spam score from a mail as a string.
 
     The returning format is 'd.d/d.d\n'.
     """

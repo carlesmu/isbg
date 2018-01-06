@@ -34,13 +34,6 @@ sys.path.insert(0, os.path.abspath(os.path.join(
     os.path.dirname(__file__), '..')))
 from isbg import sa_unwrap  # noqa: E402
 
-try:
-    PARSE_FILE = email.message_from_binary_file  # Python3
-    MESSAGE = email.message_from_bytes           # Python3
-except AttributeError:
-    PARSE_FILE = email.message_from_file         # Python2
-    MESSAGE = email.message_from_string          # Python2+3
-
 
 def test_sa_unwrap_from_email():
     """Test function sa_unwrap_from_email."""
@@ -48,7 +41,7 @@ def test_sa_unwrap_from_email():
     Test parsing a file with a message no multipart. It should return none.
     """
     f = open('examples/spam.eml', 'rb')
-    ret = sa_unwrap.sa_unwrap_from_email(PARSE_FILE(f))
+    ret = sa_unwrap.sa_unwrap_from_email(sa_unwrap.PARSE_FILE(f))
     f.close()
     assert ret is None, "%r is not a None." % ret
 
@@ -58,7 +51,7 @@ def test_sa_unwrap_from_email():
     """
     f = open('examples/spam.from.spamassassin.eml', 'rb')
     ftext = f.read()
-    ret = sa_unwrap.sa_unwrap_from_email(MESSAGE(ftext))
+    ret = sa_unwrap.sa_unwrap_from_email(sa_unwrap.MESSAGE(ftext))
     f.close()
     num_mails = 0
     for mail in ret:

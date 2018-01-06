@@ -55,17 +55,59 @@ def test_hexof_dehexof():
         isbg.dehexof("G")
 
 
+def test_shorten():
+    """Test the shorten function."""
+    # We try with dicts:
+    dic = {'1': 'Option 1', '2': 'Option 2', '3': 'Option 3'}
+    assert dic == isbg.shorten(dic, 8), "The dicts should be the same."
+    dic2 = isbg.shorten(dic, 7)
+    assert dic != dic2, "The dicts should be diferents."
+    for k in ['1', '2', '3']:
+        assert dic2[k] == '\'Opt...', "Unexpected shortened string."
+
+    # We try with lists:
+    ls = ['Option 1', 'Option 2', 'Option 3']
+    assert ls == isbg.shorten(ls, 8)
+    ls2 = isbg.shorten(ls, 7)
+    for k in ls2:
+        assert k == '\'Opt...'
+
+    # We try with strings:
+    assert "Option 1" == isbg.shorten("Option 1", 8), \
+        "Strings should be the same."
+    assert "\'Opt..." == isbg.shorten("Option 1", 7), \
+        "Strings should be diferents."
+
+    # Others:
+    with pytest.raises(TypeError, message="None should raise a TypeError."):
+        isbg.shorten(None, 8)
+    with pytest.raises(TypeError, message="None should raise a TypeError."):
+        isbg.shorten(None, 7)
+    with pytest.raises(TypeError, message="None should raise a TypeError."):
+        isbg.shorten(False, 8)
+    with pytest.raises(TypeError, message="None should raise a TypeError."):
+        isbg.shorten(True, 7)
+    with pytest.raises(TypeError, message="int should raise a TypeError."):
+        isbg.shorten(1, 7)
+    with pytest.raises(TypeError, message="float should raise a TypeError."):
+        isbg.shorten(1.0, 7)
+    with pytest.raises(ValueError, message="length should be at least 3."):
+        isbg.shorten("123", 2)
+
+
 def test_ISBGError():
     """Test a ISBGError object creation."""
     with pytest.raises(isbg.ISBGError, match="foo"):
         raise isbg.ISBGError(0, "foo")
 
 
-def test_isbg_run_01():
+def test_isbg_run():
     """Test isbg_run()."""
     # Remove pytest options:
-    args = sys.argv
+    args = sys.argv[:]
     del sys.argv[1:]
+    sys.argv.append("--ignorelockfile")
+    print(sys.argv)
 
     with pytest.raises(isbg.ISBGError,
                        match="You need to specify your imap password",
@@ -73,9 +115,9 @@ def test_isbg_run_01():
         isbg.isbg_run()
 
     with mock.patch.object(isbg, "__name__", "__main__"):
-        with pytest.raises(SystemExit, match="30",
-                           message="Not error or unexpected error message"):
+        with pytest.raises(SystemExit, match="0",
+                           message="Not error or unexpected error"):
             isbg.isbg_run()
 
     # Restore pytest options:
-    sys.argv = args
+    sys.argv = args[:]
