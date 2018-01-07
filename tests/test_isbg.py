@@ -107,10 +107,9 @@ def test_isbg_run():
     args = sys.argv[:]
     del sys.argv[1:]
     sys.argv.append("--ignorelockfile")
-    print(sys.argv)
 
     with pytest.raises(isbg.ISBGError,
-                       match="You need to specify your imap password",
+                       match="Missed required option: --imaphost",
                        message="Not error or unexpected error message"):
         isbg.isbg_run()
 

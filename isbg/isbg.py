@@ -461,6 +461,12 @@ class ISBG(object):
             errorexit("Option processing failed - " + str(exc),
                       self.exitcodeflags)
 
+        if self.opts.get('--imaphost') is None:
+            errorexit("Missed required option: --imaphost", self.exitcodeflags)
+
+        if self.opts.get('--imapuser') is None:
+            errorexit("Missed required option: --imapuser", self.exitcodeflags)
+
         if self.opts.get("--deletehigherthan") is not None:
             try:
                 self.deletehigherthan = float(self.opts["--deletehigherthan"])
