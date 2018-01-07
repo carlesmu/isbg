@@ -124,6 +124,20 @@ if xdg_cache_home == "":
 
 __version__ = "2.0-dev"
 
+# Exit codes to use in the command line
+__exitcodes__ = {
+    'ok': 0,          # all went well
+    'newmsgs': 1,     # there were new messages - none of them spam
+    'newspam': 2,     # they were all spam
+    'newmsgspam': 3,  # there were new messages and new spam
+    'flags': 10,      # there were errors in the command line arguments
+    'imap': 11,       # there was an IMAP level error
+    'spamc': 12,      # error of communication between spamc and spamd
+    'tty': 20,        # error because of non interative terminal
+    'locked': 30,     # there's certainly another isbg running
+    'error': -1       # other errors
+}
+
 
 class ISBGError(Exception):
     """Class for the ISBG exceptions."""
@@ -133,6 +147,7 @@ class ISBGError(Exception):
         self.exitcode = exitcode
         self.message = message
         Exception.__init__(self, message)
+        assert exitcode in __exitcodes__.values()
 
 
 def errorexit(msg, exitcode):
@@ -209,16 +224,6 @@ def score_from_mail(mail):
 
 class ISBG(object):
     """Main ISBG class."""
-
-    exitcodeok = 0          # all went well
-    exitcodenewmsgs = 1     # there were new messages - none of them spam
-    exitcodenewspam = 2     # they were all spam
-    exitcodenewmsgspam = 3  # there were new messages and new spam
-    exitcodeflags = 10      # there were errors in the command line arguments
-    exitcodeimap = 11       # there was an IMAP level error
-    exitcodespamc = 12      # error of communication between spamc and spamd
-    exitcodetty = 20        # error because of non interative terminal
-    exitcodelocked = 30     # there's certainly another isbg running
 
     def __init__(self):
         """Initialize a ISBG object."""
@@ -384,7 +389,7 @@ class ISBG(object):
             self.logger.error("{} returned {} - aborting")
             errorexit("\n%s returned %s - aborting\n"
                       % (repr(args), res),
-                      self.exitcodeimap if self.exitcodes else -1)
+                      __exitcodes__['imap'] if self.exitcodes else -1)
 
     def parse_args(self):
         """Argument processing."""
@@ -395,16 +400,16 @@ class ISBG(object):
                               if v is not None])
         except Exception as exc:  # pylint: disable=broad-except
             errorexit("Option processing failed - " + str(exc),
-                      self.exitcodeflags)
+                      __exitcodes__['flags'])
 
         # Check for required options:
         if not self.opts.get("--help") and not self.opts.get("--version"):
             if self.opts.get('--imaphost') is None:
                 errorexit("Missed required option: --imaphost",
-                          self.exitcodeflags)
+                          __exitcodes__['flags'])
             if self.opts.get('--imapuser') is None:
                 errorexit("Missed required option: --imapuser",
-                          self.exitcodeflags)
+                          __exitcodes__['flags'])
 
         if self.opts.get("--deletehigherthan") is not None:
             try:
@@ -412,10 +417,10 @@ class ISBG(object):
             except Exception:  # pylint: disable=broad-except
                 errorexit("Unrecognized score - "
                           + self.opts["--deletehigherthan"],
-                          self.exitcodeflags)
+                          __exitcodes__['flags'])
             if self.deletehigherthan < 1:
                 errorexit("Score " + repr(self.deletehigherthan)
-                          + " is too small", self.exitcodeflags)
+                          + " is too small", __exitcodes__['flags'])
         else:
             self.deletehigherthan = None
 
@@ -447,10 +452,10 @@ class ISBG(object):
                 self.maxsize = int(self.opts["--maxsize"])
             except (TypeError, ValueError):
                 errorexit("Unrecognised size - " + self.opts["--maxsize"],
-                          self.exitcodeflags)
+                          __exitcodes__['flags'])
             if self.maxsize < 1:
                 errorexit("Size " + repr(self.maxsize) + " is too small",
-                          self.exitcodeflags)
+                          __exitcodes__['flags'])
 
         self.movehamto = self.opts.get('--movehamto')
 
@@ -467,7 +472,7 @@ class ISBG(object):
             self.partialrun = int(self.opts["--partialrun"])
             if self.partialrun < 1:
                 errorexit("Partial run number must be equal to 1 or higher",
-                          self.exitcodeflags)
+                          __exitcodes__['flags'])
 
         self.verbose = self.opts.get('--verbose', False)
         if self.verbose:
@@ -637,7 +642,7 @@ class ISBG(object):
                 proc.stdin.close()
             if score == "0/0\n":
                 errorexit("spamc -> spamd error - aborting",
-                          self.exitcodespamc)
+                          __exitcodes__['spamc'])
 
             self.logger.debug("Score for uid {}: {}".format(uid,
                                                             score.strip()))
@@ -814,7 +819,7 @@ class ISBG(object):
                         proc.stdin.close()
                     if code == 69 or code == 74:
                         errorexit("spamd is misconfigured (use --allow-tell)",
-                                  self.exitcodeflags)
+                                  __exitcodes__['flags'])
                     if out.strip() == self.alreadylearnt or code == 6:
                         self.logger.debug(("Already learnt {} (spamc return"
                                            + " code {})").format(uid, code))
@@ -912,7 +917,7 @@ class ISBG(object):
                     (os.path.getmtime(self.lockfilename) +
                      (self.lockfilegrace * 60) > time.time())):
                 errorexit("Lock file is present. Guessing isbg is already "
-                          + "running. Exit.", self.exitcodelocked)
+                          + "running. Exit.", __exitcodes__['locked'])
             else:
                 lockfile = open(self.lockfilename, 'w')
                 lockfile.write(repr(os.getpid()))
@@ -939,7 +944,7 @@ class ISBG(object):
                 if not self.interactive:
                     errorexit("You need to specify your imap password and "
                               + "save it with the --savepw switch",
-                              self.exitcodeok)
+                              __exitcodes__['ok'])
                 self.imapsets.passwd = getpass.getpass(
                     "IMAP password for %s@%s: " % (
                         self.imapsets.user, self.imapsets.host))
@@ -1006,12 +1011,12 @@ class ISBG(object):
             if not self.teachonly:
                 res = 0
                 if numspam == 0:
-                    return self.exitcodenewmsgs
+                    return __exitcodes__['newmsgs']
                 if numspam == nummsg:
-                    return self.exitcodenewspam
-                return self.exitcodenewmsgspam
+                    return __exitcodes__['newspam']
+                return __exitcodes__['newmsgspam']
 
-            return self.exitcodeok
+            return __exitcodes__['ok']
 
 
 def isbg_run():
