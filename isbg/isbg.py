@@ -34,7 +34,7 @@ Options:
     --imappasswd passwd    IMAP account password.
     --imapport port        Use a custom port.
     --imapuser username    Who you login as.
-    --imapinbox mbox       Name of your inbox folder.
+    --imapinbox mbox       Name of your inbox folder [Default: INBOX].
     --learnspambox mbox    Name of your learn spam folder.
     --learnhambox mbox     Name of your learn ham folder.
     --learnthendestroy     Mark learnt messages for deletion.
@@ -54,7 +54,7 @@ Options:
     --passwdfilename fn    Use a file to supply the password.
     --savepw               Store the password to be used in future runs.
     --spamc                Use spamc instead of standalone SpamAssassin binary.
-    --spaminbox mbox       Name of your spam folder.
+    --spaminbox mbox       Name of your spam folder [Default: INBOX.spam].
     --nossl                Don't use SSL to connect to the IMAP server.
     --teachonly            Don't search spam, just learn from folders.
     --trackfile file       Override the trackfile name.
