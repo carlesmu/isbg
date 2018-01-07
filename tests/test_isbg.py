@@ -113,7 +113,6 @@ def test_isbg_run():
                        message="Not error or unexpected error message"):
         isbg.isbg_run()
 
-    sys.argv = args[:]
     with mock.patch.object(isbg, "__name__", "__main__"):
         with pytest.raises(SystemExit, match="0",
                            message="Not error or unexpected error"):
