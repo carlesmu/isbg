@@ -66,7 +66,6 @@ Options:
 
 """
 
-import socket  # to catch the socket.error exception
 import sys     # Because sys.stderr.write() is called bellow
 
 # FIXME: This is necessary to allow using isbg both straight from the repo and
@@ -86,6 +85,8 @@ except (ValueError, ImportError):
             """No-op dummy function."""
             return None
 
+import imaputils   # isbg imap utils
+
 try:
     from docopt import docopt  # Creating command-line interface
 except ImportError:
@@ -95,7 +96,6 @@ except ImportError:
 from subprocess import Popen, PIPE
 
 import email      # To eassily encapsulated emails messages
-import imaplib
 import re
 import os
 import getpass
@@ -192,11 +192,6 @@ def shorten(inp, length):
     return truncate(inp, length)
 
 
-def imapflags(flaglist):
-    """Transform a list to a string as expected for the IMAP4 standard."""
-    return '(' + ','.join(flaglist) + ')'
-
-
 def score_from_mail(mail):
     r"""
     Search the spam score from a mail as a string.
@@ -206,23 +201,6 @@ def score_from_mail(mail):
     res = re.search(r"score=(-?\d+(?:\.\d+)?) required=(\d+(?:\.\d+)?)", mail)
     score = res.group(1) + "/" + res.group(2) + "\n"
     return score
-
-
-class ImapSettings(object):
-    """Class used to store the IMAP settigs."""
-
-    def __init__(self):
-        """Set Imap settings."""
-        self.host = 'localhost'
-        self.port = 143
-        self.user = ''
-        self.passwd = None
-        self.nossl = False
-        # Set mailboxes.
-        self.inbox = 'INBOX'
-        self.spaminbox = 'INBOX.spam'
-        self.learnspambox = None
-        self.learnhambox = None
 
 
 class ISBG(object):
@@ -240,7 +218,8 @@ class ISBG(object):
 
     def __init__(self):
         """Initialize a ISBG object."""
-        self.imapsets = ImapSettings()
+        self.imapsets = imaputils.ImapSettings()
+        self.imap = None
 
         # FIXME: This could be used when non runed interactivaly, may be with
         # the --noninteractive argument (instead of the addHandler:
@@ -387,53 +366,6 @@ class ISBG(object):
         for i in range(0, len(passwd)):
             res[i] = chr(ord(res[i]) ^ ord(passwd[i]))
         return ''.join(res)
-
-    def login_imap(self):
-        """Login to the imap server."""
-        max_retry = 10
-        retry_time = 0.60   # seconds
-        for retry in range(1, max_retry + 1):
-            try:
-                if self.imapsets.nossl:
-                    self.imap = imaplib.IMAP4(self.imapsets.host,
-                                              self.imapsets.port)
-                else:
-                    self.imap = imaplib.IMAP4_SSL(self.imapsets.host,
-                                                  self.imapsets.port)
-                break   # ok, exit for loop
-            except socket.error as exc:
-                self.logger.warning(('Error in IMAP connection: %s ... retry '
-                                     + '%d of %d'), exc, retry, max_retry)
-                if retry >= max_retry:
-                    raise Exception(exc)
-                else:
-                    time.sleep(retry_time)
-        self.logger.debug(
-            'Server capabilities: %s', self.imap.capability)
-        # Authenticate (only simple supported)
-        res = self.imap.login(self.imapsets.user, self.imapsets.passwd)
-        self.assertok(res, "login", self.imapsets.user, 'xxxxxxxx')
-
-    def getmessage(self, uid, append_to=None):
-        """Get a message by uid and optionaly append its uid to a list."""
-        res = self.imap.uid("FETCH", uid, "(BODY.PEEK[])")
-        self.assertok(res, 'uid fetch', uid, '(BODY.PEEK[])')
-        mail = email.message.Message()
-        if res[0] != "OK":
-            self.assertok(res, 'uid fetch', uid, '(BODY.PEEK[])')
-            try:
-                body = res[1][0][1]
-                mail = email.message_from_string(body)
-            except Exception:  # pylint: disable=broad-except
-                self.logger.warning(("Confused - rfc822 fetch gave %s - The "
-                                     + "message was probably deleted while we "
-                                     + "were running"), res)
-        else:
-            body = res[1][0][1]
-            mail = email.message_from_string(body)
-        if append_to is not None:
-            append_to.append(int(uid))
-        return mail
 
     def assertok(self, res, *args):
         """Check that the return code is OK.
@@ -661,7 +593,9 @@ class ISBG(object):
         # Main loop that iterates over each new uid we haven't seen before
         for uid in uids:
             # Retrieve the entire message
-            mail = self.getmessage(uid, newpastuids)
+            mail = imaputils.get_message(self.imap, uid, newpastuids,
+                                         logger=self.logger,
+                                         assertok=self.assertok)
             # Unwrap spamassassin reports
             unwrapped = unwrap(mail)
             if unwrapped is not None and len(unwrapped) > 0:
@@ -773,9 +707,10 @@ class ISBG(object):
                 if len(self.spamflags) > 0:
                     for uid in spamlist:
                         res = self.imap.uid("STORE", uid, self.spamflagscmd,
-                                            imapflags(self.spamflags))
+                                            imaputils.imapflags(self.spamflags)
+                                            )
                         self.assertok(res, "uid store", uid, self.spamflagscmd,
-                                      imapflags(self.spamflags))
+                                      imaputils.imapflags(self.spamflags))
                         newpastuids.append(uid)
                 # If its gmail, and --delete was passed, we actually copy!
                 if self.delete and self.gmail:
@@ -842,7 +777,10 @@ class ISBG(object):
                 n_tolearn = len(uids)
 
                 for uid in uids:
-                    mail = self.getmessage(uid)
+                    mail = imaputils.get_message(self.imap, uid,
+                                                 logger=self.logger,
+                                                 assertok=self.assertok)
+
                     # Unwrap spamassassin reports
                     unwrapped = unwrap(mail)
                     if unwrapped is not None:
@@ -1014,7 +952,13 @@ class ISBG(object):
         # Main code starts here
 
         # Connection with the imaplib server
-        self.login_imap()
+        self.imap = imaputils.login_imap(host=self.imapsets.host,
+                                         port=self.imapsets.port,
+                                         user=self.imapsets.user,
+                                         passwd=self.imapsets.passwd,
+                                         nossl=self.imapsets.nossl,
+                                         logger=self.logger,
+                                         assertok=self.assertok)
 
         # List imap directories
         if self.imaplist:
