@@ -135,6 +135,7 @@ class TestISBG(object):
         """Test parse_args."""
         # Remove pytest options:
         args = sys.argv[:]
+        del sys.argv[1:]
 
         for op in ["--imaphost", "localhost", "--imapuser", "anonymous",
                    "--imappasswd", "none", "--dryrun"]:
