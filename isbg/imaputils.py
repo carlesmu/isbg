@@ -58,17 +58,17 @@ def imapflags(flaglist):
     return '(' + ','.join(flaglist) + ')'
 
 
-def login_imap(host, port, user, passwd, nossl=False, logger=None,
-               assertok=None):
+def login_imap(imapsets, nossl=False, logger=None, assertok=None):
     """Login to the imap server."""
+    assert isinstance(imapsets, ImapSettings)
     max_retry = 10
     retry_time = 0.60   # seconds
     for retry in range(1, max_retry + 1):
         try:
             if nossl:
-                imap = imaplib.IMAP4(host, port)
+                imap = imaplib.IMAP4(imapsets.host, imapsets.port)
             else:
-                imap = imaplib.IMAP4_SSL(host, port)
+                imap = imaplib.IMAP4_SSL(imapsets.host, imapsets.port)
             break   # ok, exit from loop
         except socket.error as exc:
             logger.warning(('Error in IMAP connection: %s ... retry '
@@ -79,8 +79,8 @@ def login_imap(host, port, user, passwd, nossl=False, logger=None,
                 time.sleep(retry_time)
     logger.debug('Server capabilities: %s', imap.capability)
     # Authenticate (only simple supported)
-    res = imap.login(user, passwd)
-    assertok(res, "login", user, 'xxxxxxxx')
+    res = imap.login(imapsets.user, imapsets.passwd)
+    assertok(res, "login", imapsets.user, 'xxxxxxxx')
     return imap
 
 

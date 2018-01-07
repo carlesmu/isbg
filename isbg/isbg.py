@@ -964,11 +964,7 @@ class ISBG(object):
         # Main code starts here
 
         # Connection with the imaplib server
-        self.imap = imaputils.login_imap(host=self.imapsets.host,
-                                         port=self.imapsets.port,
-                                         user=self.imapsets.user,
-                                         passwd=self.imapsets.passwd,
-                                         nossl=self.imapsets.nossl,
+        self.imap = imaputils.login_imap(self.imapsets,
                                          logger=self.logger,
                                          assertok=self.assertok)
 
