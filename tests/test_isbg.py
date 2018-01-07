@@ -113,6 +113,7 @@ def test_isbg_run():
                        message="Not error or unexpected error message"):
         isbg.isbg_run()
 
+    sys.argv = args[:]
     with mock.patch.object(isbg, "__name__", "__main__"):
         with pytest.raises(SystemExit, match="0",
                            message="Not error or unexpected error"):
@@ -126,3 +127,25 @@ def test_isbg_run():
 
     # Restore pytest options:
     sys.argv = args[:]
+
+
+class TestISBG(object):
+    """Tests for class ISBG."""
+
+    def test_parse_args(self):
+        """Test parse_args."""
+        # Remove pytest options:
+        args = sys.argv[:]
+
+        for op in ["--imaphost", "localhost", "--imapuser", "anonymous",
+                   "--imappasswd", "none", "--dryrun"]:
+            sys.argv.append(op)
+        sbg = isbg.ISBG()
+        sbg.parse_args()
+        assert sbg.imapsets.host == "localhost"
+        assert sbg.imapsets.user == "anonymous"
+        assert sbg.imapsets.passwd == "none"
+
+        del sys.argv[1:]
+        # Restore pytest options:
+        sys.argv = args[:]
