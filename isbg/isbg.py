@@ -85,7 +85,11 @@ except (ValueError, ImportError):
             """No-op dummy function."""
             return None
 
-import imaputils   # isbg imap utils
+#
+try:
+    import imaputils           # as script: py2 and py3, as module: py3
+except ImportError:
+    from . import imaputils    # as module: py3
 
 try:
     from docopt import docopt  # Creating command-line interface
