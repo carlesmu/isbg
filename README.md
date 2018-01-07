@@ -162,6 +162,8 @@ Usage:
     isbg.py --version
 
 Options:
+    --imaphost hostname    IMAP server name.
+    --imapuser username    Who you login as.
     --dryrun               Do not actually make any changes.
     --delete               The spams will be marked for deletion from your
                            inbox.
@@ -173,11 +175,9 @@ Options:
     --gmail                Delete by copying to '[Gmail]/Trash' folder.
     --help                 Show the help screen.
     --ignorelockfile       Don't stop if lock file is present.
-    --imaphost hostname    IMAP server name.
     --imaplist             List imap directories.
     --imappasswd passwd    IMAP account password.
     --imapport port        Use a custom port.
-    --imapuser username    Who you login as.
     --imapinbox mbox       Name of your inbox folder [Default: INBOX].
     --learnspambox mbox    Name of your learn spam folder.
     --learnhambox mbox     Name of your learn ham folder.

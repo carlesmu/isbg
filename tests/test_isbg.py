@@ -118,5 +118,11 @@ def test_isbg_run():
                            message="Not error or unexpected error"):
             isbg.isbg_run()
 
+    sys.argv.append("--version")
+    with mock.patch.object(isbg, "__name__", "__main__"):
+        with pytest.raises(SystemExit,
+                           message="Not error or unexpected error"):
+            isbg.isbg_run()
+
     # Restore pytest options:
     sys.argv = args[:]
