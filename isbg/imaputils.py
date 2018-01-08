@@ -21,7 +21,7 @@
 #  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
 #  MA 02110-1301, USA.
 
-"""Imap mofule for isbg."""
+"""Imap module for isbg."""
 
 import email      # To eassily encapsulated emails messages
 import imaplib
