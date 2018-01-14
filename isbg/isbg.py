@@ -396,29 +396,29 @@ class ISBG(object):
     def parse_args(self):
         """Argument processing."""
         try:
-            self.opts = docopt(__doc__, version="isbg version " + __version__ +
-                               ", from " + os.path.abspath(__file__))
-            self.opts = dict([(k, v) for k, v in self.opts.items()
-                              if v is not None])
+            opts = docopt(__doc__, version="isbg version " + __version__ +
+                          ", from " + os.path.abspath(__file__))
+            opts = dict([(k, v) for k, v in opts.items()
+                         if v is not None])
         except Exception as exc:  # pylint: disable=broad-except
             errorexit("Option processing failed - " + str(exc),
                       __exitcodes__['flags'])
 
         # Check for required options:
-        if not self.opts.get("--help") and not self.opts.get("--version"):
-            if self.opts.get('--imaphost') is None:
+        if not opts.get("--help") and not opts.get("--version"):
+            if opts.get('--imaphost') is None:
                 errorexit("Missed required option: --imaphost",
                           __exitcodes__['flags'])
-            if self.opts.get('--imapuser') is None:
+            if opts.get('--imapuser') is None:
                 errorexit("Missed required option: --imapuser",
                           __exitcodes__['flags'])
 
-        if self.opts.get("--deletehigherthan") is not None:
+        if opts.get("--deletehigherthan") is not None:
             try:
-                self.deletehigherthan = float(self.opts["--deletehigherthan"])
+                self.deletehigherthan = float(opts["--deletehigherthan"])
             except Exception:  # pylint: disable=broad-except
                 errorexit("Unrecognized score - "
-                          + self.opts["--deletehigherthan"],
+                          + opts["--deletehigherthan"],
                           __exitcodes__['flags'])
             if self.deletehigherthan < 1:
                 errorexit("Score " + repr(self.deletehigherthan)
@@ -426,85 +426,85 @@ class ISBG(object):
         else:
             self.deletehigherthan = None
 
-        if self.opts["--flag"] is True:
+        if opts["--flag"] is True:
             self.spamflags.append("\\Flagged")
 
-        self.imapsets.host = self.opts.get('--imaphost', self.imapsets.host)
-        self.imapsets.passwd = self.opts.get('--imappasswd',
-                                             self.imapsets.passwd)
-        self.imapsets.port = self.opts.get('--imapport', self.imapsets.port)
-        self.imapsets.user = self.opts.get('--imapuser', self.imapsets.user)
-        self.imapsets.inbox = self.opts.get('--imapinbox', self.imapsets.inbox)
-        self.imapsets.spaminbox = self.opts.get('--spaminbox',
-                                                self.imapsets.spaminbox)
-        self.imapsets.learnspambox = self.opts.get('--learnspambox')
-        self.imapsets.learnhambox = self.opts.get('--learnhambox')
-        self.imapsets.nossl = self.opts.get('--nossl', False)
+        self.imapsets.host = opts.get('--imaphost', self.imapsets.host)
+        self.imapsets.passwd = opts.get('--imappasswd',
+                                        self.imapsets.passwd)
+        self.imapsets.port = opts.get('--imapport', self.imapsets.port)
+        self.imapsets.user = opts.get('--imapuser', self.imapsets.user)
+        self.imapsets.inbox = opts.get('--imapinbox', self.imapsets.inbox)
+        self.imapsets.spaminbox = opts.get('--spaminbox',
+                                           self.imapsets.spaminbox)
+        self.imapsets.learnspambox = opts.get('--learnspambox')
+        self.imapsets.learnhambox = opts.get('--learnhambox')
+        self.imapsets.nossl = opts.get('--nossl', False)
 
-        self.lockfilegrace = float(self.opts.get('--lockfilegrace',
-                                                 self.lockfilegrace))
+        self.lockfilegrace = float(opts.get('--lockfilegrace',
+                                            self.lockfilegrace))
 
-        self.nostats = self.opts.get('--nostats', False)
-        self.dryrun = self.opts.get('--dryrun', False)
-        self.delete = self.opts.get('--delete', False)
-        self.gmail = self.opts.get('--gmail', False)
+        self.nostats = opts.get('--nostats', False)
+        self.dryrun = opts.get('--dryrun', False)
+        self.delete = opts.get('--delete', False)
+        self.gmail = opts.get('--gmail', False)
 
-        if self.opts.get("--maxsize") is not None:
+        if opts.get("--maxsize") is not None:
             try:
-                self.maxsize = int(self.opts["--maxsize"])
+                self.maxsize = int(opts["--maxsize"])
             except (TypeError, ValueError):
-                errorexit("Unrecognised size - " + self.opts["--maxsize"],
+                errorexit("Unrecognised size - " + opts["--maxsize"],
                           __exitcodes__['flags'])
             if self.maxsize < 1:
                 errorexit("Size " + repr(self.maxsize) + " is too small",
                           __exitcodes__['flags'])
 
-        self.movehamto = self.opts.get('--movehamto')
+        self.movehamto = opts.get('--movehamto')
 
-        if self.opts["--noninteractive"] is True:
+        if opts["--noninteractive"] is True:
             self.interactive = 0
 
-        self.noreport = self.opts.get('--noreport', self.noreport)
+        self.noreport = opts.get('--noreport', self.noreport)
 
-        self.lockfilename = self.opts.get('--lockfilename', self.lockfilename)
+        self.lockfilename = opts.get('--lockfilename', self.lockfilename)
 
-        self.pastuidsfile = self.opts.get('--trackfile', self.pastuidsfile)
+        self.pastuidsfile = opts.get('--trackfile', self.pastuidsfile)
 
-        if self.opts.get("--partialrun") is not None:
-            self.partialrun = int(self.opts["--partialrun"])
+        if opts.get("--partialrun") is not None:
+            self.partialrun = int(opts["--partialrun"])
             if self.partialrun < 1:
                 errorexit("Partial run number must be equal to 1 or higher",
                           __exitcodes__['flags'])
 
-        self.verbose = self.opts.get('--verbose', False)
+        self.verbose = opts.get('--verbose', False)
         if self.verbose:
             self.set_loglevel(logging.DEBUG)
         else:
             self.set_loglevel(logging.INFO)
 
-        self.verbose_mails = self.opts.get('--verbose-mails', False)
-        self.ignorelockfile = self.opts.get("--ignorelockfile", False)
-        self.savepw = self.opts.get('--savepw', False)
-        self.passwdfilename = self.opts.get('--passwdfilename',
-                                            self.passwdfilename)
+        self.verbose_mails = opts.get('--verbose-mails', False)
+        self.ignorelockfile = opts.get("--ignorelockfile", False)
+        self.savepw = opts.get('--savepw', False)
+        self.passwdfilename = opts.get('--passwdfilename',
+                                       self.passwdfilename)
 
-        self.imaplist = self.opts.get('--imaplist', False)
+        self.imaplist = opts.get('--imaplist', False)
 
-        self.learnunflagged = self.opts.get('--learnunflagged', False)
-        self.learnflagged = self.opts.get('--learnflagged', False)
-        self.learnthendestroy = self.opts.get('--learnthendestroy', False)
-        self.learnthenflag = self.opts.get('--learnthendestroy', False)
-        self.expunge = self.opts.get('--expunge', False)
+        self.learnunflagged = opts.get('--learnunflagged', False)
+        self.learnflagged = opts.get('--learnflagged', False)
+        self.learnthendestroy = opts.get('--learnthendestroy', False)
+        self.learnthenflag = opts.get('--learnthendestroy', False)
+        self.expunge = opts.get('--expunge', False)
 
-        self.teachonly = self.opts.get('--teachonly', False)
-        self.spamc = self.opts.get('--spamc', False)
+        self.teachonly = opts.get('--teachonly', False)
+        self.spamc = opts.get('--spamc', False)
 
-        self.exitcodes = self.opts.get('--exitcodes', False)
+        self.exitcodes = opts.get('--exitcodes', False)
 
         # fixup any arguments
 
-        if self.opts.get("--imapport") is None:
-            if self.opts["--nossl"] is True:
+        if opts.get("--imapport") is None:
+            if opts["--nossl"] is True:
                 self.imapsets.port = 143
             else:
                 self.imapsets.port = 993
