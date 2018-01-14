@@ -85,11 +85,12 @@ except (ValueError, ImportError):
             """No-op dummy function."""
             return None
 
-#
 try:
-    import imaputils           # as script: py2 and py3, as module: py3
-except ImportError:
-    from . import imaputils    # as module: py3
+    import imaputils            # as script: py2 and py3, as module: py3
+    from utils import __
+except (ValueError, ImportError):
+    from isbg import imaputils  # as module: py3
+    from isbg.utils import __
 
 try:
     from docopt import docopt  # Creating command-line interface
@@ -368,9 +369,10 @@ class ISBG(object):
     def setpw(self, passwd, shash):
         """Obfuscate password."""
         if len(passwd) > self.passwordhashlen:
-            raise ValueError(("Password of length %d is too long to "
-                              + "store (max accepted is %d)"
-                              ) % (len(passwd), self.passwordhashlen))
+            raise ValueError(__(
+                ("Password of length %d is too long to store " +
+                 "(max accepted is %d)").format(len(passwd),
+                                                self.passwordhashlen)))
         res = list(shash)
         for i in range(0, len(passwd)):
             res[i] = chr(ord(res[i]) ^ ord(passwd[i]))
@@ -545,9 +547,9 @@ class ISBG(object):
             os.chmod(self.pastuidsfile + folder, 0o600)
         except Exception:  # pylint: disable=broad-except
             pass
-        self.logger.debug(('Writing pastuids, {} origpastuids, '
-                           + 'newpastuids: {}'
-                           ).format(len(origpastuids), newpastuids))
+        self.logger.debug(__(('Writing pastuids, {} origpastuids, '
+                              + 'newpastuids: {}'
+                              ).format(len(origpastuids), newpastuids)))
         struct = {
             'uidvalidity': uidvalidity,
             'uids': list(set(newpastuids + origpastuids))
@@ -589,7 +591,7 @@ class ISBG(object):
         if self.partialrun:
             uids = uids[:int(self.partialrun)]
 
-        self.logger.debug('Got {} mails to check'.format(len(uids)))
+        self.logger.debug(__('Got {} mails to check'.format(len(uids))))
 
         # Keep track of new spam uids
         spamlist = []
@@ -629,14 +631,14 @@ class ISBG(object):
             else:
                 proc = self.popen(self.satest)
                 try:
-                    score = proc.communicate(mail.as_string()
+                    score = proc.communicate(imaputils.mail_content(mail)
                                              )[0].decode(errors='ignore')
                     if not self.spamc:
                         score = score_from_mail(score)
                     code = proc.returncode
                 except Exception:  # pylint: disable=broad-except
-                    self.logger.exception(
-                        'Error communicating with {}!'.format(self.satest))
+                    self.logger.exception(__(
+                        'Error communicating with {}!'.format(self.satest)))
                     uids.remove(uid)
                     continue
                 proc.stdin.close()
@@ -644,8 +646,8 @@ class ISBG(object):
                 errorexit("spamc -> spamd error - aborting",
                           __exitcodes__['spamc'])
 
-            self.logger.debug("Score for uid {}: {}".format(uid,
-                                                            score.strip()))
+            self.logger.debug(__(
+                "Score for uid {}: {}".format(uid, score.strip())))
 
             if code == 0:
                 # Message is below threshold
@@ -653,7 +655,7 @@ class ISBG(object):
             else:
                 # Message is spam, delete it or move it to spaminbox
                 # (optionally with report)
-                self.logger.debug("{} is spam".format(uid))
+                self.logger.debug(__("{} is spam".format(uid)))
 
                 if (self.deletehigherthan is not None and
                         float(score.split('/')[0]) > self.deletehigherthan):
@@ -668,25 +670,26 @@ class ISBG(object):
                         proc = self.popen(self.sasave)
                         try:
                             mail = email.message_from_string(proc.communicate(
-                                mail.as_string())[0])
+                                imaputils.mail_content(mail))[0])
                         except Exception:  # pylint: disable=broad-except
-                            self.logger.exception(
+                            self.logger.exception(__(
                                 'Error communicating with {}!'.format(
-                                    self.sasave))
+                                    self.sasave)))
                             continue
                         proc.stdin.close()
                         res = self.imap.append(self.imapsets.spaminbox, None,
-                                               None, mail.as_string())
+                                               None,
+                                               imaputils.mail_content(mail))
                         # The above will fail on some IMAP servers for various
                         # reasons. We print out what happened and continue
                         # processing
                         if res[0] != 'OK':
-                            self.logger.error(
+                            self.logger.error(__(
                                 ("{} failed for uid {}: {}. Leaving original"
                                  + "message alone.").format(
-                                    repr(["append",
-                                          self.imapsets.spaminbox, "{email}"]),
-                                    repr(uid), repr(res)))
+                                     repr(["append", self.imapsets.spaminbox,
+                                           "{email}"]),
+                                     repr(uid), repr(res))))
                             continue
                 else:
                     if self.dryrun:
@@ -765,8 +768,8 @@ class ISBG(object):
             n_learnt = 0
             n_tolearn = 0
             if learntype['inbox']:
-                self.logger.debug("Teach {} to SA from: {}".format(
-                    learntype['learntype'], learntype['inbox']))
+                self.logger.debug(__("Teach {} to SA from: {}".format(
+                    learntype['learntype'], learntype['inbox'])))
                 uidvalidity = self.get_uidvalidity(learntype['inbox'])
                 origpastuids = self.pastuid_read(uidvalidity,
                                                  folder=learntype['learntype'])
@@ -796,9 +799,9 @@ class ISBG(object):
                     # Unwrap spamassassin reports
                     unwrapped = unwrap(mail)
                     if unwrapped is not None:
-                        self.logger.debug(
+                        self.logger.debug(__(
                             "{} Unwrapped: {}".format(uid, shorten(
-                                unwrapped[0].as_string(), 140)))
+                                imaputils.mail_content(unwrapped[0]), 140))))
 
                     if unwrapped is not None and len(unwrapped) > 0:
                         mail = unwrapped[0]
@@ -809,11 +812,13 @@ class ISBG(object):
                         proc = self.popen(["spamc", "--learntype="
                                            + learntype['learntype']])
                         try:
-                            out = proc.communicate(mail.as_string())[0]
+                            out = proc.communicate(imaputils.mail_content(mail)
+                                                   )[0]
                         except Exception:  # pylint: disable=broad-except
-                            self.logger.exception(
-                                'spamc error for mail {}'.format(uid))
-                            self.logger.debug(repr(mail.as_string()))
+                            self.logger.exception(__(
+                                'spamc error for mail {}'.format(uid)))
+                            self.logger.debug(repr(
+                                imaputils.mail_content(mail)))
                             continue
                         code = proc.returncode
                         proc.stdin.close()
@@ -821,13 +826,14 @@ class ISBG(object):
                         errorexit("spamd is misconfigured (use --allow-tell)",
                                   __exitcodes__['flags'])
                     if out.strip() == self.alreadylearnt or code == 6:
-                        self.logger.debug(("Already learnt {} (spamc return"
-                                           + " code {})").format(uid, code))
+                        self.logger.debug(__(
+                            ("Already learnt {} (spamc return"
+                             + " code {})").format(uid, code)))
                     else:
                         n_learnt += 1
-                        self.logger.debug(
+                        self.logger.debug(__(
                             "Learnt {} (spamc return code {})".format(uid,
-                                                                      code))
+                                                                      code)))
                     newpastuids.append(int(uid))
                     if not self.dryrun:
                         if self.learnthendestroy:
@@ -904,10 +910,11 @@ class ISBG(object):
                 newhash.update(self.passwordhash)
                 self.passwordhash = self.passwordhash + newhash.digest()
 
-        self.logger.debug("Lock file is {}".format(self.lockfilename))
-        self.logger.debug("Trackfile is {}".format(self.pastuidsfile))
-        self.logger.debug("SpamFlags are {}".format(self.spamflags))
-        self.logger.debug("Password file is {}".format(self.passwdfilename))
+        self.logger.debug(__("Lock file is {}".format(self.lockfilename)))
+        self.logger.debug(__("Trackfile is {}".format(self.pastuidsfile)))
+        self.logger.debug(__("SpamFlags are {}".format(self.spamflags)))
+        self.logger.debug(__(
+            "Password file is {}".format(self.passwdfilename)))
 
         # Acquire lockfilename or exit
         if self.ignorelockfile:
@@ -992,16 +999,16 @@ class ISBG(object):
 
         if self.nostats is False:
             if self.imapsets.learnspambox is not None:
-                self.logger.info("{}/{} spams learnt".format(s_learnt,
-                                                             s_tolearn))
+                self.logger.info(__(
+                    "{}/{} spams learnt".format(s_learnt, s_tolearn)))
             if self.imapsets.learnhambox:
-                self.logger.info("{}/{} hams learnt".format(h_learnt,
-                                                            h_tolearn))
+                self.logger.info(__(
+                    "{}/{} hams learnt".format(h_learnt, h_tolearn)))
             if not self.teachonly:
-                self.logger.info("{} spams found in {} messages".format(
-                    numspam, nummsg))
-                self.logger.info("{}/{} was automatically deleted".format(
-                    spamdeleted, numspam))
+                self.logger.info(__(
+                    "{} spams found in {} messages".format(numspam, nummsg)))
+                self.logger.info(__("{}/{} was automatically deleted".format(
+                    spamdeleted, numspam)))
 
         if self.exitcodes and __name__ == '__main__':
             if not self.teachonly:

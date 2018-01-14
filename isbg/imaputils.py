@@ -28,6 +28,28 @@ import imaplib
 import socket     # to catch the socket.error exception
 import time
 
+try:
+    from utils import __       # as script: py2 and py3, as module: py3
+except (ValueError, ImportError):
+    from isbg.utils import __  # as module: py3
+
+
+def mail_content(mail):
+    """Get the email message content."""
+    assert isinstance(mail, email.message.Message)
+    try:
+        return mail.as_bytes()  # python 3
+    except AttributeError:
+        return mail.as_string()
+
+
+def new_message(body):
+    """Get a email.message from a body email."""
+    try:
+        return email.message_from_bytes(body)  # python 3
+    except AttributeError:
+        return email.message_from_string(body)
+
 
 def get_message(imap, uid, append_to=None, logger=None, assertok=None):
     """Get a message by uid and optionaly append its uid to a list."""
@@ -38,14 +60,14 @@ def get_message(imap, uid, append_to=None, logger=None, assertok=None):
         assertok(res, 'uid fetch', uid, '(BODY.PEEK[])')
         try:
             body = res[1][0][1]
-            mail = email.message_from_string(body)
+            mail = new_message(body)
         except Exception:  # pylint: disable=broad-except
-            logger.warning(("Confused - rfc822 fetch gave %s - The message "
-                            + "was probably deleted while we were running"),
-                           res)
+            logger.warning(__(
+                ("Confused - rfc822 fetch gave {} - The message was " +
+                 "probably deleted while we were running").format(res)))
     else:
         body = res[1][0][1]
-        mail = email.message_from_string(body)
+        mail = new_message(body)
 
     if append_to is not None:
         append_to.append(int(uid))
@@ -71,13 +93,14 @@ def login_imap(imapsets, nossl=False, logger=None, assertok=None):
                 imap = imaplib.IMAP4_SSL(imapsets.host, imapsets.port)
             break   # ok, exit from loop
         except socket.error as exc:
-            logger.warning(('Error in IMAP connection: %s ... retry '
-                            + '%d of %d'), exc, retry, max_retry)
+            logger.warning(__(
+                ("Error in IMAP connection: {} ... retry {} of {}"
+                 ).format(exc, retry, max_retry)))
             if retry >= max_retry:
                 raise Exception(exc)
             else:
                 time.sleep(retry_time)
-    logger.debug('Server capabilities: %s', imap.capability)
+    logger.debug(__("Server capabilities: {}".format(imap.capability)))
     # Authenticate (only simple supported)
     res = imap.login(imapsets.user, imapsets.passwd)
     assertok(res, "login", imapsets.user, 'xxxxxxxx')
