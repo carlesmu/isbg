@@ -44,57 +44,6 @@ sys.path.insert(0, os.path.abspath(os.path.join(
 from isbg import isbg  # noqa: E402
 
 
-def test_hexof_dehexof():
-    """Test the dehexof function."""
-    dehex = isbg.dehexof("F02f")
-    assert dehex == "\xf0/"
-    assert isbg.hexof(dehex) == "f02f"
-    with pytest.raises(ValueError,
-                       match=repr("G") + " is not a valid hexadecimal digit",
-                       message="Not error or unexpected error message"):
-        isbg.dehexof("G")
-
-
-def test_shorten():
-    """Test the shorten function."""
-    # We try with dicts:
-    dic = {'1': 'Option 1', '2': 'Option 2', '3': 'Option 3'}
-    assert dic == isbg.shorten(dic, 8), "The dicts should be the same."
-    dic2 = isbg.shorten(dic, 7)
-    assert dic != dic2, "The dicts should be diferents."
-    for k in ['1', '2', '3']:
-        assert dic2[k] == '\'Opt...', "Unexpected shortened string."
-
-    # We try with lists:
-    ls = ['Option 1', 'Option 2', 'Option 3']
-    assert ls == isbg.shorten(ls, 8)
-    ls2 = isbg.shorten(ls, 7)
-    for k in ls2:
-        assert k == '\'Opt...'
-
-    # We try with strings:
-    assert "Option 1" == isbg.shorten("Option 1", 8), \
-        "Strings should be the same."
-    assert "\'Opt..." == isbg.shorten("Option 1", 7), \
-        "Strings should be diferents."
-
-    # Others:
-    with pytest.raises(TypeError, message="None should raise a TypeError."):
-        isbg.shorten(None, 8)
-    with pytest.raises(TypeError, message="None should raise a TypeError."):
-        isbg.shorten(None, 7)
-    with pytest.raises(TypeError, message="None should raise a TypeError."):
-        isbg.shorten(False, 8)
-    with pytest.raises(TypeError, message="None should raise a TypeError."):
-        isbg.shorten(True, 7)
-    with pytest.raises(TypeError, message="int should raise a TypeError."):
-        isbg.shorten(1, 7)
-    with pytest.raises(TypeError, message="float should raise a TypeError."):
-        isbg.shorten(1.0, 7)
-    with pytest.raises(ValueError, message="length should be at least 3."):
-        isbg.shorten("123", 2)
-
-
 def test_ISBGError():
     """Test a ISBGError object creation."""
     with pytest.raises(isbg.ISBGError, match="foo"):

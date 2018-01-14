@@ -87,9 +87,11 @@ except (ValueError, ImportError):
 
 try:
     import imaputils            # as script: py2 and py3, as module: py3
+    import utils
     from utils import __
 except (ValueError, ImportError):
     from isbg import imaputils  # as module: py3
+    from isbg import utils
     from isbg.utils import __
 
 try:
@@ -164,52 +166,6 @@ def errorexit(msg, exitcode):
         sys.exit(exitcode)
     else:
         raise ISBGError(exitcode, msg)
-
-
-def hexof(string):
-    """Translate a string to a string with its hexadecimal value."""
-    res = ""
-    for i in string:
-        res = res + ("%02x" % ord(i))
-    return res
-
-
-def hexdigit(char):
-    """Tanslate a hexadecimal character his decimal (int) value."""
-    if char >= '0' and char <= '9':
-        return ord(char) - ord('0')
-    if char >= 'a' and char <= 'f':
-        return 10 + ord(char) - ord('a')
-    if char >= 'A' and char <= 'F':
-        return 10 + ord(char) - ord('A')
-    raise ValueError(repr(char) + " is not a valid hexadecimal digit")
-
-
-def dehexof(string):
-    """Tanslate a hexadecimal string to his string value."""
-    res = ""
-    while len(string):
-        res = res + chr(16 * hexdigit(string[0]) + hexdigit(string[1]))
-        string = string[2:]
-    return res
-
-
-def truncate(inp, length):
-    """Truncate a string to  a maximus length of his repr."""
-    if length < 3:
-        raise ValueError("length should be 3 or greater")
-    if len(inp) > length:
-        return repr(inp)[:length - 3] + '...'
-    return inp
-
-
-def shorten(inp, length):
-    """Short a dict or a list or other object to a maximus length."""
-    if isinstance(inp, dict):
-        return dict([(k, shorten(v, length)) for k, v in inp.items()])
-    elif isinstance(inp, list) or isinstance(inp, tuple):
-        return [shorten(x, length) for x in inp]
-    return truncate(inp, length)
 
 
 def score_from_mail(mail):
@@ -385,7 +341,7 @@ class ISBG(object):
         up /dev/null'ed in non-verbose mode)
         """
         if 'fetch' in args[0] and not self.verbose_mails:
-            res = shorten(res, 140)
+            res = utils.shorten(res, 140)
         self.logger.debug("{} = {}".format(args, res))
         if res[0] != "OK":
             self.logger.error("{} returned {} - aborting")
@@ -800,7 +756,7 @@ class ISBG(object):
                     unwrapped = unwrap(mail)
                     if unwrapped is not None:
                         self.logger.debug(__(
-                            "{} Unwrapped: {}".format(uid, shorten(
+                            "{} Unwrapped: {}".format(uid, utils.shorten(
                                 imaputils.mail_content(unwrapped[0]), 140))))
 
                     if unwrapped is not None and len(unwrapped) > 0:
@@ -937,7 +893,7 @@ class ISBG(object):
             if (self.savepw is False and
                     os.path.exists(self.passwdfilename) is True):
                 try:
-                    self.imapsets.passwd = self.getpw(dehexof(open(
+                    self.imapsets.passwd = self.getpw(utils.dehexof(open(
                         self.passwdfilename,
                         "rb").read().decode()),
                         self.passwordhash)
@@ -964,8 +920,8 @@ class ISBG(object):
             except Exception:  # pylint: disable=broad-except
                 self.logger.exception('Error saving pw!')
                 pass
-            wfile.write(hexof(self.setpw(self.imapsets.passwd,
-                                         self.passwordhash)).encode())
+            wfile.write(utils.hexof(self.setpw(self.imapsets.passwd,
+                                               self.passwordhash)).encode())
             wfile.close()
 
         # Main code starts here

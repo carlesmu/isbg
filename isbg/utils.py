@@ -27,6 +27,52 @@
 """Utils for isbg."""
 
 
+def dehexof(string):
+    """Tanslate a hexadecimal string to his string value."""
+    res = ""
+    while len(string):
+        res = res + chr(16 * hexdigit(string[0]) + hexdigit(string[1]))
+        string = string[2:]
+    return res
+
+
+def hexdigit(char):
+    """Tanslate a hexadecimal character his decimal (int) value."""
+    if char >= '0' and char <= '9':
+        return ord(char) - ord('0')
+    if char >= 'a' and char <= 'f':
+        return 10 + ord(char) - ord('a')
+    if char >= 'A' and char <= 'F':
+        return 10 + ord(char) - ord('A')
+    raise ValueError(repr(char) + " is not a valid hexadecimal digit")
+
+
+def hexof(string):
+    """Translate a string to a string with its hexadecimal value."""
+    res = ""
+    for i in string:
+        res = res + ("%02x" % ord(i))
+    return res
+
+
+def shorten(inp, length):
+    """Short a dict or a list or other object to a maximus length."""
+    if isinstance(inp, dict):
+        return dict([(k, shorten(v, length)) for k, v in inp.items()])
+    elif isinstance(inp, list) or isinstance(inp, tuple):
+        return [shorten(x, length) for x in inp]
+    return truncate(inp, length)
+
+
+def truncate(inp, length):
+    """Truncate a string to  a maximus length of his repr."""
+    if length < 3:
+        raise ValueError("length should be 3 or greater")
+    if len(inp) > length:
+        return repr(inp)[:length - 3] + '...'
+    return inp
+
+
 class BraceMessage(object):
     """Comodity class to format a string."""
 
