@@ -27,7 +27,7 @@
 """Utils for isbg."""
 
 
-class BraceMessage:
+class BraceMessage(object):
     """Comodity class to format a string."""
 
     def __init__(self, fmt, *args, **kwargs):
@@ -41,4 +41,4 @@ class BraceMessage:
         return self.fmt.format(*self.args, **self.kwargs)
 
 
-__ = BraceMessage
+__ = BraceMessage  # pylint: disable=invalid-name
