@@ -43,6 +43,11 @@ def test_mail_content():
     with pytest.raises(email.errors.MessageError,
                        message="mail 'None' is not a email.message.Message."):
         imaputils.mail_content(None)
+    fmail = open('examples/spam.from.spamassassin.eml', 'rb')
+    ftext = fmail.read()
+    mail = imaputils.new_message(ftext)
+    fmail.close()
+    assert isinstance(imaputils.mail_content(mail), (str, bytes))
 
 
 def test_new_message():
