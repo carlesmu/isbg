@@ -36,7 +36,9 @@ except (ValueError, ImportError):
 
 def mail_content(mail):
     """Get the email message content."""
-    assert isinstance(mail, email.message.Message)
+    if not isinstance(mail, email.message.Message):
+        raise email.errors.MessageError(__(
+            "mail '{}' is not a email.message.Message.".format(repr(mail))))
     try:
         return mail.as_bytes()  # python 3
     except AttributeError:
@@ -46,9 +48,15 @@ def mail_content(mail):
 def new_message(body):
     """Get a email.message from a body email."""
     try:
-        return email.message_from_bytes(body)  # python 3
-    except AttributeError:
-        return email.message_from_string(body)
+        mail = email.message_from_string(body)  # python 2+3
+    except (AttributeError, TypeError):
+        mail = email.message_from_bytes(body)  # pylint: disable=no-member
+
+    if mail.as_string() == "" or mail.as_string() == "\n":
+        raise TypeError(
+            __("body '{}' cannot be empty.".format(repr(body))))
+
+    return mail
 
 
 def get_message(imap, uid, append_to=None, logger=None, assertok=None):
