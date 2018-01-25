@@ -344,7 +344,8 @@ class ISBG(object):
             res = utils.shorten(res, 140)
         self.logger.debug("{} = {}".format(args, res))
         if res[0] != "OK":
-            self.logger.error("{} returned {} - aborting")
+            self.logger.error(
+                __("{} returned {} - aborting".format(args, res)))
             errorexit("\n%s returned %s - aborting\n"
                       % (repr(args), res),
                       __exitcodes__['imap'] if self.exitcodes else -1)
