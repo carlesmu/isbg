@@ -942,13 +942,17 @@ class ISBG(object):
             self.logger.info(dirlist)
 
         # Spamassassin training
-        learned = self.spamlearn()
-        s_tolearn, s_learnt = learned[0]
-        h_tolearn, h_learnt = learned[1]
+        s_tolearn, s_learnt, h_tolearn, h_learnt = (0, 0, 0, 0)
+        if not self.imaplist:
+            learned = self.spamlearn()
+            s_tolearn, s_learnt = learned[0]
+            h_tolearn, h_learnt = learned[1]
 
         # Spamassassin processing
-        if not self.teachonly:
-            numspam, nummsg, spamdeleted = self.spamassassin()
+        numspam, nummsg, spamdeleted = (0, 0, 0)
+        if not self.imaplist:
+            if not self.teachonly:
+                numspam, nummsg, spamdeleted = self.spamassassin()
 
         # sign off
         self.imap.logout()
