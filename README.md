@@ -15,47 +15,47 @@ different machines to where your mailbox actually is. So this is the
 perfect tool to take good care of your ISP mailbox without having to
 leave it.
 
-*   [Features](#Features)
-*   [New in 1.00](#New-in-100)
-*   [Installation](#Installation)
-	*   [Install from source](#Install-from-source)
-	*   [Install in Debian](#Install-in-Debian)
-*   [Your first run](#Your-first-run)
-	*   [SpamAssassin](#SpamAssassin)
-		*   [Configure your spamassassin](#Configure-your-spamassassin)
-			*   [Allow-tell](#Allow-tell)
-*   [CLI Options](#CLI_Options)
-*   [Do your first run.](#Do-your-first-run)
-*   [Running it](#Running-it)
-*   [Your folder names](#Your-folder-names)
-*   [How does it work?](#How-does-it-work)
-*   [Multiple accounts](#Multiple-accounts)
-*   [Saving your password](#Saving-your-password)
-*   [SSL](#SSL)
-*   [Exit Codes](#Exit-Codes)
-*   [Read and Seen flags](#Read-and-Seen-flags)
-*   [Gmail Integration](#Gmail-Integration)
-*   [Ignored emails](#Ignored-emails)
-*   [Partial runs](#Partial-runs)
-*   [Contact and about](#Contact-and-about)
-*   [License](#License)
+* [Features](#Features)
+* [New in 1.00](#New-in-100)
+* [Installation](#Installation)
+  * [Install from source](#Install-from-source)
+  * [Install in Debian](#Install-in-Debian)
+* [Your first run](#Your-first-run)
+  * [SpamAssassin](#SpamAssassin)
+    * [Configure your spamassassin](#Configure-your-spamassassin)
+      * [Allow-tell](#Allow-tell)
+* [CLI Options](#CLI_Options)
+* [Do your first run.](#Do-your-first-run)
+* [Running it](#Running-it)
+* [Your folder names](#Your-folder-names)
+* [How does it work?](#How-does-it-work)
+* [Multiple accounts](#Multiple-accounts)
+* [Saving your password](#Saving-your-password)
+* [SSL](#SSL)
+* [Exit Codes](#Exit-Codes)
+* [Read and Seen flags](#Read-and-Seen-flags)
+* [Gmail Integration](#Gmail-Integration)
+* [Ignored emails](#Ignored-emails)
+* [Partial runs](#Partial-runs)
+* [Contact and about](#Contact-and-about)
+* [License](#License)
 
 # Features<a name="Features"></a>
 
-*   Works with all common IMAP servers
-*   Works on Linux, MacOS X and Windows (even smartphones!)
-*   Can do IMAP over SSL
-*   Can remember your password
-*   Will work painlessly against multiple IMAP accounts and servers
-*   Is not involved in the mail delivery process, and so can run
-on any machine that can contact your IMAP server
-*   Highly configurable
-*   Sensible defaults so you don't have to do any configuring :-)
-*   Compatibility with Python 2.7, 3.5, 3.6
-*   Possibility to skip spam detection to stick only to the teach feature
-*   Don't fail when meeting horrible and bad formed mail
-*   Lock file to prevent multiple instance to run at the same time
-(for cron jobs)
+* Works with all common IMAP servers
+* Works on Linux, MacOS X and Windows (even smartphones!)
+* Can do IMAP over SSL
+* Can remember your password
+* Will work painlessly against multiple IMAP accounts and servers
+* Is not involved in the mail delivery process, and so can run on any machine 
+  that can contact your IMAP server
+* Highly configurable
+* Sensible defaults so you don't have to do any configuring :-)
+* Compatibility with Python 2.7, 3.5, 3.6
+* Possibility to skip spam detection to stick only to the teach feature
+* Don't fail when meeting horrible and bad formed mail
+* Lock file to prevent multiple instance to run at the same time (for cron 
+  jobs)
 
 ## New in 1.00<a name="New-in-100"></a>
 
@@ -63,16 +63,16 @@ on any machine that can contact your IMAP server
 need to stop using it! SSL is now used by default. If you want not to use
 it, please use the "--nossl" parameter.**
 
-  * The CLI interface is now implemented with docopt
-  * The README now includes the documentation
-  * New command --imaplist lists the directories in IMAP account
-  * Code now follows PEP-8 style guide
-  * Renamed variables to be consistent
-  * Added gmail integration (thanks to Orkim!)
-  * Added bash scripts for use with multiple accounts
-  * SSL is now used by default and "--ssl" parameter is now a "--nossl" parameter
-  * New command "--trackfile" now permits trackfile name configuration (thanks naevtamarkus!)
-  * New command "--partialrun" now enable isbg to run for only a few emails (thanks naevtamarkus!)
+* The CLI interface is now implemented with docopt
+* The README now includes the documentation
+* New command --imaplist lists the directories in IMAP account
+* Code now follows PEP-8 style guide
+* Renamed variables to be consistent
+* Added gmail integration (thanks to Orkim!)
+* Added bash scripts for use with multiple accounts
+* SSL is now used by default and "--ssl" parameter is now a "--nossl" parameter
+* New command "--trackfile" now permits trackfile name configuration (thanks naevtamarkus!)
+* New command "--partialrun" now enable isbg to run for only a few emails (thanks naevtamarkus!)
 
 # Installation<a name="Installation"></a>
 
