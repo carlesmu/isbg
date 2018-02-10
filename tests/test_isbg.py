@@ -201,3 +201,18 @@ class TestISBG(object):
         # Restore pytest options:
         del sys.argv[1:]
         sys.argv = orig_args[:]
+
+    def test_do_isbg(self):
+        """Test do_isbg."""
+        # Remove pytest options:
+        orig_args = sys.argv[:]
+
+        sbg = isbg.ISBG()
+        with pytest.raises(isbg.ISBGError, match="specify your imap password",
+                           message=("It should rise a specify imap password " +
+                                    "ISBGError")):
+            sbg.do_isbg()
+
+        # Restore pytest options:
+        del sys.argv[1:]
+        sys.argv = orig_args[:]
