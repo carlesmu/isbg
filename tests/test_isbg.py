@@ -83,11 +83,13 @@ class TestISBG(object):
     def test_parse_args(self):
         """Test parse_args."""
         # Remove pytest options:
-        args = sys.argv[:]
-        del sys.argv[1:]
+        orig_args = sys.argv[:]
 
+        # Parse command line:
+        del sys.argv[1:]
         for op in ["--imaphost", "localhost", "--imapuser", "anonymous",
-                   "--imappasswd", "none", "--dryrun"]:
+                   "--imappasswd", "none", "--dryrun", "--flag",
+                   "--noninteractive"]:
             sys.argv.append(op)
         sbg = isbg.ISBG()
         sbg.parse_args()
@@ -95,6 +97,66 @@ class TestISBG(object):
         assert sbg.imapsets.user == "anonymous"
         assert sbg.imapsets.passwd == "none"
 
+        # Parse with bogus maxsize
         del sys.argv[1:]
+        for op in ["--imaphost", "localhost", "--imapuser", "anonymous",
+                   "--imappasswd", "none", "--dryrun", "--maxsize", "0"]:
+            sys.argv.append(op)
+        sbg = isbg.ISBG()
+        with pytest.raises(isbg.ISBGError, match="too small",
+                           message="It should rise a too small ISBGError"):
+            sbg.parse_args()
+
+        del sys.argv[1:]
+        for op in ["--imaphost", "localhost", "--imapuser", "anonymous",
+                   "--imappasswd", "none", "--dryrun", "--maxsize", "foo"]:
+            sys.argv.append(op)
+        sbg = isbg.ISBG()
+        with pytest.raises(isbg.ISBGError, match="Unrecognised size",
+                           message=("It should rise a Unrecognised size" +
+                                    "ISBGError")):
+            sbg.parse_args()
+
+        # Parse with ok maxsize
+        del sys.argv[1:]
+        for op in ["--imaphost", "localhost", "--imapuser", "anonymous",
+                   "--imappasswd", "none", "--dryrun", "--maxsize", "12000"]:
+            sys.argv.append(op)
+        sbg = isbg.ISBG()
+        sbg.parse_args()
+        assert sbg.maxsize == 12000
+
+        # Parse with bogus partialrun
+        del sys.argv[1:]
+        for op in ["--imaphost", "localhost", "--imapuser", "anonymous",
+                   "--imappasswd", "none", "--dryrun", "--partialrun", "0"]:
+            sys.argv.append(op)
+        sbg = isbg.ISBG()
+        with pytest.raises(isbg.ISBGError, match="equal to 1 or higher",
+                           message=("It should rise a equial to 1 or higher " +
+                                    "ISBGError")):
+            sbg.parse_args()
+
+        del sys.argv[1:]
+        for op in ["--imaphost", "localhost", "--imapuser", "anonymous",
+                   "--imappasswd", "none", "--dryrun", "--partialrun", "foo"]:
+            sys.argv.append(op)
+        sbg = isbg.ISBG()
+        with pytest.raises(ValueError, match="invalid literal",
+                           message=("It should rise a invalid literal " +
+                                    "ValueError")):
+            sbg.parse_args()
+
+        # Parse with ok partialrun and verbose and nossl
+        del sys.argv[1:]
+        for op in ["--imaphost", "localhost", "--imapuser", "anonymous",
+                   "--imappasswd", "none", "--verbose", "--partialrun", "10",
+                   "--nossl"]:
+            sys.argv.append(op)
+        sbg = isbg.ISBG()
+        sbg.parse_args()
+        assert sbg.partialrun == 10
+
         # Restore pytest options:
-        sys.argv = args[:]
+        del sys.argv[1:]
+        sys.argv = orig_args[:]
