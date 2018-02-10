@@ -233,12 +233,8 @@ class ISBG(object):
         # and the flags we set them to (none by default)
         self.spamflags = []
 
-        # IMAP implementation detail
-        # Courier IMAP ignores uid fetches where more than a certain number
-        # are listed so we break them down into smaller groups of this size
-        self.uidfetchbatchsize = 25
-
-    def popen(self, cmd):
+    @staticmethod
+    def popen(cmd):
         """Call Popen, helper method."""
         if os.name == 'nt':
             return Popen(cmd, stdin=PIPE, stdout=PIPE)
