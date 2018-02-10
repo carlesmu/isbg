@@ -228,10 +228,6 @@ class ISBG(object):
 
         self.interactive = sys.stdin.isatty()
         self.alreadylearnt = "Message was already un/learned"
-        # satest is the command that is used to test if the message is spam
-        self.satest = ["spamassassin", "--exit-code"]
-        # sasave is the one that dumps out a munged message including report
-        self.sasave = ["spamassassin"]
         # what we use to set flags on the original spam in imapbox
         self.spamflagscmd = "+FLAGS.SILENT"
         # and the flags we set them to (none by default)
@@ -467,6 +463,15 @@ class ISBG(object):
         """Run spamassassin in the imbox mails."""
         uids = []
 
+        # satest is the command that is used to test if the message is spam
+        # sasave is the one that dumps out a munged message including report
+        if self.spamc:
+            satest = ["spamc", "-c"]
+            sasave = ["spamc"]
+        else:
+            satest = ["spamassassin", "--exit-code"]
+            sasave = ["spamassassin"]
+
         # check spaminbox exists by examining it
         res = self.imap.select(self.imapsets.spaminbox, 1)
         self.assertok(res, 'select', self.imapsets.spaminbox, 1)
@@ -535,7 +540,7 @@ class ISBG(object):
                     code = 0
                 processednum = processednum + 1
             else:
-                proc = self.popen(self.satest)
+                proc = self.popen(satest)
                 try:
                     score = proc.communicate(imaputils.mail_content(mail)
                                              )[0].decode(errors='ignore')
@@ -544,7 +549,7 @@ class ISBG(object):
                     code = proc.returncode
                 except Exception:  # pylint: disable=broad-except
                     self.logger.exception(__(
-                        'Error communicating with {}!'.format(self.satest)))
+                        'Error communicating with {}!'.format(satest)))
                     uids.remove(uid)
                     continue
                 proc.stdin.close()
@@ -573,14 +578,13 @@ class ISBG(object):
                     if self.dryrun:
                         self.logger.info("Skipping report because of --dryrun")
                     else:
-                        proc = self.popen(self.sasave)
+                        proc = self.popen(sasave)
                         try:
                             mail = email.message_from_string(proc.communicate(
                                 imaputils.mail_content(mail))[0])
                         except Exception:  # pylint: disable=broad-except
                             self.logger.exception(__(
-                                'Error communicating with {}!'.format(
-                                    self.sasave)))
+                                'Error communicating with {}!'.format(sasave)))
                             continue
                         proc.stdin.close()
                         res = self.imap.append(self.imapsets.spaminbox, None,
@@ -778,10 +782,6 @@ class ISBG(object):
         exitcode if its called from the command line and have the --exitcodes
         param.
         """
-        if self.spamc:
-            self.satest = ["spamc", "-c"]
-            self.sasave = ["spamc"]
-
         if self.delete and not self.gmail:
             self.spamflags.append("\\Deleted")
 
