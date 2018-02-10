@@ -9,10 +9,10 @@
 isbg is a script that makes it easy to scan an IMAP inbox for spam using
 SpamAssassin and get your spam moved to another folder.
 
-Unlike the normal mode of deployments for SpamAssassin, isbg does 
-not need to be involved in mail delivery, and can run on completely 
-different machines to where your mailbox actually is. So this is the 
-perfect tool to take good care of your ISP mailbox without having to 
+Unlike the normal mode of deployments for SpamAssassin, isbg does
+not need to be involved in mail delivery, and can run on completely
+different machines to where your mailbox actually is. So this is the
+perfect tool to take good care of your ISP mailbox without having to
 leave it.
 
 *   [Features](#Features)
@@ -54,7 +54,7 @@ on any machine that can contact your IMAP server
 *   Compatibility with Python 2.7, 3.5, 3.6
 *   Possibility to skip spam detection to stick only to the teach feature
 *   Don't fail when meeting horrible and bad formed mail
-*   Lock file to prevent multiple instance to run at the same time 
+*   Lock file to prevent multiple instance to run at the same time
 (for cron jobs)
 
 ## New in 1.00<a name="New-in-100"></a>
@@ -79,12 +79,12 @@ it, please use the "--nossl" parameter.**
 ## Install from source<a name="Install-from-source"></a>
 
 Make sure you have SpamAssassin installed. All the necessary information
-can be found on the 
+can be found on the
 [SpamAssassin wiki](https://wiki.apache.org/spamassassin/FrontPage).
 
 SpamAssassin should be on your $PATH (it installs in `/usr/bin/` by default)
 
-Download isbg.py. You can rename it to anything you want, and make 
+Download isbg.py. You can rename it to anything you want, and make
 it executable (`chmod 555 isbg.py`). It is written in the Python scripting
  language. Python is installed by default on most Linux systems. You can
  can find out more about Python at [www.python.org](http://www.python.org/)
@@ -105,8 +105,8 @@ There should thus be a packaged version soon.
 
 If you have never used SpamAssassin before, you'll probably be quite
  nervous about it being too good and taking out legitimate email, or not
- taking out enough spam. It has an easily adustable threshold to change 
-how aggressive it is. Run the following command to create your 
+ taking out enough spam. It has an easily adustable threshold to change
+how aggressive it is. Run the following command to create your
 preferences file.
 
 <pre>$ spamassassin  &lt;/dev/null &gt;/dev/null
@@ -122,7 +122,7 @@ If you want to use the `--learnspambox` or `--learnhambox`, you'll have
 
 ### Configure your spamassassin<a name="Configure-your-spamassassin"></a>
 
-If you want to use `--learnspambox` or `--learnhambox` features, 
+If you want to use `--learnspambox` or `--learnhambox` features,
 you have to add this configuration:
 
 #### Allow Tell<a name="Allow-tell"></a>
@@ -133,13 +133,13 @@ On Debian systems (Debian and Ubuntu), you have to edit
  `/etc/default/spamassassin` and replace:
 
 <pre>
-OPTIONS="-D --create-prefs --max-children 5 --helper-home-dir" 
+OPTIONS="-D --create-prefs --max-children 5 --helper-home-dir"
 </pre>
 
 by:
 
 <pre>
-OPTIONS="-D --allow-tell --create-prefs --max-children 5 --helper-home-dir" 
+OPTIONS="-D --allow-tell --create-prefs --max-children 5 --helper-home-dir"
 </pre>
 
 Don't forget to restart your spamd server after that
@@ -148,8 +148,8 @@ Don't forget to restart your spamd server after that
 
 ## CLI Options<a name="CLI_Options"></a>
 
-The default behaviour of isbg is to not make any changes your Inbox 
-unless you specify specific command line options. Consequently you can 
+The default behaviour of isbg is to not make any changes your Inbox
+unless you specify specific command line options. Consequently you can
 experiment without worry at the begining.
 
 Your first step is to create a new folder to receive suspected spam.
@@ -228,36 +228,36 @@ The amount of time it takes will be proportional to the size of your
  inbox. You can specify `--verbose` if you want to see the gory details of
  what is going on.
 
-You can now examine your spam folder and will see what spam was 
-detected. You can change the SpamAssassin threshold in your `user_prefs` 
+You can now examine your spam folder and will see what spam was
+detected. You can change the SpamAssassin threshold in your `user_prefs`
 file it created earlier.
 
-isbg remembers which messages it has already seen, so that it 
-doesn't process them again every time it is run. If you are testing and 
-do want it to run again, then remove the trackfile (default 
+isbg remembers which messages it has already seen, so that it
+doesn't process them again every time it is run. If you are testing and
+do want it to run again, then remove the trackfile (default
 `$HOME/.isbg-track*`).
 
-If you specified `--savepw` then isbg will remember your password the 
-next time you run against the same server with the same username. You 
+If you specified `--savepw` then isbg will remember your password the
+next time you run against the same server with the same username. You
 should not specify `--savepw` in future runs unless you want to change the
  saved password.
 
 # Running it<a name="Running-it"></a>
 
 You'll probably want something to actually be done with the original
- spams in your inbox. By default nothing happens to them, but you have 
+ spams in your inbox. By default nothing happens to them, but you have
 two options available. If you specify `--flag` then spams will be flagged.
 
 You can get the messages marked for deletion by specifying `--delete`.
  If you never want to see them in your inbox, also specify the `--expunge`
- option after `--delete` and they will be removed when isbg logs out of 
+ option after `--delete` and they will be removed when isbg logs out of
 the IMAP server.
 
 # Your folder names<a name="Your-folder-names"></a>
 
-Each IMAP implementation names their folders differently, and most 
-IMAP clients manage to hide most of this from you. If your IMAP server 
-is Courier, then your folders are all below INBOX, and use dots to 
+Each IMAP implementation names their folders differently, and most
+IMAP clients manage to hide most of this from you. If your IMAP server
+is Courier, then your folders are all below INBOX, and use dots to
 seperate the components.
 
 The UWash server typically has the folders below Mail and uses
@@ -268,42 +268,42 @@ the `--imaplist` option to find out.
 
 # How does it work?<a name="How-does-it-work"></a>
 
-IMAP assigns each message in a folder a unique id. isbg scans the 
-folder for messages it hasn't seen before, and for each one, downloads 
-the message and feeds it to SpamAssassin. If SpamAssassin says the 
+IMAP assigns each message in a folder a unique id. isbg scans the
+folder for messages it hasn't seen before, and for each one, downloads
+the message and feeds it to SpamAssassin. If SpamAssassin says the
 message is spam, then the SpamAssassin report is uploaded into your spam
- folder. Unless you specify the `--noreport` option, in which case the 
+ folder. Unless you specify the `--noreport` option, in which case the
 message is copied from your Inbox to the Spam folder (the copy happens on
- the IMAP server itself so this option is good if you are on a low 
+ the IMAP server itself so this option is good if you are on a low
 bandwidth connection).
 
 # Multiple accounts<a name="Multiple-accounts"></a>
 
-By default isbg saves the list of seen IMAP message unique IDs in a 
+By default isbg saves the list of seen IMAP message unique IDs in a
 file in your home directory. It is named `.isbg-trackXXXX` where XXXX is a
- 16 byte identifier based on the IMAP host, username and port number. 
-Consequently you can just run isbg against different servers/accounts 
-and it will automatically keep the tracked UIDs seperate. You can 
+ 16 byte identifier based on the IMAP host, username and port number.
+Consequently you can just run isbg against different servers/accounts
+and it will automatically keep the tracked UIDs seperate. You can
 override the filename with `--trackfile`.
 
-To run isbg for multiple accounts one after another, it is possible to use 
+To run isbg for multiple accounts one after another, it is possible to use
 bash scripts like the ones in the folder "bash_scripts". Since these scripts
 contain passwords and are thus sensitive data, make sure the file permissions
 are very restrictive.
 
 # Saving your password<a name="Saving-your-password"></a>
 
-If you don't want isbg to prompt you for your password each time, 
-you can specify the `--savepw` option. This will save the password in a 
+If you don't want isbg to prompt you for your password each time,
+you can specify the `--savepw` option. This will save the password in a
 file in your home directory. The file is named `.isbg-XXXX` where XXXX is a
- 16 byte identifier based on the IMAP host, username and port number 
-(the same as for the multiple accounts description above). You can 
+ 16 byte identifier based on the IMAP host, username and port number
+(the same as for the multiple accounts description above). You can
 override the filename with `--passwdfilename`.
 
-The password is obfuscated, so anyone just looking at the contents 
+The password is obfuscated, so anyone just looking at the contents
 won't be able to see what it is. However, if they study the code to isbg
- then they will be able to figure out how to de-obfuscate it, and 
-recover the original password. (isbg needs the original password each 
+ then they will be able to figure out how to de-obfuscate it, and
+recover the original password. (isbg needs the original password each
 time it is run as well).
 
 Consequently you should regard this as providing minimal protection if
@@ -311,20 +311,20 @@ Consequently you should regard this as providing minimal protection if
 
 # SSL<a name="SSL"></a>
 
-isbg can do IMAP over SSL if your version of Python has been 
+isbg can do IMAP over SSL if your version of Python has been
 compiled with SSL support. Since Python 2.6, SSL comes built in with Python.
 
-However you should be aware that the SSL support does NOT check the 
-certificate name nor validate the issuer. If an attacker can intercept 
-the connection and modify all the packets flowing by, then they will be 
-able to pose as the IMAP server. Other than that, the connection will 
+However you should be aware that the SSL support does NOT check the
+certificate name nor validate the issuer. If an attacker can intercept
+the connection and modify all the packets flowing by, then they will be
+able to pose as the IMAP server. Other than that, the connection will
 have the usual security features of SSL.
 
 # Exit Codes<a name="Exit-Codes"></a>
 
 When ISBG exits, it uses the exit code to tell you what happened. In
- general it is zero if all went well, and non-zero if there was a 
-problem. You can turn on additional reporting by using the `--exitcodes` 
+ general it is zero if all went well, and non-zero if there was a
+problem. You can turn on additional reporting by using the `--exitcodes`
 command line option.
 
 |code| `--exitcodes` needed| description|
@@ -341,15 +341,15 @@ command line option.
 
 # Read and Seen flags<a name="Read-and-Seen-flags"></a>
 
-There are two flags IMAP uses to mark messages, Recent and Seen. 
-Recent is sent to the first IMAP client that connects after a new 
-message is received. Other clients or subsequent connections won't see 
+There are two flags IMAP uses to mark messages, Recent and Seen.
+Recent is sent to the first IMAP client that connects after a new
+message is received. Other clients or subsequent connections won't see
 that flag. The Seen flag is used to mark a message as read. IMAP clients
  explicitly set Seen when a message is being read.
 
-Pine and some other mailers use the Recent flag to mark new mail. 
-Unfortunately this means that if isbg or any other IMAP client has even 
-looked at the Inbox, the messages won't be shown as new. It really 
+Pine and some other mailers use the Recent flag to mark new mail.
+Unfortunately this means that if isbg or any other IMAP client has even
+looked at the Inbox, the messages won't be shown as new. It really
 should be using Seen.
 
 The IMAP specification does not permit clients to change the Recent flag.a
@@ -408,7 +408,7 @@ Defaut maximum size can be changed with the use of the `--maxsize` option.
 # Partial runs<a name="Partial-runs"></a>
 
 By default, isbg scans the whole inbox folder. If you want to restrict the number
-of emails that are scanned, you can use the `--partialrun` option specifying the 
+of emails that are scanned, you can use the `--partialrun` option specifying the
 number of unseen (not scanned before) emails you want to check.
 
 This may be useful when your inbox has a lot of emails, since deletion and mail
@@ -423,9 +423,9 @@ project news and to discuss the further developpement of ISBG.
 
 You can also hang out with us on IRC, at `#isbg` on Freenode.
 
-This software was written by Roger Binns 
+This software was written by Roger Binns
 &lt;[rogerb@rogerbinns.com](mailto:rogerb@rogerbinns.com)&gt;
- and is maintained by Thomas Lecavelier 
+ and is maintained by Thomas Lecavelier
 &lt;[thomas@lecavelier.name](mailto:thomas@lecavelier.name)&gt;
  since november 2009.
 With the great help of Anders Jenbo since v0.99.
