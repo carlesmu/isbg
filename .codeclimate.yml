@@ -33,19 +33,17 @@ checks:
       threshold: # language-specific defaults. an override will affect all languages.
 
 # Added for isbg:
-engines:
-  duplication:
-    enabled: true
-    config:
-      languages:
-      - python:
-
 plugins:
   sonar-python:
     enabled: true
     config:
       tests_patterns:
         - tests/*py
+  duplication:
+    enabled: true
+    config:
+      languages:
+      - python:
   fixme:
     enabled: true
   pep8:
