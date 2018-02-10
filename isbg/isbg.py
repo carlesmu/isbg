@@ -897,9 +897,8 @@ class ISBG(object):
 
         # Spamassassin processing
         numspam, nummsg, spamdeleted = (0, 0, 0)
-        if not self.imaplist:
-            if not self.teachonly:
-                numspam, nummsg, spamdeleted = self.spamassassin()
+        if not self.imaplist and not self.teachonly:
+            numspam, nummsg, spamdeleted = self.spamassassin()
 
         # sign off
         self.imap.logout()
