@@ -213,8 +213,10 @@ class ISBG(object):
         self.ignorelockfile = False
         self.lockfilename = os.path.join(xdg_cache_home, "isbg", "lock")
         self.lockfilegrace = 240.0
-        # Password options:
+        # Password options (a vague level of obfuscation):
         self.passwdfilename, self.savepw = (None, False)
+        self.passwordhash = None
+        self.passwordhashlen = 256  # should be a multiple of 16
         # Trackfile oprions:
         self.pastuidsfile, self.partialrun = (None, False)
         # spamassassin options:
@@ -239,10 +241,6 @@ class ISBG(object):
         # Courier IMAP ignores uid fetches where more than a certain number
         # are listed so we break them down into smaller groups of this size
         self.uidfetchbatchsize = 25
-        # password saving stuff. A vague level of obfuscation
-        self.passwdfilename = None
-        self.passwordhash = None
-        self.passwordhashlen = 256  # should be a multiple of 16
 
     def popen(self, cmd):
         """Call Popen, helper method."""
