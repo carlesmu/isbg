@@ -46,7 +46,7 @@ def test_sa_unwrap_from_email():
     assert ret is None, "%r is not a None." % ret
 
     """
-    Test creating a multipart missage with 1 message from a file.
+    Test creating a multipart message with 1 message from a file.
     It should return 1 Message.
     """
     f = open('examples/spam.from.spamassassin.eml', 'rb')
@@ -95,6 +95,9 @@ def test_unwrap():
     mails = sa_unwrap.unwrap(f)
     f.close()
     assert mails is None
+
+    """ Test a email.message.Message."""
+    assert sa_unwrap.unwrap(email.message.Message()) is None
 
 
 def test_run(capsys):
