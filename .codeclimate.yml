@@ -54,3 +54,5 @@ plugins:
     enabled: true
   markdownlint:
     enabled: true
+  git-legal:
+    enabled: true
