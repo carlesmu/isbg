@@ -25,17 +25,19 @@ install:
   - python setup.py install         # install isbg package
   - pip install codecov             # install codecov
   - pip install pytest-cov          # for codecov usage
+  - pip install coverage
 
 # command to run tests
 script:
   - python setup.py bdist       # create binary distribution
   - python setup.py sdist       # create source distribution
   - pytest --cov-append --cov=isbg tests/   # For codecove usage
-  - isbg --version              # show isbg version
 
 after_script:
+  - coverage xml                # for codeclimate
   - ./cc-test-reporter after-build --debug --exit-code $TRAVIS_TEST_RESULT
 
 after_success:
-  - codecov                   # codecov.io suport
+  - codecov                     # codecov.io suport
+  - isbg --version              # show isbg version
 
