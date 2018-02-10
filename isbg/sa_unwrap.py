@@ -62,7 +62,7 @@ def sa_unwrap_from_email(msg):
                     pl_bytes = pload.as_string()
                 el_idx = pl_bytes.index(b'\n\n')
                 parts.append(MESSAGE(pl_bytes[el_idx + 2:]))
-        if len(parts) > 0:
+        if parts:  # len(parts) > 0
             return parts
     return None
 

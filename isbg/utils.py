@@ -30,7 +30,7 @@
 def dehexof(string):
     """Tanslate a hexadecimal string to his string value."""
     res = ""
-    while len(string):
+    while string:
         res = res + chr(16 * hexdigit(string[0]) + hexdigit(string[1]))
         string = string[2:]
     return res

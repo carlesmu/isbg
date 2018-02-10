@@ -569,7 +569,7 @@ class ISBG(object):
                                          assertok=self.assertok)
             # Unwrap spamassassin reports
             unwrapped = unwrap(mail)
-            if unwrapped is not None and len(unwrapped) > 0:
+            if unwrapped is not None and unwrapped:  # len(unwrapped) > 0
                 mail = unwrapped[0]
 
             # Feed it to SpamAssassin in test mode
@@ -676,7 +676,7 @@ class ISBG(object):
                 res = self.imap.select(self.imapsets.inbox)
                 self.assertok(res, 'select', self.imapsets.inbox)
                 # Only set message flags if there are any
-                if len(self.spamflags) > 0:
+                if self.spamflags:  # len(self.smpamflgs) > 0
                     for uid in spamlist:
                         res = self.imap.uid("STORE", uid, self.spamflagscmd,
                                             imaputils.imapflags(self.spamflags)
@@ -760,7 +760,7 @@ class ISBG(object):
                             "{} Unwrapped: {}".format(uid, utils.shorten(
                                 imaputils.mail_content(unwrapped[0]), 140))))
 
-                    if unwrapped is not None and len(unwrapped) > 0:
+                    if unwrapped is not None and unwrapped:  # len(unwrapped)>0
                         mail = unwrapped[0]
                     if self.dryrun:
                         out = self.alreadylearnt
