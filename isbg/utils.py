@@ -59,7 +59,7 @@ def shorten(inp, length):
     """Short a dict or a list or other object to a maximus length."""
     if isinstance(inp, dict):
         return dict([(k, shorten(v, length)) for k, v in inp.items()])
-    elif isinstance(inp, list) or isinstance(inp, tuple):
+    elif isinstance(inp, (list, tuple)):
         return [shorten(x, length) for x in inp]
     return truncate(inp, length)
 
