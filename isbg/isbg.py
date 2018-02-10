@@ -901,7 +901,6 @@ class ISBG(object):
                     self.logger.debug("Successfully read password file")
                 except Exception:  # pylint: disable=broad-except
                     self.logger.exception('Error reading pw!')
-                    pass
 
             # do we have to prompt?
             if self.imapsets.passwd is None:
@@ -920,7 +919,6 @@ class ISBG(object):
                 os.chmod(self.passwdfilename, 0o600)
             except Exception:  # pylint: disable=broad-except
                 self.logger.exception('Error saving pw!')
-                pass
             wfile.write(utils.hexof(self.setpw(self.imapsets.passwd,
                                                self.passwordhash)).encode())
             wfile.close()
