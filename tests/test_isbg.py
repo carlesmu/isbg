@@ -97,6 +97,47 @@ class TestISBG(object):
         assert sbg.imapsets.user == "anonymous"
         assert sbg.imapsets.passwd == "none"
 
+        # Parse with unknown option
+        del sys.argv[1:]
+        for op in ["--foo"]:
+            sys.argv.append(op)
+        sbg = isbg.ISBG()
+        with pytest.raises(SystemExit, match="[options]",
+                           message="It should rise a docopt SystemExit"):
+            sbg.parse_args()
+
+        # Parse with bogus deletehigherthan
+        del sys.argv[1:]
+        for op in ["--imaphost", "localhost", "--imapuser", "anonymous",
+                   "--imappasswd", "none", "--dryrun", "--deletehigherthan",
+                   "0"]:
+            sys.argv.append(op)
+        sbg = isbg.ISBG()
+        with pytest.raises(isbg.ISBGError, match="too small",
+                           message="It should rise a too small ISBGError"):
+            sbg.parse_args()
+
+        del sys.argv[1:]
+        for op in ["--imaphost", "localhost", "--imapuser", "anonymous",
+                   "--imappasswd", "none", "--dryrun", "--deletehigherthan",
+                   "foo"]:
+            sys.argv.append(op)
+        sbg = isbg.ISBG()
+        with pytest.raises(isbg.ISBGError, match="Unrecognized score",
+                           message=("It should rise a unrecognized score" +
+                                    "ISBGError")):
+            sbg.parse_args()
+
+        # Parse with ok deletehigherthan
+        del sys.argv[1:]
+        for op in ["--imaphost", "localhost", "--imapuser", "anonymous",
+                   "--imappasswd", "none", "--dryrun", "--deletehigherthan",
+                   "8"]:
+            sys.argv.append(op)
+        sbg = isbg.ISBG()
+        sbg.parse_args()
+        assert sbg.deletehigherthan == 8.0
+
         # Parse with bogus maxsize
         del sys.argv[1:]
         for op in ["--imaphost", "localhost", "--imapuser", "anonymous",
