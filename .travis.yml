@@ -1,9 +1,23 @@
+env:
+  global:
+# CodeClimate.com
+    - CC_TEST_REPORTER=858f376754f8ea78678a11d9c302f3a5cf11990e4c9287960869e419733a2bb1
+
 language: python
 
 python:
   - "2.7"
   - "3.5"
   - "3.6"
+# Pypy version:
+  - "pypy"
+  - "pypy3"
+
+# command to install dependencies
+before_script:
+  - curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
+  - chmod +x ./cc-test-reporter
+  - ./cc-test-reporter before-build
 
 # command to install dependencies
 install:
@@ -19,5 +33,9 @@ script:
   - pytest --cov-append --cov=isbg tests/   # For codecove usage
   - isbg --version              # show isbg version
 
+after_script:
+  - ./cc-test-reporter after-build --exit-code $TRAVIS_TEST_RESULT
+
 after_success:
   - codecov                   # codecov.io suport
+
