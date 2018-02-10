@@ -202,14 +202,27 @@ class ISBG(object):
         if not os.path.isdir(os.path.join(xdg_cache_home, "isbg")):
             os.makedirs(os.path.join(xdg_cache_home, "isbg"))
 
-        # Initializes variables
-        self.set_reporting_opts()
-        self.set_processing_opts()
-        self.set_lockfile_opts()
-        self.set_password_opts()
-        self.set_trackfile_opts()
-        self.set_sa_opts()
-        self.set_learning_opts()
+        # Reporting options:
+        self.imaplist, self.nostats, self.noreport = (None, False, False)
+        self.exitcodes, self.verbose, self.verbose_mails = (True, False, False)
+        self.set_loglevel(logging.INFO)
+        # Processing options:
+        self.dryrun, self.maxsize, self.teachonly = (False, 120000, False)
+        self.spamc, self.gmail = (False, False)
+        # Lockfile options:
+        self.ignorelockfile = False
+        self.lockfilename = os.path.join(xdg_cache_home, "isbg", "lock")
+        self.lockfilegrace = 240.0
+        # Password options:
+        self.passwdfilename, self.savepw = (None, False)
+        # Trackfile oprions:
+        self.pastuidsfile, self.partialrun = (None, False)
+        # spamassassin options:
+        self.movehamto, self.delete = (None, False)
+        self.deletehigherthan, self.flag, self.expunge = (None, False, False)
+        # Learning options:
+        self.learnflagged, self.learnunflagged = (False, False)
+        self.learnthendestroy, self.learnthenflag = (False, False)
 
         self.interactive = sys.stdin.isatty()
         self.alreadylearnt = "Message was already un/learned"
@@ -237,68 +250,6 @@ class ISBG(object):
             return Popen(cmd, stdin=PIPE, stdout=PIPE)
         else:
             return Popen(cmd, stdin=PIPE, stdout=PIPE, close_fds=True)
-
-    def set_reporting_opts(self, imaplist=False, nostats=False, noreport=False,
-                           exitcodes=True, verbose=False, verbose_mails=False):
-        """Set reporting options."""
-        self.imaplist = imaplist
-        self.nostats = nostats
-        self.noreport = noreport
-        self.exitcodes = exitcodes
-        self.verbose = verbose
-        if self.verbose:
-            self.set_loglevel(logging.DEBUG)
-        else:
-            self.set_loglevel(logging.INFO)
-        self.verbose_mails = verbose_mails
-
-    def set_processing_opts(self, dryrun=False, maxsize=120000,
-                            teachonly=False, spamc=False, gmail=False):
-        """Set processing options."""
-        self.dryrun = dryrun
-        self.maxsize = maxsize
-        self.teachonly = teachonly
-        self.spamc = spamc
-        self.gmail = gmail
-
-    def set_lockfile_opts(self, ignorelockfile=False,
-                          lockfilename=os.path.join(xdg_cache_home,
-                                                    "isbg", "lock"),
-                          lockfilegrace=240.0):
-        """Set lockfile options."""
-        self.ignorelockfile = ignorelockfile
-        self.lockfilename = lockfilename
-        self.lockfilegrace = lockfilegrace
-
-    def set_password_opts(self, passwdfilename=None, savepw=False):
-        """Set password options."""
-        self.passwdfilename = passwdfilename
-        self.savepw = savepw
-
-    def set_trackfile_opts(self, trackfile=None, partialrun=False):
-        """Set trackfile options."""
-        self.pastuidsfile = trackfile
-        self.partialrun = partialrun
-
-    def set_sa_opts(self, movehamto=None, delete=False, deletehigherthan=None,
-                    flag=False, expunge=False):
-        """Set spamassassin options."""
-        self.movehamto = movehamto
-        self.delete = delete
-        self.deletehigherthan = deletehigherthan
-        self.flag = flag
-        self.expunge = expunge
-
-    def set_learning_opts(self, learnflagged=False, learnunflagged=False,
-                          learnthendestroy=False, learnthenflag=False):
-        """Set learning options."""
-        if learnflagged and learnunflagged:
-            raise ValueError(
-                'Cannot pass learnflagged and learnunflagged at same time')
-        self.learnflagged = learnflagged
-        self.learnunflagged = learnunflagged
-        self.learnthendestroy = learnthendestroy
-        self.learnthenflag = learnthenflag
 
     def set_loglevel(self, level):
         """Set the log level."""
