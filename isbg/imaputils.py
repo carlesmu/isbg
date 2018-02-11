@@ -143,7 +143,7 @@ class ImapSettings(object):
 
     @staticmethod
     def get_hash(host, user, port):
-        """Get a hash with the host, port, info."""
+        """Get a hash with the host, user and port."""
         newhash = md5()
         newhash.update(host.encode())
         newhash.update(user.encode())
