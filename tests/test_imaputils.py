@@ -69,6 +69,38 @@ def test_new_message():
         imaputils.new_message(body="")
 
 
+def test_get_message():
+    """Test get_message."""
+    # FIXME:
+    pass
+
+
+def test_imapflags():
+    """Test imapflags."""
+    #  FIXME:
+    pass
+
+
+class TestIsbgImap4(object):
+    """Test IsbgImap4."""
+
+    # FIXME:
+    pass
+
+
+class TestIsbgImap4_SSL(object):
+    """Test IsbgImap4_SSL."""
+
+    # FIXME:
+    pass
+
+
+def test_login_imap():
+    """Test login_imap."""
+    # FIXME:
+    pass
+
+
 class TestImapSettings(object):
     """Test object ImapSettings."""
 
