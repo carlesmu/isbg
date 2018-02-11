@@ -75,6 +75,8 @@ class TestImapSettings(object):
     def test(self):
         """Test the object."""
         imapset = imaputils.ImapSettings()
+        imaphash = imapset.hash
+        assert imapset.hash == imaphash
         assert imapset.hash.hexdigest() == '56fdd686137c8645d44024096a0ed441'
         imapset.host = '127.0.0.1'
         assert imapset.hash.hexdigest() == 'ca057ebec07690c05f64959fff011c8d'

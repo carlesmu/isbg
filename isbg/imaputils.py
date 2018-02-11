@@ -135,11 +135,24 @@ class ImapSettings(object):
         self.spaminbox = 'INBOX.spam'
         self.learnspambox = None
         self.learnhambox = None
+        #
+        self._hashed_host = None
+        self._hashed_user = None
+        self._hashed_port = None
+        self._hash = self.hash
 
     @property
     def hash(self):
         """Get the hash property builf from the host, user and port."""
-        return ImapSettings.get_hash(self.host, self.user, self.port)
+        if self._hashed_host == self.host and \
+                self._hashed_user == self.user and \
+                self._hashed_port == self.port:
+            return self._hash
+        else:
+            self._hashed_host = self.host
+            self._hashed_user = self.user
+            self._hashed_port = self.port
+            return ImapSettings.get_hash(self.host, self.user, self.port)
 
     @staticmethod
     def get_hash(host, user, port):
