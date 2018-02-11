@@ -88,13 +88,6 @@ class TestIsbgImap4(object):
     pass
 
 
-class TestIsbgImap4_SSL(object):
-    """Test IsbgImap4_SSL."""
-
-    # FIXME:
-    pass
-
-
 def test_login_imap():
     """Test login_imap."""
     # FIXME:

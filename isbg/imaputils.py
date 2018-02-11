@@ -91,77 +91,65 @@ def imapflags(flaglist):
     return '(' + ','.join(flaglist) + ')'
 
 
-class IsbgImap4(imaplib.IMAP4, object):
-    """Extends a imaplib.IMAP4_SSL with an assertok method."""
+class IsbgImap4(object):
+    """Proxy class for imaplib.IMAP4 or imaplib.IMAP4_SSL."""
 
-    def __init__(self, host='', port=143, assertok=None):
-        """Create a imaplib.IMAP4 with an assertok method."""
+    def __init__(self, host='', port=143, nossl=False, assertok=None):
+        """Create a imaplib.IMAP4[_SSL] with an assertok method."""
         self.assertok = assertok
-        super(IsbgImap4, self).__init__(host, port)
+        self.nossl = nossl
+        if nossl:
+            self.imap = imaplib.IMAP4(host, port)
+        else:
+            self.imap = imaplib.IMAP4_SSL(host, port)
+
+    def capability(self):
+        """Fetch capabilities list from server."""
+        res = self.imap.capability()
+        if self.assertok:
+            self.assertok(res, 'capability')
+        return res
+
+    def list(self, directory='""', pattern='*'):
+        """List mailbox names in directory matching pattern."""
+        res = self.imap.list(directory, pattern)
+        if self.assertok:
+            self.assertok(res, 'list', directory, pattern)
+        return res
 
     def login(self, user, passwd):
         """Identify client using plain text password."""
-        res = super(IsbgImap4, self).login(user, passwd)
+        res = self.imap.login(user, passwd)
         if self.assertok:
             self.assertok(res, "login", user, 'xxxxxxxx')
         return res
 
+    def logout(self):
+        """Shutdown connection to server."""
+        res = self.imap.logout()
+        if self.assertok:
+            self.assertok(res, "logout")
+        return res
+
+    def status(self, mailbox, names):
+        """Request named status conditions for mailbox."""
+        res = self.imap.status(mailbox, names)
+        if self.assertok:
+            self.assertok(res, "status", mailbox, names)
+        return res
+
     def select(self, mailbox='INBOX', readonly=False):
         """Select a Mailbox."""
-        res = super(IsbgImap4, self).select(mailbox, readonly)
+        res = self.imap.select(mailbox, readonly)
         if self.assertok:
             self.assertok(res, 'select', mailbox, readonly)
         return res
 
     def uid(self, command, *args):
         """Execute "command arg ..." with messages identified by UID."""
-        res = super(IsbgImap4, self).uid(command, *args)
+        res = self.imap.uid(command, *args)
         if self.assertok:
             self.assertok(res, 'uid ' + command, *args)
-        return res
-
-    def list(self, directory='""', pattern='*'):
-        """List mailbox names in directory matching pattern."""
-        res = super(IsbgImap4, self).list(directory, pattern)
-        if self.assertok:
-            self.assertok(res, 'list', directory, pattern)
-        return res
-
-
-class IsbgImap4_SSL(imaplib.IMAP4_SSL, object):
-    """Extends a imaplib.IMAP4_SSL with an assertok method."""
-
-    def __init__(self, host='', port=143, assertok=None):
-        """Create a imaplib.IMAP4_SSL with an assertok method."""
-        self.assertok = assertok
-        super(IsbgImap4_SSL, self).__init__(host, port)
-
-    def login(self, user, passwd):
-        """Identify client using plain text password."""
-        res = super(IsbgImap4_SSL, self).login(user, passwd)
-        if self.assertok:
-            self.assertok(res, "login", user, 'xxxxxxxx')
-        return res
-
-    def select(self, mailbox='INBOX', readonly=False):
-        """Select a Mailbox."""
-        res = super(IsbgImap4_SSL, self).select(mailbox, readonly)
-        if self.assertok:
-            self.assertok(res, 'select', mailbox, readonly)
-        return res
-
-    def uid(self, command, *args):
-        """Execute "command arg ..." with messages identified by UID."""
-        res = super(IsbgImap4_SSL, self).uid(command, *args)
-        if self.assertok:
-            self.assertok(res, 'uid ' + command, *args)
-        return res
-
-    def list(self, directory='""', pattern='*'):
-        """List mailbox names in directory matching pattern."""
-        res = super(IsbgImap4_SSL, self).list(directory, pattern)
-        if self.assertok:
-            self.assertok(res, 'list', directory, pattern)
         return res
 
 
@@ -172,10 +160,7 @@ def login_imap(imapsets, nossl=False, logger=None, assertok=None):
     retry_time = 0.60   # seconds
     for retry in range(1, max_retry + 1):
         try:
-            if nossl:
-                imap = IsbgImap4(imapsets.host, imapsets.port, assertok)
-            else:
-                imap = IsbgImap4_SSL(imapsets.host, imapsets.port, assertok)
+            imap = IsbgImap4(imapsets.host, imapsets.port, nossl, assertok)
             break   # ok, exit from loop
         except socket.error as exc:
             logger.warning(__(
