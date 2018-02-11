@@ -1,15 +1,16 @@
 version: "2"         # required to adjust maintainability checks
 checks:
-# Default values:
   argument-count:
     config:
       threshold: 4
   complex-logic:
     config:
-      threshold: 4
+      #threshold: 4
+      threshold: 5
   file-lines:
     config:
-      threshold: 250
+      #threshold: 250
+      threshold: 1000
   method-complexity:
     config:
       threshold: 5
@@ -18,7 +19,8 @@ checks:
       threshold: 20
   method-lines:
     config:
-      threshold: 25
+      #threshold: 25
+      threshold: 100
   nested-control-flow:
     config:
       threshold: 4
@@ -52,5 +54,8 @@ plugins:
     enabled: true
   markdownlint:
     enabled: true
-  git-legal:
+  shellcheck:
     enabled: true
+
+exclude_patterns:
+  - "**/tests/"
