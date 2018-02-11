@@ -202,6 +202,25 @@ class TestISBG(object):
         del sys.argv[1:]
         sys.argv = orig_args[:]
 
+    def test_set_filename(self):
+        """Test set_filename."""
+        sbg = isbg.ISBG()
+        filename = isbg.ISBG.set_filename(sbg.imapsets, "track")
+        assert os.path.dirname(filename) != ""
+        assert os.path.basename(filename) != ""
+        assert os.path.basename(filename).startswith("track")
+        filename = isbg.ISBG.set_filename(sbg.imapsets, "password")
+        assert os.path.dirname(filename) != ""
+        assert os.path.basename(filename) != ""
+        assert os.path.basename(filename).startswith(".isbg-")
+
+    def test___do_passwordhash(self):
+        """Test __do_passwordhash."""
+        sbg = isbg.ISBG()
+        print sbg.passwordhash
+        sbg.do_passwordhash()
+        assert len(sbg.passwordhash) == sbg.passwordhashlen
+
     def test_do_isbg(self):
         """Test do_isbg."""
         # Remove pytest options:

@@ -234,6 +234,15 @@ class ISBG(object):
         self.spamflags = []
 
     @staticmethod
+    def set_filename(imapsets, filetype):
+        """Set the filename of cached created files."""
+        if filetype == "password":
+            filename = os.path.join(xdg_cache_home, "isbg", ".isbg-")
+        else:
+            filename = os.path.join(xdg_cache_home, "isbg", filetype)
+        return filename + imapsets.hash.hexdigest()
+
+    @staticmethod
     def popen(cmd):
         """Call Popen, helper method."""
         if os.name == 'nt':
@@ -771,6 +780,21 @@ class ISBG(object):
 
         return result
 
+    def do_passwordhash(self):
+        """Create the passwordhash."""
+        # We make hash that the password is xor'ed against
+        mdh = md5()
+        mdh.update(self.imapsets.host.encode())
+        mdh.update(self.imapsets.hash.digest())
+        mdh.update(self.imapsets.user.encode())
+        mdh.update(self.imapsets.hash.digest())
+        mdh.update(repr(self.imapsets.port).encode())
+        mdh.update(self.imapsets.hash.digest())
+        self.passwordhash = self.imapsets.hash.digest()
+        while len(self.passwordhash) < self.passwordhashlen:
+            self.imapsets.hash.update(self.passwordhash)
+            self.passwordhash = self.passwordhash + self.imapsets.hash.digest()
+
     def do_isbg(self):
         """Execute the main isbg process.
 
@@ -783,41 +807,19 @@ class ISBG(object):
             self.spamflags.append("\\Deleted")
 
         if self.pastuidsfile is None:
-            self.pastuidsfile = os.path.join(xdg_cache_home, "isbg", "track")
-            newhash = md5()
-            newhash.update(self.imapsets.host.encode())
-            newhash.update(self.imapsets.user.encode())
-            newhash.update(repr(self.imapsets.port).encode())
-            res = newhash.hexdigest()
-            self.pastuidsfile = self.pastuidsfile + res
+            self.pastuidsfile = ISBG.set_filename(self.imapsets, "track")
 
         if self.passwdfilename is None:
-            newhash = md5()
-            newhash.update(self.imapsets.host.encode())
-            newhash.update(self.imapsets.user.encode())
-            newhash.update(repr(self.imapsets.port).encode())
-            self.passwdfilename = os.path.join(xdg_cache_home, "isbg",
-                                               ".isbg-" + newhash.hexdigest())
+            self.passwdfilename = ISBG.set_filename(self.imapsets, "password")
 
         if self.passwordhash is None:
-            # We make hash that the password is xor'ed against
-            mdh = md5()
-            mdh.update(self.imapsets.host.encode())
-            mdh.update(newhash.digest())
-            mdh.update(self.imapsets.user.encode())
-            mdh.update(newhash.digest())
-            mdh.update(repr(self.imapsets.port).encode())
-            mdh.update(newhash.digest())
-            self.passwordhash = newhash.digest()
-            while len(self.passwordhash) < self.passwordhashlen:
-                newhash.update(self.passwordhash)
-                self.passwordhash = self.passwordhash + newhash.digest()
+            self.do_passwordhash()
 
         self.logger.debug(__("Lock file is {}".format(self.lockfilename)))
         self.logger.debug(__("Trackfile is {}".format(self.pastuidsfile)))
-        self.logger.debug(__("SpamFlags are {}".format(self.spamflags)))
         self.logger.debug(__(
             "Password file is {}".format(self.passwdfilename)))
+        self.logger.debug(__("SpamFlags are {}".format(self.spamflags)))
 
         # Acquire lockfilename or exit
         if self.ignorelockfile:
@@ -916,7 +918,6 @@ class ISBG(object):
 
         if self.exitcodes and __name__ == '__main__':
             if not self.teachonly:
-                res = 0
                 if numspam == 0:
                     return __exitcodes__['newmsgs']
                 if numspam == nummsg:
