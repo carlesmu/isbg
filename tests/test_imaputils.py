@@ -67,3 +67,14 @@ def test_new_message():
         imaputils.new_message(None)
     with pytest.raises((TypeError, AttributeError)):
         imaputils.new_message(body="")
+
+
+class TestImapSettings(object):
+    """Test object ImapSettings."""
+
+    def test(self):
+        """Test the object."""
+        imapset = imaputils.ImapSettings()
+        assert imapset.hash.hexdigest() == '56fdd686137c8645d44024096a0ed441'
+        imapset.host = '127.0.0.1'
+        assert imapset.hash.hexdigest() == 'ca057ebec07690c05f64959fff011c8d'

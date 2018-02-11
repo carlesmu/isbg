@@ -29,6 +29,11 @@ import socket     # to catch the socket.error exception
 import time
 
 try:
+    from hashlib import md5
+except ImportError:
+    from md5 import md5
+
+try:
     from utils import __       # as script: py2 and py3, as module: py3
 except (ValueError, ImportError):
     from isbg.utils import __  # as module: py3
@@ -130,3 +135,17 @@ class ImapSettings(object):
         self.spaminbox = 'INBOX.spam'
         self.learnspambox = None
         self.learnhambox = None
+
+    @property
+    def hash(self):
+        """Get the hash property builf from the host, user and port."""
+        return ImapSettings.get_hash(self.host, self.user, self.port)
+
+    @staticmethod
+    def get_hash(host, user, port):
+        """Get a hash with the host, port, info."""
+        newhash = md5()
+        newhash.update(host.encode())
+        newhash.update(user.encode())
+        newhash.update(repr(port).encode())
+        return newhash
