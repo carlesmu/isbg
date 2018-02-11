@@ -91,6 +91,23 @@ def imapflags(flaglist):
     return '(' + ','.join(flaglist) + ')'
 
 
+def assertok(name):
+    """Decorate with self.assertok."""
+    def assertok_decorator(func):
+        def func_wrapper(self, *args, **kwargs):
+            res = func(self, *args, **kwargs)
+            if self.assertok:
+                if name == 'login':
+                    self.assertok(res, name, args[0], 'xxxxxxxx')
+                elif name == 'uid':
+                    self.assertok(res, name + " " + args[0], args[1:])
+                else:
+                    self.assertok(res, name, *args, **kwargs)
+            return res
+        return func_wrapper
+    return assertok_decorator
+
+
 class IsbgImap4(object):
     """Proxy class for imaplib.IMAP4 or imaplib.IMAP4_SSL."""
 
@@ -103,64 +120,61 @@ class IsbgImap4(object):
         else:
             self.imap = imaplib.IMAP4_SSL(host, port)
 
+    # @assertok('append')  <-- it fails in some servers
+    def append(self, mailbox, flags, date_time, message):
+        """Append message to named mailbox."""
+        return self.imap.append(mailbox, flags, date_time, message)
+
+    @assertok('cabability')
     def capability(self):
         """Fetch capabilities list from server."""
-        res = self.imap.capability()
-        if self.assertok:
-            self.assertok(res, 'capability')
-        return res
+        return self.imap.capability()
 
+    @assertok('expunge')
+    def expunge(self):
+        """Permanently remove deleted items from selected mailbox."""
+        return self.imap.expunge()
+
+    @assertok('list')
     def list(self, directory='""', pattern='*'):
         """List mailbox names in directory matching pattern."""
-        res = self.imap.list(directory, pattern)
-        if self.assertok:
-            self.assertok(res, 'list', directory, pattern)
-        return res
+        return self.imap.list(directory, pattern)
 
+    @assertok('login')
     def login(self, user, passwd):
         """Identify client using plain text password."""
-        res = self.imap.login(user, passwd)
-        if self.assertok:
-            self.assertok(res, "login", user, 'xxxxxxxx')
-        return res
+        return self.imap.login(user, passwd)
 
+    @assertok('logout')
     def logout(self):
         """Shutdown connection to server."""
-        res = self.imap.logout()
-        if self.assertok:
-            self.assertok(res, "logout")
-        return res
+        return self.imap.logout()
 
+    @assertok('status')
     def status(self, mailbox, names):
         """Request named status conditions for mailbox."""
-        res = self.imap.status(mailbox, names)
-        if self.assertok:
-            self.assertok(res, "status", mailbox, names)
-        return res
+        return self.imap.status(mailbox, names)
 
+    @assertok('select')
     def select(self, mailbox='INBOX', readonly=False):
         """Select a Mailbox."""
-        res = self.imap.select(mailbox, readonly)
-        if self.assertok:
-            self.assertok(res, 'select', mailbox, readonly)
-        return res
+        return self.imap.select(mailbox, readonly)
 
+    @assertok('uid')
     def uid(self, command, *args):
         """Execute "command arg ..." with messages identified by UID."""
-        res = self.imap.uid(command, *args)
-        if self.assertok:
-            self.assertok(res, 'uid ' + command, *args)
-        return res
+        return self.imap.uid(command, *args)
 
 
-def login_imap(imapsets, nossl=False, logger=None, assertok=None):
+def login_imap(imapsets, logger=None, assertok=None):
     """Login to the imap server."""
     assert isinstance(imapsets, ImapSettings)
     max_retry = 10
     retry_time = 0.60   # seconds
     for retry in range(1, max_retry + 1):
         try:
-            imap = IsbgImap4(imapsets.host, imapsets.port, nossl, assertok)
+            imap = IsbgImap4(imapsets.host, imapsets.port, imapsets.nossl,
+                             assertok)
             break   # ok, exit from loop
         except socket.error as exc:
             logger.warning(__(
@@ -170,7 +184,9 @@ def login_imap(imapsets, nossl=False, logger=None, assertok=None):
                 raise Exception(exc)
             else:
                 time.sleep(retry_time)
-    logger.debug(__("Server capabilities: {}".format(imap.capability)))
+    logger.debug(__("Server capabilities: {}".format(imap.capability()[1])))
+    if imapsets.nossl:
+        logger.warning("WARNING: Using insecure IMAP connection: without SSL.")
     # Authenticate (only simple supported)
     imap.login(imapsets.user, imapsets.passwd)
     return imap
