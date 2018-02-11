@@ -217,7 +217,6 @@ class TestISBG(object):
     def test___do_passwordhash(self):
         """Test __do_passwordhash."""
         sbg = isbg.ISBG()
-        print sbg.passwordhash
         sbg.do_passwordhash()
         assert len(sbg.passwordhash) == sbg.passwordhashlen
 
