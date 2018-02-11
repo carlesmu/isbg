@@ -778,7 +778,8 @@ class ISBG(object):
         exitcode if its called from the command line and have the --exitcodes
         param.
         """
-        if self.delete and not self.gmail:
+        if self.delete and not self.gmail and \
+                "\\Deleted" not in self.spamflags:
             self.spamflags.append("\\Deleted")
 
         if self.pastuidsfile is None:
