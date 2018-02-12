@@ -31,6 +31,7 @@ try:
 except ImportError:
     pass
 
+from socket import gaierror
 
 # We add the upper dir to the path
 sys.path.insert(0, os.path.abspath(os.path.join(
@@ -84,14 +85,26 @@ def test_imapflags():
 class TestIsbgImap4(object):
     """Test IsbgImap4."""
 
-    # FIXME:
-    pass
+    def test(self):
+        """Test the object."""
+        with pytest.raises(gaierror, match="[Errno -5]",
+                           message="No address associated with hostname"):
+            imaputils.IsbgImap4()
+        # FIXME: require network
 
 
 def test_login_imap():
     """Test login_imap."""
-    # FIXME:
-    pass
+    with pytest.raises(TypeError, match="ImapSettings",
+                       message="spected a ImapSettings"):
+        imaputils.login_imap(None)
+
+    imapsets = imaputils.ImapSettings()
+    imapsets.host = ''  # don't try to connect to internet
+    with pytest.raises(Exception, match="[Errno -5]",
+                       message="No address associated with hostname"):
+        imaputils.login_imap(imapsets)
+    # FIXME: require network
 
 
 class TestImapSettings(object):
