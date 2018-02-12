@@ -168,7 +168,9 @@ class IsbgImap4(object):
 
 def login_imap(imapsets, logger=None, assertok=None):
     """Login to the imap server."""
-    assert isinstance(imapsets, ImapSettings)
+    if not isinstance(imapsets, ImapSettings):
+        raise TypeError()
+
     max_retry = 10
     retry_time = 0.60   # seconds
     for retry in range(1, max_retry + 1):
@@ -216,15 +218,14 @@ class ImapSettings(object):
     @property
     def hash(self):
         """Get the hash property builf from the host, user and port."""
-        if self._hashed_host == self.host and \
-                self._hashed_user == self.user and \
-                self._hashed_port == self.port:
-            return self._hash
-        else:
+        if self._hashed_host != self.host or \
+                self._hashed_user != self.user or \
+                self._hashed_port != self.port:
             self._hashed_host = self.host
             self._hashed_user = self.user
             self._hashed_port = self.port
-            return ImapSettings.get_hash(self.host, self.user, self.port)
+            self._hash = ImapSettings.get_hash(self.host, self.user, self.port)
+        return self._hash
 
     @staticmethod
     def get_hash(host, user, port):
