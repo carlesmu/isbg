@@ -169,7 +169,7 @@ class IsbgImap4(object):
 def login_imap(imapsets, logger=None, assertok=None):
     """Login to the imap server."""
     if not isinstance(imapsets, ImapSettings):
-        raise TypeError()
+        raise TypeError("imapsets is not a ImapSettings")
 
     max_retry = 10
     retry_time = 0.60   # seconds
@@ -179,15 +179,18 @@ def login_imap(imapsets, logger=None, assertok=None):
                              assertok)
             break   # ok, exit from loop
         except socket.error as exc:
-            logger.warning(__(
-                ("Error in IMAP connection: {} ... retry {} of {}"
-                 ).format(exc, retry, max_retry)))
+            if logger:
+                logger.warning(__(
+                    ("Error in IMAP connection: {} ... retry {} of {}"
+                     ).format(exc, retry, max_retry)))
             if retry >= max_retry:
                 raise Exception(exc)
             else:
                 time.sleep(retry_time)
-    logger.debug(__("Server capabilities: {}".format(imap.capability()[1])))
-    if imapsets.nossl:
+    if logger:
+        logger.debug(__("Server capabilities: {}".format(
+            imap.capability()[1])))
+    if imapsets.nossl and logger:
         logger.warning("WARNING: Using insecure IMAP connection: without SSL.")
     # Authenticate (only simple supported)
     imap.login(imapsets.user, imapsets.passwd)
