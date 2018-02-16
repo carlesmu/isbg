@@ -87,16 +87,25 @@ Options:
 
 """
 
-
-from . import isbg
 import logging
 import os
 import sys
+
 try:
     from docopt import docopt  # Creating command-line interface
 except ImportError:
     sys.stderr.write("Missing dependency: docopt\n")
     raise
+
+if __package__ is None and not hasattr(sys, 'frozen'):
+    # direct call of __main__.py
+    path = os.path.realpath(os.path.abspath(__file__))
+    sys.path.insert(0, os.path.dirname(os.path.dirname(path)))
+
+try:
+    from isbg import isbg  # normal case
+except ImportError:
+    from . import isbg  # called from pytest
 
 
 def parse_args(sbg):
