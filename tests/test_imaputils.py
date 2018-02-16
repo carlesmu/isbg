@@ -24,6 +24,7 @@
 """Test cases for isbg module."""
 
 import email
+import logging
 import os
 import sys
 try:
@@ -101,9 +102,10 @@ def test_login_imap():
 
     imapsets = imaputils.ImapSettings()
     imapsets.host = ''  # don't try to connect to internet
+    imapsets.nossl = True
     with pytest.raises(Exception, match="[Errno -5]",
                        message="No address associated with hostname"):
-        imaputils.login_imap(imapsets)
+        imaputils.login_imap(imapsets, logger=logging.getLogger(__name__))
     # FIXME: require network
 
 
