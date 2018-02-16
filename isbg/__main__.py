@@ -88,7 +88,7 @@ Options:
 """
 
 
-import isbg
+from . import isbg
 import logging
 import os
 import sys
