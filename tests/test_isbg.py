@@ -33,11 +33,6 @@ try:
 except ImportError:
     pass
 
-try:
-    from unittest import mock  # Python 3
-except ImportError:
-    import mock                # Python 2
-
 # We add the upper dir to the path
 sys.path.insert(0, os.path.abspath(os.path.join(
     os.path.dirname(__file__), '..')))
@@ -50,157 +45,8 @@ def test_ISBGError():
         raise isbg.ISBGError(0, "foo")
 
 
-def test_isbg_run():
-    """Test isbg_run()."""
-    # Remove pytest options:
-    args = sys.argv[:]
-    del sys.argv[1:]
-    sys.argv.append("--ignorelockfile")
-
-    with pytest.raises(isbg.ISBGError,
-                       match="Missed required option: --imaphost",
-                       message="Not error or unexpected error message"):
-        isbg.isbg_run()
-
-    with mock.patch.object(isbg, "__name__", "__main__"):
-        with pytest.raises(SystemExit, match="0",
-                           message="Not error or unexpected error"):
-            isbg.isbg_run()
-
-    sys.argv.append("--version")
-    with mock.patch.object(isbg, "__name__", "__main__"):
-        with pytest.raises(SystemExit,
-                           message="Not error or unexpected error"):
-            isbg.isbg_run()
-
-    # Restore pytest options:
-    sys.argv = args[:]
-
-
 class TestISBG(object):
     """Tests for class ISBG."""
-
-    def test_parse_args(self):
-        """Test parse_args."""
-        # Remove pytest options:
-        orig_args = sys.argv[:]
-
-        # Parse command line:
-        del sys.argv[1:]
-        for op in ["--imaphost", "localhost", "--imapuser", "anonymous",
-                   "--imappasswd", "none", "--dryrun", "--flag",
-                   "--noninteractive"]:
-            sys.argv.append(op)
-        sbg = isbg.ISBG()
-        sbg.parse_args()
-        assert sbg.imapsets.host == "localhost"
-        assert sbg.imapsets.user == "anonymous"
-        assert sbg.imapsets.passwd == "none"
-
-        # Parse with unknown option
-        del sys.argv[1:]
-        for op in ["--foo"]:
-            sys.argv.append(op)
-        sbg = isbg.ISBG()
-        with pytest.raises(SystemExit, match="[options]",
-                           message="It should rise a docopt SystemExit"):
-            sbg.parse_args()
-
-        # Parse with bogus deletehigherthan
-        del sys.argv[1:]
-        for op in ["--imaphost", "localhost", "--imapuser", "anonymous",
-                   "--imappasswd", "none", "--dryrun", "--deletehigherthan",
-                   "0"]:
-            sys.argv.append(op)
-        sbg = isbg.ISBG()
-        with pytest.raises(isbg.ISBGError, match="too small",
-                           message="It should rise a too small ISBGError"):
-            sbg.parse_args()
-
-        del sys.argv[1:]
-        for op in ["--imaphost", "localhost", "--imapuser", "anonymous",
-                   "--imappasswd", "none", "--dryrun", "--deletehigherthan",
-                   "foo"]:
-            sys.argv.append(op)
-        sbg = isbg.ISBG()
-        with pytest.raises(isbg.ISBGError, match="Unrecognized score",
-                           message=("It should rise a unrecognized score" +
-                                    "ISBGError")):
-            sbg.parse_args()
-
-        # Parse with ok deletehigherthan
-        del sys.argv[1:]
-        for op in ["--imaphost", "localhost", "--imapuser", "anonymous",
-                   "--imappasswd", "none", "--dryrun", "--deletehigherthan",
-                   "8"]:
-            sys.argv.append(op)
-        sbg = isbg.ISBG()
-        sbg.parse_args()
-        assert sbg.deletehigherthan == 8.0
-
-        # Parse with bogus maxsize
-        del sys.argv[1:]
-        for op in ["--imaphost", "localhost", "--imapuser", "anonymous",
-                   "--imappasswd", "none", "--dryrun", "--maxsize", "0"]:
-            sys.argv.append(op)
-        sbg = isbg.ISBG()
-        with pytest.raises(isbg.ISBGError, match="too small",
-                           message="It should rise a too small ISBGError"):
-            sbg.parse_args()
-
-        del sys.argv[1:]
-        for op in ["--imaphost", "localhost", "--imapuser", "anonymous",
-                   "--imappasswd", "none", "--dryrun", "--maxsize", "foo"]:
-            sys.argv.append(op)
-        sbg = isbg.ISBG()
-        with pytest.raises(isbg.ISBGError, match="Unrecognised size",
-                           message=("It should rise a Unrecognised size" +
-                                    "ISBGError")):
-            sbg.parse_args()
-
-        # Parse with ok maxsize
-        del sys.argv[1:]
-        for op in ["--imaphost", "localhost", "--imapuser", "anonymous",
-                   "--imappasswd", "none", "--dryrun", "--maxsize", "12000"]:
-            sys.argv.append(op)
-        sbg = isbg.ISBG()
-        sbg.parse_args()
-        assert sbg.maxsize == 12000
-
-        # Parse with bogus partialrun
-        del sys.argv[1:]
-        for op in ["--imaphost", "localhost", "--imapuser", "anonymous",
-                   "--imappasswd", "none", "--dryrun", "--partialrun", "0"]:
-            sys.argv.append(op)
-        sbg = isbg.ISBG()
-        with pytest.raises(isbg.ISBGError, match="equal to 1 or higher",
-                           message=("It should rise a equial to 1 or higher " +
-                                    "ISBGError")):
-            sbg.parse_args()
-
-        del sys.argv[1:]
-        for op in ["--imaphost", "localhost", "--imapuser", "anonymous",
-                   "--imappasswd", "none", "--dryrun", "--partialrun", "foo"]:
-            sys.argv.append(op)
-        sbg = isbg.ISBG()
-        with pytest.raises(ValueError, match="invalid literal",
-                           message=("It should rise a invalid literal " +
-                                    "ValueError")):
-            sbg.parse_args()
-
-        # Parse with ok partialrun and verbose and nossl
-        del sys.argv[1:]
-        for op in ["--imaphost", "localhost", "--imapuser", "anonymous",
-                   "--imappasswd", "none", "--verbose", "--partialrun", "10",
-                   "--nossl"]:
-            sys.argv.append(op)
-        sbg = isbg.ISBG()
-        sbg.parse_args()
-        assert sbg.partialrun == 10
-
-        # Restore pytest options:
-        del sys.argv[1:]
-        sys.argv = orig_args[:]
 
     def test_set_filename(self):
         """Test set_filename."""
@@ -222,15 +68,8 @@ class TestISBG(object):
 
     def test_do_isbg(self):
         """Test do_isbg."""
-        # Remove pytest options:
-        orig_args = sys.argv[:]
-
         sbg = isbg.ISBG()
         with pytest.raises(isbg.ISBGError, match="specify your imap password",
                            message=("It should rise a specify imap password " +
                                     "ISBGError")):
             sbg.do_isbg()
-
-        # Restore pytest options:
-        del sys.argv[1:]
-        sys.argv = orig_args[:]

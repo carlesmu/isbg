@@ -94,12 +94,6 @@ except (ValueError, ImportError):
     from isbg import utils
     from isbg.utils import __
 
-try:
-    from docopt import docopt  # Creating command-line interface
-except ImportError:
-    sys.stderr.write("Missing dependency: docopt\n")
-    raise
-
 from subprocess import Popen, PIPE
 
 import email      # To eassily encapsulated emails messages
@@ -151,21 +145,6 @@ class ISBGError(Exception):
         self.message = message
         Exception.__init__(self, message)
         assert exitcode in __exitcodes__.values()
-
-
-def errorexit(msg, exitcode):
-    """Raise an ISBGError.
-
-    If its runed as a commandline also show a help message and exits.
-    """
-    if __name__ == '__main__':
-        sys.stderr.write(msg)
-        sys.stderr.write("\nUse --help to see valid options and arguments\n")
-        if exitcode == -1:
-            raise ISBGError(exitcode, msg)
-        sys.exit(exitcode)
-    else:
-        raise ISBGError(exitcode, msg)
 
 
 def score_from_mail(mail):
@@ -298,125 +277,9 @@ class ISBG(object):
         if res[0] not in ["OK", "BYE"]:
             self.logger.error(
                 __("{} returned {} - aborting".format(args, res)))
-            errorexit("\n%s returned %s - aborting\n"
-                      % (repr(args), res),
-                      __exitcodes__['imap'] if self.exitcodes else -1)
-
-    def parse_args(self):
-        """Argument processing."""
-        try:
-            opts = docopt(__doc__, version="isbg version " + __version__ +
-                          ", from " + os.path.abspath(__file__))
-            opts = dict([(k, v) for k, v in opts.items()
-                         if v is not None])
-        except Exception as exc:  # pylint: disable=broad-except
-            errorexit("Option processing failed - " + str(exc),
-                      __exitcodes__['flags'])
-
-        # Check for required options:
-        if not opts.get("--help") and not opts.get("--version"):
-            if opts.get('--imaphost') is None:
-                errorexit("Missed required option: --imaphost",
-                          __exitcodes__['flags'])
-            if opts.get('--imapuser') is None:
-                errorexit("Missed required option: --imapuser",
-                          __exitcodes__['flags'])
-
-        if opts.get("--deletehigherthan") is not None:
-            try:
-                self.deletehigherthan = float(opts["--deletehigherthan"])
-            except Exception:  # pylint: disable=broad-except
-                errorexit("Unrecognized score - "
-                          + opts["--deletehigherthan"],
-                          __exitcodes__['flags'])
-            if self.deletehigherthan < 1:
-                errorexit("Score " + repr(self.deletehigherthan)
-                          + " is too small", __exitcodes__['flags'])
-        else:
-            self.deletehigherthan = None
-
-        if opts["--flag"] is True:
-            self.spamflags.append("\\Flagged")
-
-        self.imapsets.host = opts.get('--imaphost', self.imapsets.host)
-        self.imapsets.passwd = opts.get('--imappasswd',
-                                        self.imapsets.passwd)
-        self.imapsets.port = opts.get('--imapport', self.imapsets.port)
-        self.imapsets.user = opts.get('--imapuser', self.imapsets.user)
-        self.imapsets.inbox = opts.get('--imapinbox', self.imapsets.inbox)
-        self.imapsets.spaminbox = opts.get('--spaminbox',
-                                           self.imapsets.spaminbox)
-        self.imapsets.learnspambox = opts.get('--learnspambox')
-        self.imapsets.learnhambox = opts.get('--learnhambox')
-        self.imapsets.nossl = opts.get('--nossl', False)
-
-        self.lockfilegrace = float(opts.get('--lockfilegrace',
-                                            self.lockfilegrace))
-
-        self.nostats = opts.get('--nostats', False)
-        self.dryrun = opts.get('--dryrun', False)
-        self.delete = opts.get('--delete', False)
-        self.gmail = opts.get('--gmail', False)
-
-        if opts.get("--maxsize") is not None:
-            try:
-                self.maxsize = int(opts["--maxsize"])
-            except (TypeError, ValueError):
-                errorexit("Unrecognised size - " + opts["--maxsize"],
-                          __exitcodes__['flags'])
-            if self.maxsize < 1:
-                errorexit("Size " + repr(self.maxsize) + " is too small",
-                          __exitcodes__['flags'])
-
-        self.movehamto = opts.get('--movehamto')
-
-        if opts["--noninteractive"] is True:
-            self.interactive = 0
-
-        self.noreport = opts.get('--noreport', self.noreport)
-
-        self.lockfilename = opts.get('--lockfilename', self.lockfilename)
-
-        self.pastuidsfile = opts.get('--trackfile', self.pastuidsfile)
-
-        if opts.get("--partialrun") is not None:
-            self.partialrun = int(opts["--partialrun"])
-            if self.partialrun < 1:
-                errorexit("Partial run number must be equal to 1 or higher",
-                          __exitcodes__['flags'])
-
-        self.verbose = opts.get('--verbose', False)
-        if self.verbose:
-            self.set_loglevel(logging.DEBUG)
-        else:
-            self.set_loglevel(logging.INFO)
-
-        self.verbose_mails = opts.get('--verbose-mails', False)
-        self.ignorelockfile = opts.get("--ignorelockfile", False)
-        self.savepw = opts.get('--savepw', False)
-        self.passwdfilename = opts.get('--passwdfilename',
-                                       self.passwdfilename)
-
-        self.imaplist = opts.get('--imaplist', False)
-
-        self.learnunflagged = opts.get('--learnunflagged', False)
-        self.learnflagged = opts.get('--learnflagged', False)
-        self.learnthendestroy = opts.get('--learnthendestroy', False)
-        self.learnthenflag = opts.get('--learnthendestroy', False)
-        self.expunge = opts.get('--expunge', False)
-
-        self.teachonly = opts.get('--teachonly', False)
-        self.spamc = opts.get('--spamc', False)
-
-        self.exitcodes = opts.get('--exitcodes', False)
-
-        # fixup any arguments
-
-        if opts.get("--imapport") is None:
-            if opts["--nossl"] is True:
-                self.imapsets.port = 143
-            else:
-                self.imapsets.port = 993
+            raise ISBGError(__exitcodes__['imap'] if self.exitcodes else -1,
+                            "\n%s returned %s - aborting\n" % (repr(args), res)
+                            )
 
     def get_uidvalidity(self, mailbox):
         """Validate a mailbox."""
@@ -558,8 +421,8 @@ class ISBG(object):
                     continue
                 proc.stdin.close()
             if score == "0/0\n":
-                errorexit("spamc -> spamd error - aborting",
-                          __exitcodes__['spamc'])
+                raise ISBGError(__exitcodes__['spamc'],
+                                "spamc -> spamd error - aborting")
 
             self.logger.debug(__(
                 "Score for uid {}: {}".format(uid, score.strip())))
@@ -724,8 +587,9 @@ class ISBG(object):
                         code = proc.returncode
                         proc.stdin.close()
                     if code == 69 or code == 74:
-                        errorexit("spamd is misconfigured (use --allow-tell)",
-                                  __exitcodes__['flags'])
+                        raise ISBGError(__exitcodes__['flags'],
+                                        "spamd is misconfigured (use " +
+                                        "--allow-tell)")
                     if out.strip() == self.alreadylearnt or code == 6:
                         self.logger.debug(__(
                             ("Already learnt {} (spamc return"
@@ -802,8 +666,9 @@ class ISBG(object):
             if (os.path.exists(self.lockfilename) and
                     (os.path.getmtime(self.lockfilename) +
                      (self.lockfilegrace * 60) > time.time())):
-                errorexit("Lock file is present. Guessing isbg is already "
-                          + "running. Exit.", __exitcodes__['locked'])
+                raise ISBGError(__exitcodes__['locked'],
+                                "Lock file is present. Guessing isbg is " +
+                                "already running. Exit.")
             else:
                 lockfile = open(self.lockfilename, 'w')
                 lockfile.write(repr(os.getpid()))
@@ -827,9 +692,9 @@ class ISBG(object):
             # do we have to prompt?
             if self.imapsets.passwd is None:
                 if not self.interactive:
-                    errorexit("You need to specify your imap password and "
-                              + "save it with the --savepw switch",
-                              __exitcodes__['ok'])
+                    raise ISBGError(__exitcodes__['ok'],
+                                    "You need to specify your imap password " +
+                                    "and save it with the --savepw switch")
                 self.imapsets.passwd = getpass.getpass(
                     "IMAP password for %s@%s: " % (
                         self.imapsets.user, self.imapsets.host))
@@ -898,16 +763,3 @@ class ISBG(object):
                 return __exitcodes__['newmsgspam']
 
             return __exitcodes__['ok']
-
-
-def isbg_run():
-    """Run when this module is called from the command line."""
-    sbg = ISBG()
-    sbg.parse_args()
-    return sbg.do_isbg()  # return the exit code.
-
-
-if __name__ == '__main__':
-    isbgret = isbg_run()  # pylint: disable=invalid-name
-    if isbgret is not None:
-        sys.exit(isbgret)

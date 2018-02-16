@@ -30,7 +30,7 @@ setup(
     packages=['isbg'],
     entry_points={
         'console_scripts': [
-            'isbg = isbg.isbg:isbg_run',
+            'isbg = isbg.__main__:main',
             'sa_unwrap = isbg.sa_unwrap:run',
         ]
     },
