@@ -267,8 +267,8 @@ class ISBG(object):
             os.chmod(self.pastuidsfile + folder, 0o600)
         except Exception:  # pylint: disable=broad-except
             pass
-        self.logger.debug(__(('Writing pastuids, {} origpastuids, '
-                              + 'newpastuids: {}'
+        self.logger.debug(__(('Writing pastuids, {} origpastuids, ' +
+                              'newpastuids: {}'
                               ).format(len(origpastuids), newpastuids)))
         struct = {
             'uidvalidity': uidvalidity,
@@ -410,8 +410,8 @@ class ISBG(object):
                         # processing
                         if res[0] != 'OK':
                             self.logger.error(__(
-                                ("{} failed for uid {}: {}. Leaving original"
-                                 + "message alone.").format(
+                                ("{} failed for uid {}: {}. Leaving original" +
+                                 "message alone.").format(
                                      repr(["append", self.imapsets.spaminbox,
                                            "{email}"]),
                                      repr(uid), repr(res))))
@@ -435,8 +435,8 @@ class ISBG(object):
         # If we found any spams, now go and mark the original messages
         if numspam or spamdeleted:
             if self.dryrun:
-                self.logger.info('Skipping labelling/expunging of mails '
-                                 + ' because of --dryrun')
+                self.logger.info('Skipping labelling/expunging of mails ' +
+                                 ' because of --dryrun')
             else:
                 self.imap.select(self.imapsets.inbox)
                 # Only set message flags if there are any
@@ -521,8 +521,8 @@ class ISBG(object):
                         out = self.alreadylearnt
                         code = 0
                     else:
-                        proc = self.popen(["spamc", "--learntype="
-                                           + learntype['learntype']])
+                        proc = self.popen(["spamc", "--learntype=" +
+                                           learntype['learntype']])
                         try:
                             out = proc.communicate(imaputils.mail_content(mail)
                                                    )[0]
@@ -540,8 +540,8 @@ class ISBG(object):
                                         "--allow-tell)")
                     if out.strip() == self.alreadylearnt or code == 6:
                         self.logger.debug(__(
-                            ("Already learnt {} (spamc return"
-                             + " code {})").format(uid, code)))
+                            ("Already learnt {} (spamc return" +
+                             " code {})").format(uid, code)))
                     else:
                         n_learnt += 1
                         self.logger.debug(__(
