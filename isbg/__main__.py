@@ -130,12 +130,10 @@ def parse_args(sbg):
 
     # Check for required options:
     if not opts.get("--help") and not opts.get("--version"):
-        if opts.get('--imaphost') is None:
-            raise isbg.ISBGError(isbg.__exitcodes__['flags'],
-                                 "Missed required option: --imaphost")
-        if opts.get('--imapuser') is None:
-            raise isbg.ISBGError(isbg.__exitcodes__['flags'],
-                                 "Missed required option: --imapuser")
+        for opt in ['--imaphost', '--imapuser']:
+            if opts.get(opt) is None:
+                raise isbg.ISBGError(isbg.__exitcodes__['flags'],
+                                     "Missed required option: " + opt)
 
     if opts.get("--deletehigherthan") is not None:
         try:
