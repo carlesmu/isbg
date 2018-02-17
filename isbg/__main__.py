@@ -21,9 +21,7 @@
 #  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
 #  MA 02110-1301, USA.
 
-"""Main module.
-
-isbg scans an IMAP Inbox and runs every entry against SpamAssassin.
+"""isbg scans an IMAP Inbox and runs every entry against SpamAssassin.
 
 For any entries that match, the message is copied to another folder,
 and the original marked or deleted.
@@ -33,12 +31,14 @@ and maintained by Thomas Lecavelier <thomas@lecavelier.name> since
 novembre 2009. You may use isbg under any OSI approved open source
 license such as those listed at http://opensource.org/licenses/alphabetical
 
-Usage:
+Usage::
+
     isbg.py [options]
     isbg.py (-h | --help)
     isbg.py --version
 
-Options:
+Options::
+
     --imaphost hostname    IMAP server name.
     --imapuser username    Who you login as.
     --dryrun               Do not actually make any changes.
@@ -109,7 +109,18 @@ except ImportError:
 
 
 def parse_args(sbg):
-    """Argument processing."""
+    """Argument processing of the command line.
+
+    :param sbg: a isbg.ISBG instance.
+    :type sbg: isbg.ISBG
+    :return: None
+    :Example:
+
+        You can run it using::
+
+            sbg = isbg.ISBG()
+            parse_args(sbg)
+    """
     try:
         opts = docopt(__doc__, version="isbg version " + isbg.__version__ +
                       ", from " + os.path.abspath(__file__))
