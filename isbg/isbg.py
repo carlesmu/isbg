@@ -418,8 +418,8 @@ class ISBG(object):
                             continue
                 else:
                     if self.dryrun:
-                        self.logger.info("Skipping copy to spambox because"
-                                         + " of --dryrun")
+                        self.logger.info("Skipping copy to spambox because" +
+                                         " of --dryrun")
                     else:
                         # just copy it as is
                         self.imap.uid("COPY", uid, self.imapsets.spaminbox)
