@@ -55,6 +55,7 @@ cov-clean:
 
 cov:
 	@$(COV) run -m $(TEST)
+	@$(COV) report
 	@$(COV) html --directory $(COVDIR)
 
 tox-clean:
