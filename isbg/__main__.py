@@ -31,14 +31,12 @@ and maintained by Thomas Lecavelier <thomas@lecavelier.name> since
 novembre 2009. You may use isbg under any OSI approved open source
 license such as those listed at http://opensource.org/licenses/alphabetical
 
-Usage::
-
+Usage:
     isbg.py [options]
     isbg.py (-h | --help)
     isbg.py --version
 
-Options::
-
+Options:
     --imaphost hostname    IMAP server name.
     --imapuser username    Who you login as.
     --dryrun               Do not actually make any changes.
@@ -92,7 +90,7 @@ import os
 import sys
 
 try:
-    from docopt import docopt  # Creating command-line interface
+    from docopt import docopt, DocoptExit  # Creating command-line interface
 except ImportError:
     sys.stderr.write("Missing dependency: docopt\n")
     raise
@@ -126,7 +124,7 @@ def parse_args(sbg):
                       ", from " + os.path.abspath(__file__))
         opts = dict([(k, v) for k, v in opts.items()
                      if v is not None])
-    except Exception as exc:  # pylint: disable=broad-except
+    except DocoptExit as exc:
         raise isbg.ISBGError(isbg.__exitcodes__['flags'],
                              "Option processing failed - " + str(exc))
 

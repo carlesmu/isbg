@@ -47,7 +47,7 @@ def test_parse_args():
     # Remove pytest options:
     orig_args = sys.argv[:]
 
-    # Parse command line:
+    # Parse command line (it should work):
     del sys.argv[1:]
     for op in ["--imaphost", "localhost", "--imapuser", "anonymous",
                "--imappasswd", "none", "--dryrun", "--flag",
@@ -64,7 +64,7 @@ def test_parse_args():
     for op in ["--foo"]:
         sys.argv.append(op)
     sbg = isbg.ISBG()
-    with pytest.raises(SystemExit, match="[options]",
+    with pytest.raises(isbg.ISBGError, match="[options]",
                        message="It should rise a docopt SystemExit"):
         __main__.parse_args(sbg)
 
@@ -185,6 +185,12 @@ def test_main():
             __main__.main()
 
     sys.argv.append("--version")
+    with mock.patch.object(isbg, "__name__", "__main__"):
+        with pytest.raises(SystemExit,
+                           message="Not error or unexpected error"):
+            __main__.main()
+
+    sys.argv.append("--exitcodes")
     with mock.patch.object(isbg, "__name__", "__main__"):
         with pytest.raises(SystemExit,
                            message="Not error or unexpected error"):
