@@ -560,18 +560,18 @@ class ISBG(object):
             origpastuids = self.pastuid_read(uidvalidity, 'spam')
             s_learned = sa.learn(self.imapsets.learnspambox, 'spam', None,
                                  origpastuids)
-            self.pastuid_write(uidvalidity, origpastuids, s_learned.uids,
-                               'spam')
+            self.pastuid_write(uidvalidity, s_learned.origpastuids,
+                               s_learned.uids, 'spam')
 
         # SpamAssassin training: Learn ham
         h_learned = spamproc.Sa_Learn()
-        if self.imapsets.learnspambox:
+        if self.imapsets.learnhambox:
             uidvalidity = self.imap.get_uidvalidity(self.imapsets.learnhambox)
             origpastuids = self.pastuid_read(uidvalidity, 'ham')
             h_learned = sa.learn(self.imapsets.learnhambox, 'ham',
                                  self.movehamto, origpastuids)
-            self.pastuid_write(uidvalidity, origpastuids, h_learned.uids,
-                               'ham')
+            self.pastuid_write(uidvalidity, h_learned.origpastuids,
+                               h_learned.uids, 'ham')
 
         # FIXME: move to spamproc.py
         # Spamassassin processing

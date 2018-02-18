@@ -22,6 +22,7 @@
 #  MA 02110-1301, USA.
 
 """Tests for spamproc.py."""
+
 import os
 import sys
 try:
@@ -32,8 +33,8 @@ except ImportError:
 # We add the upper dir to the path
 sys.path.insert(0, os.path.abspath(os.path.join(
     os.path.dirname(__file__), '..')))
-from isbg import spamproc  # noqa: E402
-from isbg import isbg      # noqa: E402
+from isbg import spamproc   # noqa: E402
+from isbg import isbg       # noqa: E402
 
 
 class Test_Sa_Learn(object):
@@ -45,6 +46,7 @@ class Test_Sa_Learn(object):
         assert learn.tolearn == 0
         assert learn.learnt == 0
         assert len(learn.uids) == 0
+        assert len(learn.origpastuids) == 0
 
 
 class Test_SpamAssassin(object):
@@ -64,6 +66,14 @@ class Test_SpamAssassin(object):
         # All args spected has been initialized:
         for k in self._kwargs:
             assert k in dir(sa)
+
+        sa = spamproc.SpamAssassin(imap=0)
+        for k in self._kwargs:
+            assert k in dir(sa)
+
+        with pytest.raises(TypeError, match="Unknown keyword",
+                           message="Should rise a error."):
+            sa = spamproc.SpamAssassin(imap2=0)
 
     def test_cmd_save(self):
         """Test cmd_save."""

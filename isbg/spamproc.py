@@ -48,6 +48,7 @@ class Sa_Learn(object):
     tolearn = 0
     learnt = 0
     uids = []
+    origpastuids = []
 
 
 class SpamAssassin(object):
@@ -107,6 +108,17 @@ class SpamAssassin(object):
             kw[k] = getattr(sbg, k)
         return SpamAssassin(**kw)
 
+    @staticmethod
+    def get_formated_uids(uids, origpastuids, partialrun):
+        """Get the uids formated."""
+        uids = sorted(uids[0].split(), key=int, reverse=True)
+        origpastuids = [u for u in origpastuids if str(u) in uids]
+        uids = [u for u in uids if int(u) not in origpastuids]
+        # Take only X elements if partialrun is enabled
+        if partialrun:
+            uids = uids[:int(partialrun)]
+        return uids, origpastuids
+
     def learn(self, folder, learn_type, move_to, origpastuids):
         """Learn the spams (and if requested deleted or move them)."""
         sa_learning = Sa_Learn()
@@ -127,12 +139,8 @@ class SpamAssassin(object):
         else:
             typ, uids = self.imap.uid("SEARCH", None, "ALL")
 
-        uids = sorted(uids[0].split(), key=int, reverse=True)
-        origpastuids = [u for u in origpastuids if str(u) in uids]
-        uids = [u for u in uids if int(u) not in origpastuids]
-        # Take only X elements if partialrun is enabled
-        if self.partialrun:
-            uids = uids[:int(self.partialrun)]
+        uids, sa_learning.origpastuids = SpamAssassin.get_formated_uids(
+            uids, origpastuids, self.partialrun)
 
         sa_learning.tolearn = len(uids)
 
