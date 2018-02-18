@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 #
-#  imaputils.py
+#  __main__.py
 #  This file is part of isbg.
 #
 #  Copyright 2018 Carles Muñoz Gorriz <carlesmu@internautas.org>
