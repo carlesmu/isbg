@@ -109,6 +109,13 @@ html_theme = 'alabaster'
 # documentation.
 #
 # html_theme_options = {}
+html_theme_options = {
+    #    'logo': logo.png,
+    'github_user': 'carlesmu',
+    'github_repo': 'isbg',
+    'show_related': True,
+    'body_text_align': 'justify'
+}
 
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
@@ -123,8 +130,9 @@ html_static_path = ['_static']
 html_sidebars = {
     '**': [
         # needs 'show_related': True theme option to display:
+        'about.html',
         'relations.html',
-        'searchbox.html',
+        'searchbox.html'
     ]
 }
 

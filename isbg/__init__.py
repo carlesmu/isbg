@@ -1,17 +1,24 @@
-"""isbg scans an IMAP Inbox and runs every entry against SpamAssassin.
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+u"""isbg scans an IMAP Inbox and runs every entry against SpamAssassin.
 
 For any entries that match, the message is copied to another folder,
 and the original marked or deleted.
 
-This software was mainly written Roger Binns <rogerb@rogerbinns.com>
-and maintained by Thomas Lecavelier <thomas@lecavelier.name> since
-novembre 2009. You may use isbg under any OSI approved open source
-license such as those listed at http://opensource.org/licenses/alphabetical
+History
+=======
 
-See Also:
-    For command line usage see help(isbg.isbg).
+This software was mainly written Roger Binns <rogerb@rogerbinns.com> and
+maintained by Thomas Lecavelier <thomas@lecavelier.name> since novembre 2009
+and maintained by Carles Muñoz Gorriz <carlesmu@internautas.org> since march
+2010.
 
-Examples:
+See Also
+========
+For command line usage see help(`isbg.ISBG`).
+
+Examples
+========
     >>> import isbg
     >>> sbg = isbg.ISBG()
     >>> sbg.imapsets.host = "imap.example.org"
@@ -27,7 +34,7 @@ Examples:
     >>> sbg.verbose = True         # Show more info
     >>> sbg.ignorelockfile = True  # Ignore lock file
     >>> sbg.removelock()           # if there is a lock file
-    >>> sbg.do_isbg()              # Connects to the imap and checks for spam
+    >>> sbg.do_isbg()         # Connects to the imap and checks for spam
 
 """
 

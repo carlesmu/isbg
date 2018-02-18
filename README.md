@@ -158,57 +158,58 @@ Your first step is to create a new folder to receive suspected spam.
 Run isbg with the `--help` option to see what options are available:
 
 <pre>
-Usage:
-    isbg.py [options]
-    isbg.py (-h | --help)
-    isbg.py --version
+ --imaphost hostname    IMAP server name.
+ --imapuser username    Who you login as.
+ --dryrun               Do not actually make any changes.
+ --delete               The spams will be marked for deletion from 
+                        your inbox.
+ --deletehigherthan #   Delete any spam with a score higher than #.
+ --exitcodes            Use exitcodes to detail  what happened.
+ --expunge              Cause marked for deletion messages to also be
+                        deleted (only useful if --delete is 
+                        specified).
+ --flag                 The spams will be flagged in your inbox.
+ --gmail                Delete by copying to '[Gmail]/Trash' folder.
+ --help                 Show the help screen.
+ --ignorelockfile       Don't stop if lock file is present.
+ --imaplist             List imap directories.
+ --imappasswd passwd    IMAP account password.
+ --imapport port        Use a custom port.
+ --imapinbox mbox       Name of your inbox folder [Default: INBOX].
+ --learnspambox mbox    Name of your learn spam folder.
+ --learnhambox mbox     Name of your learn ham folder.
+ --learnthendestroy     Mark learnt messages for deletion.
+ --learnthenflag        Flag learnt messages.
+ --learnunflagged       Only learn if unflagged
+                        (for  --learnthenflag).
+ --learnflagged         Only learn flagged.
+ --lockfilegrace=<min>  Set the lifetime of the lock file
+                        [default: 240.0].
+ --lockfilename file    Override the lock file name.
+ --maxsize numbytes     Messages larger than this will be ignored as
+                        they are unlikely to be spam.
+ --movehamto mbox       Move ham to folder.
+ --noninteractive       Prevent interactive requests.
+ --noreport             Don't include the SpamAssassin report in the
+                        message copied to your spam folder.
+ --nostats              Don't print stats.
+ --partialrun num       Stop operation after scanning 'num' unseen 
+                        emails.
+ --passwdfilename fn    Use a file to supply the password.
+ --savepw               Store the password to be used in future runs.
+ --spamc                Use spamc instead of standalone SpamAssassin
+                        binary.
+ --spaminbox mbox       Name of your spam folder
+                        [Default: INBOX.spam].
+ --nossl                Don't use SSL to connect to the IMAP server.
+ --teachonly            Don't search spam, just learn from folders.
+ --trackfile file       Override the trackfile name.
+ --verbose              Show IMAP stuff happening.
+ --verbose-mails        Show mail bodies (extra-verbose).
+ --version              Show the version information.
 
-Options:
-    --imaphost hostname    IMAP server name.
-    --imapuser username    Who you login as.
-    --dryrun               Do not actually make any changes.
-    --delete               The spams will be marked for deletion from your
-                           inbox.
-    --deletehigherthan #   Delete any spam with a score higher than #.
-    --exitcodes            Use exitcodes to detail  what happened.
-    --expunge              Cause marked for deletion messages to also be
-                           deleted (only useful if --delete is specified).
-    --flag                 The spams will be flagged in your inbox.
-    --gmail                Delete by copying to '[Gmail]/Trash' folder.
-    --help                 Show the help screen.
-    --ignorelockfile       Don't stop if lock file is present.
-    --imaplist             List imap directories.
-    --imappasswd passwd    IMAP account password.
-    --imapport port        Use a custom port.
-    --imapinbox mbox       Name of your inbox folder [Default: INBOX].
-    --learnspambox mbox    Name of your learn spam folder.
-    --learnhambox mbox     Name of your learn ham folder.
-    --learnthendestroy     Mark learnt messages for deletion.
-    --learnthenflag        Flag learnt messages.
-    --learnunflagged       Only learn if unflagged (for --learnthenflag).
-    --learnflagged         Only learn flagged.
-    --lockfilegrace=<min>  Set the lifetime of the lock file [default: 240.0].
-    --lockfilename file    Override the lock file name.
-    --maxsize numbytes     Messages larger than this will be ignored as they
-                           are unlikely to be spam.
-    --movehamto mbox       Move ham to folder.
-    --noninteractive       Prevent interactive requests.
-    --noreport             Don't include the SpamAssassin report in the
-                           message copied to your spam folder.
-    --nostats              Don't print stats.
-    --partialrun num       Stop operation after scanning 'num' unseen emails.
-    --passwdfilename fn    Use a file to supply the password.
-    --savepw               Store the password to be used in future runs.
-    --spamc                Use spamc instead of standalone SpamAssassin binary.
-    --spaminbox mbox       Name of your spam folder [Default: INBOX.spam].
-    --nossl                Don't use SSL to connect to the IMAP server.
-    --teachonly            Don't search spam, just learn from folders.
-    --trackfile file       Override the trackfile name.
-    --verbose              Show IMAP stuff happening.
-    --verbose-mails        Show mail bodies (extra-verbose).
-    --version              Show the version information.
-
-    (Your inbox will remain untouched unless you specify --flag or --delete)
+ (Your inbox will remain untouched unless you specify --flag or 
+ --delete)
 </pre>
 
 You can specify your imap password using `--imappasswd`.

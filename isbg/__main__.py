@@ -23,29 +23,24 @@
 
 """isbg scans an IMAP Inbox and runs every entry against SpamAssassin.
 
-For any entries that match, the message is copied to another folder,
-and the original marked or deleted.
+Command line Options::
 
-This software was mainly written Roger Binns <rogerb@rogerbinns.com>
-and maintained by Thomas Lecavelier <thomas@lecavelier.name> since
-novembre 2009. You may use isbg under any OSI approved open source
-license such as those listed at http://opensource.org/licenses/alphabetical
-
-Usage:
+  Usage:
     isbg.py [options]
     isbg.py (-h | --help)
     isbg.py --version
 
-Options:
+  Options:
     --imaphost hostname    IMAP server name.
     --imapuser username    Who you login as.
     --dryrun               Do not actually make any changes.
-    --delete               The spams will be marked for deletion from your
-                           inbox.
+    --delete               The spams will be marked for deletion from
+                           your inbox.
     --deletehigherthan #   Delete any spam with a score higher than #.
     --exitcodes            Use exitcodes to detail  what happened.
     --expunge              Cause marked for deletion messages to also be
-                           deleted (only useful if --delete is specified).
+                           deleted (only useful if --delete is
+                           specified).
     --flag                 The spams will be flagged in your inbox.
     --gmail                Delete by copying to '[Gmail]/Trash' folder.
     --help                 Show the help screen.
@@ -58,22 +53,27 @@ Options:
     --learnhambox mbox     Name of your learn ham folder.
     --learnthendestroy     Mark learnt messages for deletion.
     --learnthenflag        Flag learnt messages.
-    --learnunflagged       Only learn if unflagged (for --learnthenflag).
+    --learnunflagged       Only learn if unflagged
+                           (for  --learnthenflag).
     --learnflagged         Only learn flagged.
-    --lockfilegrace=<min>  Set the lifetime of the lock file [default: 240.0].
+    --lockfilegrace=<min>  Set the lifetime of the lock file
+                           [default: 240.0].
     --lockfilename file    Override the lock file name.
-    --maxsize numbytes     Messages larger than this will be ignored as they
-                           are unlikely to be spam.
+    --maxsize numbytes     Messages larger than this will be ignored as
+                           they are unlikely to be spam.
     --movehamto mbox       Move ham to folder.
     --noninteractive       Prevent interactive requests.
     --noreport             Don't include the SpamAssassin report in the
                            message copied to your spam folder.
     --nostats              Don't print stats.
-    --partialrun num       Stop operation after scanning 'num' unseen emails.
+    --partialrun num       Stop operation after scanning 'num' unseen
+                           emails.
     --passwdfilename fn    Use a file to supply the password.
     --savepw               Store the password to be used in future runs.
-    --spamc                Use spamc instead of standalone SpamAssassin binary.
-    --spaminbox mbox       Name of your spam folder [Default: INBOX.spam].
+    --spamc                Use spamc instead of standalone SpamAssassin
+                           binary.
+    --spaminbox mbox       Name of your spam folder
+                           [Default: INBOX.spam].
     --nossl                Don't use SSL to connect to the IMAP server.
     --teachonly            Don't search spam, just learn from folders.
     --trackfile file       Override the trackfile name.
@@ -81,7 +81,8 @@ Options:
     --verbose-mails        Show mail bodies (extra-verbose).
     --version              Show the version information.
 
-    (Your inbox will remain untouched unless you specify --flag or --delete)
+    (Your inbox will remain untouched unless you specify --flag or
+    --delete)
 """
 
 import os
