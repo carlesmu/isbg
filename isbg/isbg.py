@@ -33,12 +33,14 @@ except (ValueError, ImportError):
             """No-op dummy function."""
             return None
 
-try:
-    import imaputils            # as script: py2 and py3, as module: py3
+try:                               # as script: py2 and py3, as module: py3
+    import imaputils
+    import spamproc
     import utils
     from utils import __
-except (ValueError, ImportError):
-    from isbg import imaputils  # as module: py3
+except (ValueError, ImportError):  # as module: py3
+    from isbg import imaputils
+    from isbg import spamproc
     from isbg import utils
     from isbg.utils import __
 
@@ -153,7 +155,12 @@ class ISBG(object):
         self.learnflagged, self.learnunflagged = (False, False)
         self.learnthendestroy, self.learnthenflag = (False, False)
 
-        self.interactive = sys.stdin.isatty()
+        try:
+            self.interactive = sys.stdin.isatty()
+        except AttributeError:
+            self.logger.warning("Can't get info about if stdin is a tty")
+            self.interactive = False
+
         self.alreadylearnt = "Message was already un/learned"
         # what we use to set flags on the original spam in imapbox
         self.spamflagscmd = "+FLAGS.SILENT"
@@ -469,111 +476,6 @@ class ISBG(object):
 
         return (numspam, nummsg, spamdeleted)
 
-    def spamlearn(self):
-        """Learn the spams (and if requested deleted or move them)."""
-        learns = [
-            {
-                'inbox': self.imapsets.learnspambox,
-                'learntype': 'spam',
-                'moveto': None
-            },
-            {
-                'inbox': self.imapsets.learnhambox,
-                'learntype': 'ham',
-                'moveto': self.movehamto
-            },
-        ]
-
-        result = []
-
-        for learntype in learns:
-            n_learnt = 0
-            n_tolearn = 0
-            if learntype['inbox']:
-                self.logger.debug(__("Teach {} to SA from: {}".format(
-                    learntype['learntype'], learntype['inbox'])))
-                uidvalidity = self.imap.get_uidvalidity(learntype['inbox'])
-                origpastuids = self.pastuid_read(uidvalidity,
-                                                 folder=learntype['learntype'])
-                newpastuids = []
-                self.imap.select(learntype['inbox'])
-                if self.learnunflagged:
-                    typ, uids = self.imap.uid("SEARCH", None, "UNFLAGGED")
-                elif self.learnflagged:
-                    typ, uids = self.imap.uid("SEARCH", None, "(FLAGGED)")
-                else:
-                    typ, uids = self.imap.uid("SEARCH", None, "ALL")
-                uids = sorted(uids[0].split(), key=int, reverse=True)
-                origpastuids = [u for u in origpastuids if str(u) in uids]
-                uids = [u for u in uids if int(u) not in origpastuids]
-                # Take only X elements if partialrun is enabled
-                if self.partialrun:
-                    uids = uids[:int(self.partialrun)]
-
-                n_tolearn = len(uids)
-
-                for uid in uids:
-                    mail = imaputils.get_message(self.imap, uid,
-                                                 logger=self.logger)
-
-                    # Unwrap spamassassin reports
-                    unwrapped = unwrap(mail)
-                    if unwrapped is not None:
-                        self.logger.debug(__(
-                            "{} Unwrapped: {}".format(uid, utils.shorten(
-                                imaputils.mail_content(unwrapped[0]), 140))))
-
-                    if unwrapped is not None and unwrapped:  # len(unwrapped)>0
-                        mail = unwrapped[0]
-                    if self.dryrun:
-                        out = self.alreadylearnt
-                        code = 0
-                    else:
-                        proc = self.popen(["spamc", "--learntype=" +
-                                           learntype['learntype']])
-                        try:
-                            out = proc.communicate(imaputils.mail_content(mail)
-                                                   )[0]
-                        except Exception:  # pylint: disable=broad-except
-                            self.logger.exception(__(
-                                'spamc error for mail {}'.format(uid)))
-                            self.logger.debug(repr(
-                                imaputils.mail_content(mail)))
-                            continue
-                        code = proc.returncode
-                        proc.stdin.close()
-                    if code == 69 or code == 74:
-                        raise ISBGError(__exitcodes__['flags'],
-                                        "spamd is misconfigured (use " +
-                                        "--allow-tell)")
-                    if out.strip() == self.alreadylearnt or code == 6:
-                        self.logger.debug(__(
-                            ("Already learnt {} (spamc return" +
-                             " code {})").format(uid, code)))
-                    else:
-                        n_learnt += 1
-                        self.logger.debug(__(
-                            "Learnt {} (spamc return code {})".format(uid,
-                                                                      code)))
-                    newpastuids.append(int(uid))
-                    if not self.dryrun:
-                        if self.learnthendestroy:
-                            if self.gmail:
-                                self.imap.uid("COPY", uid, "[Gmail]/Trash")
-                            else:
-                                self.imap.uid("STORE", uid, self.spamflagscmd,
-                                              "(\\Deleted)")
-                        elif learntype['moveto'] is not None:
-                            self.imap.uid("COPY", uid, learntype['moveto'])
-                        elif self.learnthenflag:
-                            self.imap.uid("STORE", uid, self.spamflagscmd,
-                                          "(\\Flagged)")
-                self.pastuid_write(uidvalidity, origpastuids, newpastuids,
-                                   folder=learntype['learntype'])
-            result.append((n_tolearn, n_learnt))
-
-        return result
-
     def do_passwordhash(self):
         """Create the passwordhash."""
         # We make hash that the password is xor'ed against
@@ -649,12 +551,29 @@ class ISBG(object):
 
     def do_spamassassin(self):
         """Do the spamassassin procesing."""
-        # Spamassassin training
-        s_tolearn, s_learnt, h_tolearn, h_learnt = (0, 0, 0, 0)
-        learned = self.spamlearn()
-        s_tolearn, s_learnt = learned[0]
-        h_tolearn, h_learnt = learned[1]
+        sa = spamproc.SpamAssassin.create_from_isbg(self)
 
+        # SpamAssassin training: Learn spam
+        s_learned = spamproc.Sa_Learn()
+        if self.imapsets.learnspambox:
+            uidvalidity = self.imap.get_uidvalidity(self.imapsets.learnspambox)
+            origpastuids = self.pastuid_read(uidvalidity, 'spam')
+            s_learned = sa.learn(self.imapsets.learnspambox, 'spam', None,
+                                 origpastuids)
+            self.pastuid_write(uidvalidity, origpastuids, s_learned.uids,
+                               'spam')
+
+        # SpamAssassin training: Learn ham
+        h_learned = spamproc.Sa_Learn()
+        if self.imapsets.learnspambox:
+            uidvalidity = self.imap.get_uidvalidity(self.imapsets.learnhambox)
+            origpastuids = self.pastuid_read(uidvalidity, 'ham')
+            h_learned = sa.learn(self.imapsets.learnhambox, 'ham',
+                                 self.movehamto, origpastuids)
+            self.pastuid_write(uidvalidity, origpastuids, h_learned.uids,
+                               'ham')
+
+        # FIXME: move to spamproc.py
         # Spamassassin processing
         numspam, nummsg, spamdeleted = (0, 0, 0)
         if not self.teachonly:
@@ -663,16 +582,19 @@ class ISBG(object):
         if self.nostats is False:
             if self.imapsets.learnspambox is not None:
                 self.logger.info(__(
-                    "{}/{} spams learnt".format(s_learnt, s_tolearn)))
+                    "{}/{} spams learnt".format(s_learned.learnt,
+                                                s_learned.tolearn)))
             if self.imapsets.learnhambox:
                 self.logger.info(__(
-                    "{}/{} hams learnt".format(h_learnt, h_tolearn)))
+                    "{}/{} hams learnt".format(h_learned.learnt,
+                                               h_learned.tolearn)))
             if not self.teachonly:
                 self.logger.info(__(
                     "{} spams found in {} messages".format(numspam, nummsg)))
                 self.logger.info(__("{}/{} was automatically deleted".format(
                     spamdeleted, numspam)))
-        return learned, numspam, nummsg, spamdeleted
+
+        return numspam, nummsg, spamdeleted
 
     def do_imap_login(self):
         """Login to the imap."""
@@ -729,13 +651,12 @@ class ISBG(object):
         # Connection with the imaplib server
         self.do_imap_login()
 
-        learned, numspam, nummsg, spamdeleted = (0, 0, 0, 0)
         if self.imaplist:
             # List imap directories
             self.do_list_imap()
         else:
             # Spamassasin training and processing:
-            learned, numspam, nummsg, spamdeleted = self.do_spamassassin()
+            numspam, nummsg, spamdeleted = self.do_spamassassin()
 
         # sign off
         self.do_imap_logout()
