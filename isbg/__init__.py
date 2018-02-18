@@ -23,11 +23,11 @@ Examples:
     >>> sbg.imapsets.learnspambox = "Spam"
     >>> sbg.imapsets.learnhambox = "NOSPAM"
     >>> # Set the number of mails to chech
-    >>> sbg.set_trackfile_opts(partialrun=4)
-    >>> sbg.set_reporting_opts(verbose=True)  # Show more info
-    >>> sbg.set_lockfile_opts(ignorelockfile=True)
-    >>> sbg.removelock()  # if there is a lock file
-    >>> sbg.do_isbg()     # Connects to the imap and checks for spam
+    >>> sbg.partialrun = 4         # Only check 4 mails for every proc.
+    >>> sbg.verbose = True         # Show more info
+    >>> sbg.ignorelockfile = True  # Ignore lock file
+    >>> sbg.removelock()           # if there is a lock file
+    >>> sbg.do_isbg()              # Connects to the imap and checks for spam
 
 """
 
