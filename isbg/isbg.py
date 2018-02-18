@@ -252,6 +252,8 @@ class ISBG(object):
         code (makes loading it here real easy since we just source
         the file)
         """
+        if self.pastuidsfile is None:
+            self.pastuidsfile = ISBG.set_filename(self.imapsets, "track")
         pastuids = []
         try:
             with open(self.pastuidsfile + folder, 'r') as rfile:
@@ -265,6 +267,9 @@ class ISBG(object):
     def pastuid_write(self, uidvalidity, origpastuids, newpastuids,
                       folder='inbox'):
         """Write the uids in a file for the folder."""
+        if self.pastuidsfile is None:
+            self.pastuidsfile = ISBG.set_filename(self.imapsets, "track")
+
         wfile = open(self.pastuidsfile + folder, "w+")
         try:
             os.chmod(self.pastuidsfile + folder, 0o600)
