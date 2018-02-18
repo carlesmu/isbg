@@ -123,7 +123,6 @@ class ISBG(object):
         # see https://docs.python.org/2/howto/logging-cookbook.html
         self.logger = logging.getLogger(__name__)
         self.logger.addHandler(logging.StreamHandler())
-        self.set_loglevel(logging.INFO)
 
         # We create the dir for store cached information (if needed)
         if not os.path.isdir(os.path.join(xdg_cache_home, "isbg")):
@@ -131,7 +130,8 @@ class ISBG(object):
 
         # Reporting options:
         self.imaplist, self.nostats, self.noreport = (None, False, False)
-        self.exitcodes, self.verbose, self.verbose_mails = (True, False, False)
+        self.exitcodes, self.verbose_mails = (True, False)
+        self._verbose = False  # verbose set as a property
         self.set_loglevel(logging.INFO)
         # Processing options:
         self.dryrun, self.maxsize, self.teachonly = (False, 120000, False)
@@ -176,6 +176,20 @@ class ISBG(object):
             return Popen(cmd, stdin=PIPE, stdout=PIPE)
         else:
             return Popen(cmd, stdin=PIPE, stdout=PIPE, close_fds=True)
+
+    @property
+    def verbose(self):
+        """Get the verbose property."""
+        return self._verbose
+
+    @verbose.setter
+    def verbose(self, newval):
+        """Set the verbose property and the required log level."""
+        self._verbose = newval
+        if self._verbose:
+            self.set_loglevel(logging.DEBUG)
+        else:
+            self.set_loglevel(logging.INFO)
 
     def set_loglevel(self, level):
         """Set the log level."""

@@ -82,10 +82,8 @@ Options:
     --version              Show the version information.
 
     (Your inbox will remain untouched unless you specify --flag or --delete)
-
 """
 
-import logging
 import os
 import sys
 
@@ -196,11 +194,6 @@ def parse_args(sbg):
                                  "number must be equal to 1 or higher")
 
     sbg.verbose = opts.get('--verbose', sbg.verbose)
-    if sbg.verbose:
-        sbg.set_loglevel(logging.DEBUG)
-    else:
-        sbg.set_loglevel(logging.INFO)
-
     sbg.verbose_mails = opts.get('--verbose-mails', sbg.verbose_mails)
     sbg.ignorelockfile = opts.get("--ignorelockfile", sbg.ignorelockfile)
     sbg.savepw = opts.get('--savepw', sbg.savepw)
