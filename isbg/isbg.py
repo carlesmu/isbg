@@ -229,17 +229,6 @@ class ISBG(object):
                             "\n%s returned %s - aborting\n" % (repr(args), res)
                             )
 
-    def get_uidvalidity(self, mailbox):
-        """Validate a mailbox."""
-        uidvalidity = 0
-        mbstatus = self.imap.status(mailbox, '(UIDVALIDITY)')
-        if mbstatus[0] == 'OK':
-            body = mbstatus[1][0].decode()
-            uidval = re.search('UIDVALIDITY ([0-9]+)', body)
-            if uidval is not None:
-                uidvalidity = int(uidval.groups()[0])
-        return uidvalidity
-
     def pastuid_read(self, uidvalidity, folder='inbox'):
         """Read the uids stored in a file for  a folder.
 
@@ -296,7 +285,7 @@ class ISBG(object):
         # select inbox
         self.imap.select(self.imapsets.inbox, 1)
 
-        uidvalidity = self.get_uidvalidity(self.imapsets.inbox)
+        uidvalidity = self.imap.get_uidvalidity(self.imapsets.inbox)
 
         # get the uids of all mails with a size less then the maxsize
         typ, inboxuids = self.imap.uid("SEARCH", None, "SMALLER",
@@ -484,7 +473,7 @@ class ISBG(object):
             if learntype['inbox']:
                 self.logger.debug(__("Teach {} to SA from: {}".format(
                     learntype['learntype'], learntype['inbox'])))
-                uidvalidity = self.get_uidvalidity(learntype['inbox'])
+                uidvalidity = self.imap.get_uidvalidity(learntype['inbox'])
                 origpastuids = self.pastuid_read(uidvalidity,
                                                  folder=learntype['learntype'])
                 newpastuids = []

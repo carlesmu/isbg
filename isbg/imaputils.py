@@ -25,6 +25,7 @@
 
 import email      # To eassily encapsulated emails messages
 import imaplib
+import re         # For regular expressions
 import socket     # to catch the socket.error exception
 import time
 
@@ -164,6 +165,17 @@ class IsbgImap4(object):
     def uid(self, command, *args):
         """Execute "command arg ..." with messages identified by UID."""
         return self.imap.uid(command, *args)
+
+    def get_uidvalidity(self, mailbox):
+        """Validate a mailbox."""
+        uidvalidity = 0
+        mbstatus = self.imap.status(mailbox, '(UIDVALIDITY)')
+        if mbstatus[0] == 'OK':
+            body = mbstatus[1][0].decode()
+            uidval = re.search('UIDVALIDITY ([0-9]+)', body)
+            if uidval is not None:
+                uidvalidity = int(uidval.groups()[0])
+        return uidvalidity
 
 
 def login_imap(imapsets, logger=None, assertok=None):
