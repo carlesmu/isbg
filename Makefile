@@ -45,6 +45,7 @@ all: help
 
 test-clean:
 	rm -fr .pytest_cache
+	rm -fr .cache
 
 test:
 	@$(TEST)
