@@ -144,7 +144,7 @@ class ISBG(object):
         self.passwdfilename, self.savepw = (None, False)
         self.passwordhash = None
         self.passwordhashlen = 256  # should be a multiple of 16
-        # Trackfile oprions:
+        # Trackfile options:
         self.pastuidsfile, self.partialrun = (None, False)
         # spamassassin options:
         self.movehamto, self.delete = (None, False)
@@ -655,6 +655,16 @@ class ISBG(object):
                     spamdeleted, numspam)))
         return learned, numspam, nummsg, spamdeleted
 
+    def do_imap_login(self):
+        """Login to the imap."""
+        self.imap = imaputils.login_imap(self.imapsets,
+                                         logger=self.logger,
+                                         assertok=self.assertok)
+
+    def do_imap_logout(self):
+        """Sign off from the imap connection."""
+        self.imap.logout()
+
     def do_isbg(self):
         """Execute the main isbg process.
 
@@ -698,9 +708,7 @@ class ISBG(object):
         # ***** Main code starts here *****
 
         # Connection with the imaplib server
-        self.imap = imaputils.login_imap(self.imapsets,
-                                         logger=self.logger,
-                                         assertok=self.assertok)
+        self.do_imap_login()
 
         learned, numspam, nummsg, spamdeleted = (0, 0, 0, 0)
         if self.imaplist:
@@ -711,7 +719,7 @@ class ISBG(object):
             learned, numspam, nummsg, spamdeleted = self.do_spamassassin()
 
         # sign off
-        self.imap.logout()
+        self.do_imap_logout()
 
         if self.exitcodes and __name__ == '__main__':
             if not self.teachonly:
