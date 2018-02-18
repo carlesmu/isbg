@@ -581,6 +581,91 @@ class ISBG(object):
             self.imapsets.hash.update(self.passwordhash)
             self.passwordhash = self.passwordhash + self.imapsets.hash.digest()
 
+    def _do_lockfile_or_raise(self):
+        """Create the lockfile or raise a error if it exists."""
+        if (os.path.exists(self.lockfilename) and
+                (os.path.getmtime(self.lockfilename) +
+                    (self.lockfilegrace * 60) > time.time())):
+            raise ISBGError(__exitcodes__['locked'],
+                            "Lock file is present. Guessing isbg is " +
+                            "already running. Exit.")
+        else:
+            lockfile = open(self.lockfilename, 'w')
+            lockfile.write(repr(os.getpid()))
+            lockfile.close()
+
+            #: FIXME: May be found a better way that use of atexit
+            # Make sure to delete lock file
+            atexit.register(self.removelock)
+
+    def _do_get_password(self):
+        """Get the password from file or prompt for it."""
+        if (self.savepw is False and
+                os.path.exists(self.passwdfilename) is True):
+            try:
+                self.imapsets.passwd = self.getpw(utils.dehexof(open(
+                    self.passwdfilename, "rb").read().decode()),
+                    self.passwordhash)
+                self.logger.debug("Successfully read password file")
+            except Exception:  # pylint: disable=broad-except
+                self.logger.exception('Error reading pw!')
+
+        # do we have to prompt?
+        if self.imapsets.passwd is None:
+            if not self.interactive:
+                raise ISBGError(__exitcodes__['ok'],
+                                "You need to specify your imap password " +
+                                "and save it with the --savepw switch")
+            self.imapsets.passwd = getpass.getpass(
+                "IMAP password for %s@%s: " % (
+                    self.imapsets.user, self.imapsets.host))
+
+    def _do_save_password(self):
+        """Save password to the password file."""
+        wfile = open(self.passwdfilename, "wb+")
+        try:
+            os.chmod(self.passwdfilename, 0o600)
+        except Exception:  # pylint: disable=broad-except
+            self.logger.exception('Error saving pw!')
+        wfile.write(utils.hexof(self.setpw(self.imapsets.passwd,
+                                           self.passwordhash)).encode())
+        wfile.close()
+
+    def do_list_imap(self):
+        """List the imap boxes."""
+        imap_list = self.imap.list()
+        dirlist = str([x.decode() for x in imap_list[1]])
+        # string formatting
+        dirlist = re.sub(r'\(.*?\)| \".\" \"|\"\', \'', " ", dirlist)
+        self.logger.info(dirlist)
+
+    def do_spamassassin(self):
+        """Do the spamassassin procesing."""
+        # Spamassassin training
+        s_tolearn, s_learnt, h_tolearn, h_learnt = (0, 0, 0, 0)
+        learned = self.spamlearn()
+        s_tolearn, s_learnt = learned[0]
+        h_tolearn, h_learnt = learned[1]
+
+        # Spamassassin processing
+        numspam, nummsg, spamdeleted = (0, 0, 0)
+        if not self.teachonly:
+            numspam, nummsg, spamdeleted = self.spamassassin()
+
+        if self.nostats is False:
+            if self.imapsets.learnspambox is not None:
+                self.logger.info(__(
+                    "{}/{} spams learnt".format(s_learnt, s_tolearn)))
+            if self.imapsets.learnhambox:
+                self.logger.info(__(
+                    "{}/{} hams learnt".format(h_learnt, h_tolearn)))
+            if not self.teachonly:
+                self.logger.info(__(
+                    "{} spams found in {} messages".format(numspam, nummsg)))
+                self.logger.info(__("{}/{} was automatically deleted".format(
+                    spamdeleted, numspam)))
+        return learned, numspam, nummsg, spamdeleted
+
     def do_isbg(self):
         """Execute the main isbg process.
 
@@ -611,96 +696,32 @@ class ISBG(object):
         if self.ignorelockfile:
             self.logger.debug("Lock file is ignored. Continue.")
         else:
-            if (os.path.exists(self.lockfilename) and
-                    (os.path.getmtime(self.lockfilename) +
-                     (self.lockfilegrace * 60) > time.time())):
-                raise ISBGError(__exitcodes__['locked'],
-                                "Lock file is present. Guessing isbg is " +
-                                "already running. Exit.")
-            else:
-                lockfile = open(self.lockfilename, 'w')
-                lockfile.write(repr(os.getpid()))
-                lockfile.close()
-                # Make sure to delete lock file
-                atexit.register(self.removelock)
+            self._do_lockfile_or_raise()
 
         # Figure out the password
         if self.imapsets.passwd is None:
-            if (self.savepw is False and
-                    os.path.exists(self.passwdfilename) is True):
-                try:
-                    self.imapsets.passwd = self.getpw(utils.dehexof(open(
-                        self.passwdfilename,
-                        "rb").read().decode()),
-                        self.passwordhash)
-                    self.logger.debug("Successfully read password file")
-                except Exception:  # pylint: disable=broad-except
-                    self.logger.exception('Error reading pw!')
-
-            # do we have to prompt?
-            if self.imapsets.passwd is None:
-                if not self.interactive:
-                    raise ISBGError(__exitcodes__['ok'],
-                                    "You need to specify your imap password " +
-                                    "and save it with the --savepw switch")
-                self.imapsets.passwd = getpass.getpass(
-                    "IMAP password for %s@%s: " % (
-                        self.imapsets.user, self.imapsets.host))
+            self._do_get_password()
 
         # Should we save it?
         if self.savepw:
-            wfile = open(self.passwdfilename, "wb+")
-            try:
-                os.chmod(self.passwdfilename, 0o600)
-            except Exception:  # pylint: disable=broad-except
-                self.logger.exception('Error saving pw!')
-            wfile.write(utils.hexof(self.setpw(self.imapsets.passwd,
-                                               self.passwordhash)).encode())
-            wfile.close()
+            self._do_save_password()
 
-        # Main code starts here
+        # ***** Main code starts here *****
 
         # Connection with the imaplib server
         self.imap = imaputils.login_imap(self.imapsets,
                                          logger=self.logger,
                                          assertok=self.assertok)
 
-        # List imap directories
         if self.imaplist:
-            imap_list = self.imap.list()
-            dirlist = str([x.decode() for x in imap_list[1]])
-            # string formatting
-            dirlist = re.sub(r'\(.*?\)| \".\" \"|\"\', \'', " ", dirlist)
-            self.logger.info(dirlist)
-
-        # Spamassassin training
-        s_tolearn, s_learnt, h_tolearn, h_learnt = (0, 0, 0, 0)
-        if not self.imaplist:
-            learned = self.spamlearn()
-            s_tolearn, s_learnt = learned[0]
-            h_tolearn, h_learnt = learned[1]
-
-        # Spamassassin processing
-        numspam, nummsg, spamdeleted = (0, 0, 0)
-        if not self.imaplist and not self.teachonly:
-            numspam, nummsg, spamdeleted = self.spamassassin()
+            # List imap directories
+            self.do_list_imap()
+        else:
+            # Spamassasin training and processing:
+            learned, numspam, nummsg, spamdeleted = self.do_spamassassin()
 
         # sign off
         self.imap.logout()
-        del self.imap
-
-        if self.nostats is False:
-            if self.imapsets.learnspambox is not None:
-                self.logger.info(__(
-                    "{}/{} spams learnt".format(s_learnt, s_tolearn)))
-            if self.imapsets.learnhambox:
-                self.logger.info(__(
-                    "{}/{} hams learnt".format(h_learnt, h_tolearn)))
-            if not self.teachonly:
-                self.logger.info(__(
-                    "{} spams found in {} messages".format(numspam, nummsg)))
-                self.logger.info(__("{}/{} was automatically deleted".format(
-                    spamdeleted, numspam)))
 
         if self.exitcodes and __name__ == '__main__':
             if not self.teachonly:
