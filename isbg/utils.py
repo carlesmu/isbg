@@ -26,6 +26,9 @@
 
 """Utils for isbg."""
 
+import os
+from subprocess import Popen, PIPE
+
 
 def dehexof(string):
     """Tanslate a hexadecimal string to his string value."""
@@ -53,6 +56,14 @@ def hexof(string):
     for i in string:
         res = res + ("%02x" % ord(i))
     return res
+
+
+def popen(cmd):
+    """Call for Popen, helper method."""
+    if os.name == 'nt':
+        return Popen(cmd, stdin=PIPE, stdout=PIPE)
+    else:
+        return Popen(cmd, stdin=PIPE, stdout=PIPE, close_fds=True)
 
 
 def shorten(inp, length):
