@@ -713,6 +713,7 @@ class ISBG(object):
                                          logger=self.logger,
                                          assertok=self.assertok)
 
+        learned, numspam, nummsg, spamdeleted = (0, 0, 0, 0)
         if self.imaplist:
             # List imap directories
             self.do_list_imap()
