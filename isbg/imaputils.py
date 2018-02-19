@@ -53,14 +53,16 @@ def mail_content(mail):
 
 def new_message(body):
     """Get a email.message from a body email."""
-    try:
-        mail = email.message_from_string(body)  # python 2+3
-    except (AttributeError, TypeError):
+    if isinstance(body, str):
+        mail = email.message_from_string(body)
+        if mail.as_string() in ['', '\n']:
+            raise TypeError(
+                __("body '{}' cannot be empty.".format(repr(body))))
+    else:  # For py3:
         mail = email.message_from_bytes(body)  # pylint: disable=no-member
-
-    if mail.as_string() == "" or mail.as_string() == "\n":
-        raise TypeError(
-            __("body '{}' cannot be empty.".format(repr(body))))
+        if mail.as_bytes() in [b'', b'\n']:
+            raise TypeError(
+                __("body '{}' cannot be empty.".format(repr(body))))
 
     return mail
 
