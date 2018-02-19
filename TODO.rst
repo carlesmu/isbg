@@ -1,12 +1,15 @@
-# Todo list
+Todo list
+=========
 
-## High priority
+High priority
+-------------
 * Write program as main()
 * Correct the use of subprocess Popen (pipe.communicate() is the way to go)
 * Delete the semi-encryption of passwords (Security through obscurity !=
   security)
 
-# Other stuff
+Other stuff
+-----------
 * Auto report messages to Razor (high scoring ones that are definitely spam)
 * Delete the semi-encryption of passwords (Security through obscurity !=
   security)

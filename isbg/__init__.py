@@ -5,17 +5,9 @@ u"""isbg scans an IMAP Inbox and runs every entry against SpamAssassin.
 For any entries that match, the message is copied to another folder,
 and the original marked or deleted.
 
-History
-=======
-
-This software was mainly written Roger Binns <rogerb@rogerbinns.com> and
-maintained by Thomas Lecavelier <thomas@lecavelier.name> since novembre 2009
-and maintained by Carles Muñoz Gorriz <carlesmu@internautas.org> since march
-2010.
-
 See Also
 ========
-For command line usage see help(`isbg.ISBG`).
+For command line usage see help( isbg.__main__ ).
 
 Examples
 ========

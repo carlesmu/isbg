@@ -1,7 +1,7 @@
-"""Conf file for isbg docs using sphinx."""
-
 # -*- coding: utf-8 -*-
 #
+"""Conf file for isbg docs using sphinx."""
+
 # isbg documentation build configuration file, created by
 # sphinx-quickstart on Sat Feb 17 12:46:51 2018.
 #
@@ -60,8 +60,8 @@ master_doc = 'index'
 
 # General information about the project.
 project = u'isbg'
-copyright = u'2018, author'
-author = u'author'
+copyright = u'2018, the isbg developers'
+author = u'Carles Muñoz Gorriz'
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
@@ -114,7 +114,18 @@ html_theme_options = {
     'github_user': 'carlesmu',
     'github_repo': 'isbg',
     'show_related': True,
-    'body_text_align': 'justify'
+    'body_text_align': 'justify',
+    'show_powered_by': True,
+    'fixed_sidebar': True,
+    'github_button': True,
+    'travis_button': True,
+    'codecov_button': True,
+    'gratipay_user': False,
+    # 'sidebar_collapse': True,
+    'extra_nav_links': {
+        #  u"🚀 Github": "https://github.com/carlesmu/isbg",
+        u"💾 Download Releases": "https://pypi.python.org/pypi/isbg",
+    }
 }
 
 # Add any paths that contain custom static files (such as style sheets) here,
@@ -131,8 +142,9 @@ html_sidebars = {
     '**': [
         # needs 'show_related': True theme option to display:
         'about.html',
+        'navigation.html',
+        'searchbox.html',
         'relations.html',
-        'searchbox.html'
     ]
 }
 
