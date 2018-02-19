@@ -15,11 +15,10 @@ different machines to where your mailbox actually is. So this is the
 perfect tool to take good care of your ISP mailbox without having to
 leave it.
 
-* [Features](#Features)
-  * [New in 1.00](#New-in-100)
-* [Installation](#Installation)
-  * [Install from source](#Install-from-source)
-  * [Install in Debian](#Install-in-Debian)
+* [Features](#features)
+* [Installation](#installation)
+  * [Install from source](#install-from-source)
+  * [Install in Debian](#install-in-Debian)
 * [Usage](#Usage)
   * [SpamAssassin](#SpamAssassin)
     * [Configure your spamassassin](#Configure-your-spamassassin)
@@ -40,7 +39,7 @@ leave it.
 * [Contact and about](#Contact-and-about)
 * [License](#License)
 
-## Features<a name="Features"></a>
+## Features
 
 * Works with all common IMAP servers
 * Works on Linux, MacOS X and Windows (even smartphones!)
@@ -57,26 +56,9 @@ leave it.
 * Lock file to prevent multiple instance to run at the same time (for cron 
   jobs)
 
-### New in 1.00<a name="New-in-100"></a>
+## Installation
 
-**DEPRECATION NOTICE: if you used the "--ssl" parameter in 0.99, you now
-need to stop using it! SSL is now used by default. If you want not to use
-it, please use the "--nossl" parameter.**
-
-* The CLI interface is now implemented with docopt
-* The README now includes the documentation
-* New command --imaplist lists the directories in IMAP account
-* Code now follows PEP-8 style guide
-* Renamed variables to be consistent
-* Added gmail integration (thanks to Orkim!)
-* Added bash scripts for use with multiple accounts
-* SSL is now used by default and "--ssl" parameter is now a "--nossl" parameter
-* New command "--trackfile" now permits trackfile name configuration (thanks naevtamarkus!)
-* New command "--partialrun" now enable isbg to run for only a few emails (thanks naevtamarkus!)
-
-## Installation<a name="Installation"></a>
-
-### Install from source<a name="Install-from-source"></a>
+### Install from source
 
 Make sure you have SpamAssassin installed. All the necessary information
 can be found on the
@@ -94,7 +76,7 @@ you can add a [bash alias](https://wiki.archlinux.org/index.php/Bash#Aliases)
 to your ~/.bashrc file. Here `alias isbg="/path/to/isbg.py"` should do the
 trick.
 
-### Install in Debian<a name="Install-in-Debian"></a>
+### Install in Debian
 
 There is a package in mentor.debian.net pending approval from the community.
 There should thus be a packaged version soon.

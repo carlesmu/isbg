@@ -16,6 +16,7 @@ Contents
    :numbered:
 
    README
+   NEWS
    TODO
 
 Links
