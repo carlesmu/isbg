@@ -6,8 +6,9 @@ New in 2.0
 
 * A more robust package, it can be used as a module and a script.
 * Better documentation: using sphinx.
-* using main() to run as script.
+* Using main() to run as script.
 * Using standard cache `xdg_cache_home` to store information.
+* python3 suport.
 
 News in old releases
 --------------------
