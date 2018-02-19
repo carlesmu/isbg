@@ -125,6 +125,7 @@ html_theme_options = {
     'extra_nav_links': {
         #  u"🚀 Github": "https://github.com/carlesmu/isbg",
         u"💾 Download Releases": "https://pypi.python.org/pypi/isbg",
+        u"🖴  Code coverage": "../../htmlcov/index.html"
     }
 }
 
