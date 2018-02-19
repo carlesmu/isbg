@@ -1,5 +1,5 @@
 # Manifest.in file for isbg
-include CHANGELOG CONTRIBUTORS LICENSE README.md TODO.rst requirements.txt
+include CHANGELOG CONTRIBUTORS LICENSE README.md TODO.rst NEWS.rst requirements.txt
 
 graft examples
 graft bash_scripts
