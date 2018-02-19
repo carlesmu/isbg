@@ -19,25 +19,25 @@ leave it.
 * [Installation](#installation)
   * [Install from source](#install-from-source)
   * [Install in Debian](#install-in-Debian)
-* [Usage](#Usage)
-  * [SpamAssassin](#SpamAssassin)
-    * [Configure your spamassassin](#Configure-your-spamassassin)
-      * [Allow-tell](#Allow-tell)
-  * [CLI Options](#CLI_Options)
-  * [Do your first run](#Do-your-first-run)
-    * [Running it](#Running-it)
-  * [Your folder names](#Your-folder-names)
-  * [How does it work?](#How-does-it-work)
-  * [Multiple accounts](#Multiple-accounts)
-  * [Saving your password](#Saving-your-password)
-  * [SSL](#SSL)
-  * [Exit Codes](#Exit-Codes)
-  * [Read and Seen flags](#Read-and-Seen-flags)
-  * [Gmail Integration](#Gmail-Integration)
-  * [Ignored emails](#Ignored-emails)
-  * [Partial runs](#Partial-runs)
-* [Contact and about](#Contact-and-about)
-* [License](#License)
+* [Usage](#usage)
+  * [SpamAssassin](#spamassassin)
+    * [Configure your spamassassin](#configure-your-spamassassin)
+      * [Allow-tell](#allow-tell)
+  * [CLI Options](#cli-Options)
+  * [Do your first run](#do-your-first-run)
+    * [Running it](#tunning-it)
+  * [Your folder names](#your-folder-names)
+  * [How does it work?](#how-does-it-work)
+  * [Multiple accounts](#multiple-accounts)
+  * [Saving your password](#saving-your-password)
+  * [SSL](#ssl)
+  * [Exit Codes](#exit-codes)
+  * [Read and Seen flags](#read-and-seen-flags)
+  * [Gmail Integration](#gmail-integration)
+  * [Ignored emails](#ignored-emails)
+  * [Partial runs](#partial-runs)
+* [Contact and about](#contact-and-about)
+* [License](#license)
 
 ## Features
 
@@ -83,7 +83,7 @@ There should thus be a packaged version soon.
 
 ## Usage
 
-### SpamAssassin<a name="SpamAssassin"></a>
+### SpamAssassin
 
 If you have never used SpamAssassin before, you'll probably be quite
  nervous about it being too good and taking out legitimate email, or not
@@ -102,12 +102,12 @@ You can also edit the system-wide settings in `/etc/spamassassin/locals.cf`.
 If you want to use the `--learnspambox` or `--learnhambox`, you'll have
  to configure your spamassassin.
 
-#### Configure your spamassassin<a name="Configure-your-spamassassin"></a>
+#### Configure your spamassassin
 
 If you want to use `--learnspambox` or `--learnhambox` features,
 you have to add this configuration:
 
-##### Allow Tell<a name="Allow-tell"></a>
+##### Allow Tell
 
 You have to start `spamd` with the `--allow-tell` option.
 
@@ -128,7 +128,7 @@ Don't forget to restart your spamd server after that
  (`sudo service spamassassin restart` on Debian).
 
 
-### CLI Options<a name="CLI_Options"></a>
+### CLI Options
 
 The default behaviour of isbg is to not make any changes your Inbox
 unless you specify specific command line options. Consequently you can
@@ -165,7 +165,7 @@ Run isbg with the `--help` option to see what options are available:
  --learnunflagged       Only learn if unflagged
                         (for  --learnthenflag).
  --learnflagged         Only learn flagged.
- --lockfilegrace=<min>  Set the lifetime of the lock file
+ --lockfilegrace=min    Set the lifetime of the lock file
                         [default: 240.0].
  --lockfilename file    Override the lock file name.
  --maxsize numbytes     Messages larger than this will be ignored as
@@ -200,7 +200,7 @@ This however is a really bad idea since any user on the system can run `ps` and
  then set the password here.
 
 
-### Do your first run<a name="Do-your-first-run"></a>
+### Do your first run
 
 <pre>
 $ isbg.py --imaphost mail.example.com  --savepw
@@ -225,7 +225,7 @@ next time you run against the same server with the same username. You
 should not specify `--savepw` in future runs unless you want to change the
  saved password.
 
-#### Running it<a name="Running-it"></a>
+#### Running it
 
 You'll probably want something to actually be done with the original
  spams in your inbox. By default nothing happens to them, but you have
@@ -236,7 +236,7 @@ You can get the messages marked for deletion by specifying `--delete`.
  option after `--delete` and they will be removed when isbg logs out of
 the IMAP server.
 
-### Your folder names<a name="Your-folder-names"></a>
+### Your folder names
 
 Each IMAP implementation names their folders differently, and most
 IMAP clients manage to hide most of this from you. If your IMAP server
@@ -249,7 +249,7 @@ slash (`/`) to seperate components.
 If you don't know how your IMAP folders are implemented, you can always use
 the `--imaplist` option to find out.
 
-### How does it work?<a name="How-does-it-work"></a>
+### How does it work?
 
 IMAP assigns each message in a folder a unique id. isbg scans the
 folder for messages it hasn't seen before, and for each one, downloads
@@ -260,7 +260,7 @@ message is copied from your Inbox to the Spam folder (the copy happens on
  the IMAP server itself so this option is good if you are on a low
 bandwidth connection).
 
-### Multiple accounts<a name="Multiple-accounts"></a>
+### Multiple accounts
 
 By default isbg saves the list of seen IMAP message unique IDs in a
 file in your home directory. It is named `.isbg-trackXXXX` where XXXX is a
@@ -274,7 +274,7 @@ bash scripts like the ones in the folder "bash_scripts". Since these scripts
 contain passwords and are thus sensitive data, make sure the file permissions
 are very restrictive.
 
-### Saving your password<a name="Saving-your-password"></a>
+### Saving your password
 
 If you don't want isbg to prompt you for your password each time,
 you can specify the `--savepw` option. This will save the password in a
@@ -292,7 +292,7 @@ time it is run as well).
 Consequently you should regard this as providing minimal protection if
  someone can read the file.
 
-### SSL<a name="SSL"></a>
+### SSL
 
 isbg can do IMAP over SSL if your version of Python has been
 compiled with SSL support. Since Python 2.6, SSL comes built in with Python.
@@ -303,7 +303,7 @@ the connection and modify all the packets flowing by, then they will be
 able to pose as the IMAP server. Other than that, the connection will
 have the usual security features of SSL.
 
-### Exit Codes<a name="Exit-Codes"></a>
+### Exit Codes
 
 When ISBG exits, it uses the exit code to tell you what happened. In
  general it is zero if all went well, and non-zero if there was a
@@ -322,7 +322,7 @@ command line option.
 |20|  no    |The program was not launched in an interactive terminal|
 |30|  no    |There is another instance of `isbg` running|
 
-### Read and Seen flags<a name="Read-and-Seen-flags"></a>
+### Read and Seen flags
 
 There are two flags IMAP uses to mark messages, `Recent` and `Seen`.
 `Recent` is sent to the first IMAP client that connects after a new
@@ -337,7 +337,7 @@ should be using `Seen`.
 
 The IMAP specification does not permit clients to change the `Recent` flag.
 
-### Gmail Integration<a name="Gmail-Integration"></a>
+### Gmail Integration
 
 Gmail has a few unique ways that they interact with a mail client. isbg must
 be considered to be a client due to interacting with the Gmail servers over
@@ -380,7 +380,7 @@ which are tweaked:
 Reference information was taken from
 [here](https://support.google.com/mail/answer/78755?hl=en)
 
-### Ignored emails<a name="Ignored-emails"></a>
+### Ignored emails
 
 By default, isbg ignores emails that are bigger than 120000 bytes since spam
 are not often that big. If you ever get emails with score of 0 on 5 (0.0/5.0),
@@ -388,7 +388,7 @@ are not often that big. If you ever get emails with score of 0 on 5 (0.0/5.0),
 
 Defaut maximum size can be changed with the use of the `--maxsize` option.
 
-### Partial runs<a name="Partial-runs"></a>
+### Partial runs
 
 By default, isbg scans the whole inbox folder. If you want to restrict the number
 of emails that are scanned, you can use the `--partialrun` option specifying the
@@ -398,7 +398,7 @@ This may be useful when your inbox has a lot of emails, since deletion and mail
 tracking are only performed at the end of the run and full scans can take too
 long.
 
-## Contact and about<a name="Contact-and-about"></a>
+## Contact and about
 
 Please join our [developpement mailing list](
 https://mail.python.org/mm3/mailman3/lists/isbg.python.org/)
@@ -415,7 +415,7 @@ since november 2009 with the great help of Anders Jenbo since v0.99,
 and maintained by Carles Muñoz Gorriz <[carlesmu@internautas.org](
 mailto:carlesmu@internautas.org)> since march 2018.
 
-## License<a name="License"></a>
+## License
 
 This program is licensed under the [GNU General Public License version 3](
 https://www.gnu.org/licenses/gpl-3.0.txt).
