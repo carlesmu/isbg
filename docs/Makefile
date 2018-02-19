@@ -5,7 +5,7 @@
 SPHINXOPTS       = -a -E -n
 SPHINXBUILD      = sphinx-build
 SPHINXAPIDOC     = sphinx-apidoc
-SPHINXAPIDOCOPTS = --force --separate --private
+SPHINXAPIDOCOPTS = --force --separate --private --follow-links
 SPHINXPROJ       = isbg
 SOURCEDIR        = .
 BUILDDIR         = ../build/sphinx
