@@ -176,7 +176,7 @@ Run isbg with the `--help` option to see what options are available:
                         message copied to your spam folder.
  --nostats              Don't print stats.
  --partialrun num       Stop operation after scanning 'num' unseen 
-                        emails.
+                        emails [default=50].
  --passwdfilename fn    Use a file to supply the password.
  --savepw               Store the password to be used in future runs.
  --spamc                Use spamc instead of standalone SpamAssassin

@@ -142,7 +142,7 @@ class ISBG(object):
         self.passwordhash = None
         self.passwordhashlen = 256  # should be a multiple of 16
         # Trackfile options:
-        self.pastuidsfile, self.partialrun = (None, False)
+        self.pastuidsfile, self.partialrun = (None, 50)
         # spamassassin options:
         self.movehamto, self.delete = (None, False)
         self.deletehigherthan, self.flag, self.expunge = (None, False, False)

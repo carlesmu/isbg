@@ -2,13 +2,14 @@ New
 ===
 
 New in 2.0
------------
+----------
 
 * A more robust package, it can be used as a module and a script.
 * Better documentation: using sphinx.
 * Using main() to run as script.
 * Using standard cache `xdg_cache_home` to store information.
 * python3 suport.
+* Added a default partialrun of 50.
 
 News in old releases
 --------------------

@@ -4,7 +4,7 @@ Todo list
 High priority
 -------------
 * ☑ Write program as main()
-* ☐ Set a 50 emails partial run defaut and loop it.
+* ☑ Set a 50 emails partial run defaut and loop it.
 * ☐ Add a manpage.
 
 Other stuff
