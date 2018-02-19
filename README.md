@@ -21,13 +21,12 @@ leave it.
   * [Install from source](#Install-from-source)
   * [Install in Debian](#Install-in-Debian)
 * [Usage](#Usage)
-  * [Your first run](#Your-first-run)
-    * [SpamAssassin](#SpamAssassin)
-      * [Configure your spamassassin](#Configure-your-spamassassin)
-        * [Allow-tell](#Allow-tell)
+  * [SpamAssassin](#SpamAssassin)
+    * [Configure your spamassassin](#Configure-your-spamassassin)
+      * [Allow-tell](#Allow-tell)
   * [CLI Options](#CLI_Options)
-  * [Do your first run.](#Do-your-first-run)
-  * [Running it](#Running-it)
+  * [Do your first run](#Do-your-first-run)
+    * [Running it](#Running-it)
   * [Your folder names](#Your-folder-names)
   * [How does it work?](#How-does-it-work)
   * [Multiple accounts](#Multiple-accounts)
@@ -102,9 +101,7 @@ There should thus be a packaged version soon.
 
 ## Usage
 
-### Your first run<a name="Your-first-run"></a>
-
-#### SpamAssassin<a name="SpamAssassin"></a>
+### SpamAssassin<a name="SpamAssassin"></a>
 
 If you have never used SpamAssassin before, you'll probably be quite
  nervous about it being too good and taking out legitimate email, or not
@@ -123,12 +120,12 @@ You can also edit the system-wide settings in `/etc/spamassassin/locals.cf`.
 If you want to use the `--learnspambox` or `--learnhambox`, you'll have
  to configure your spamassassin.
 
-##### Configure your spamassassin<a name="Configure-your-spamassassin"></a>
+#### Configure your spamassassin<a name="Configure-your-spamassassin"></a>
 
 If you want to use `--learnspambox` or `--learnhambox` features,
 you have to add this configuration:
 
-###### Allow Tell<a name="Allow-tell"></a>
+##### Allow Tell<a name="Allow-tell"></a>
 
 You have to start `spamd` with the `--allow-tell` option.
 
@@ -221,7 +218,7 @@ This however is a really bad idea since any user on the system can run `ps` and
  then set the password here.
 
 
-### Do your first run.<a name="Do-your-first-run"></a>
+### Do your first run<a name="Do-your-first-run"></a>
 
 <pre>
 $ isbg.py --imaphost mail.example.com  --savepw
@@ -246,7 +243,7 @@ next time you run against the same server with the same username. You
 should not specify `--savepw` in future runs unless you want to change the
  saved password.
 
-### Running it<a name="Running-it"></a>
+#### Running it<a name="Running-it"></a>
 
 You'll probably want something to actually be done with the original
  spams in your inbox. By default nothing happens to them, but you have
@@ -345,18 +342,18 @@ command line option.
 
 ### Read and Seen flags<a name="Read-and-Seen-flags"></a>
 
-There are two flags IMAP uses to mark messages, Recent and Seen.
-Recent is sent to the first IMAP client that connects after a new
+There are two flags IMAP uses to mark messages, `Recent` and `Seen`.
+`Recent` is sent to the first IMAP client that connects after a new
 message is received. Other clients or subsequent connections won't see
-that flag. The Seen flag is used to mark a message as read. IMAP clients
- explicitly set Seen when a message is being read.
+that flag. The `Seen` flag is used to mark a message as read. IMAP clients
+explicitly set `Seen` when a message is being read.
 
-Pine and some other mailers use the Recent flag to mark new mail.
+Pine and some other mailers use the `Recent` flag to mark new mail.
 Unfortunately this means that if isbg or any other IMAP client has even
 looked at the Inbox, the messages won't be shown as new. It really
-should be using Seen.
+should be using `Seen`.
 
-The IMAP specification does not permit clients to change the Recent flag.a
+The IMAP specification does not permit clients to change the `Recent` flag.
 
 ### Gmail Integration<a name="Gmail-Integration"></a>
 
