@@ -25,7 +25,7 @@ leave it.
       * [Allow-tell](#allow-tell)
   * [CLI Options](#cli-Options)
   * [Do your first run](#do-your-first-run)
-    * [Running it](#tunning-it)
+    * [Running it](#running-it)
   * [Your folder names](#your-folder-names)
   * [How does it work?](#how-does-it-work)
   * [Multiple accounts](#multiple-accounts)
