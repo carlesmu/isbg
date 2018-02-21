@@ -67,7 +67,8 @@ Command line Options::
                            message copied to your spam folder.
     --nostats              Don't print stats.
     --partialrun num       Stop operation after scanning 'num' unseen
-                           emails [default: 50].
+                           emails. Use 0 to run without partial run
+                           [default: 50].
     --passwdfilename fn    Use a file to supply the password.
     --savepw               Store the password to be used in future runs.
     --spamc                Use spamc instead of standalone SpamAssassin
@@ -188,11 +189,21 @@ def parse_args(sbg):
 
     sbg.pastuidsfile = opts.get('--trackfile', sbg.pastuidsfile)
 
-    if opts.get("--partialrun") is not None:
+    #: v2.0: partialrun now has a default value of 50, use 0 if not partialrun
+    #: shoud be used.
+    sbg.pastuidsfile = opts.get('--partialrun', sbg.partialrun)
+    try:
         sbg.partialrun = int(opts["--partialrun"])
-        if sbg.partialrun < 1:
-            raise isbg.ISBGError(isbg.__exitcodes__['flags'], "Partial run " +
-                                 "number must be equal to 1 or higher")
+    except ValueError:
+        raise isbg.ISBGError(isbg.__exitcodes__['flags'],
+                             "partialrun \'{}\' must be a integer".format(
+                             repr(sbg.partialrun)))
+    if sbg.partialrun < 0:
+        raise isbg.ISBGError(isbg.__exitcodes__['flags'],
+                             ("Partial run \'{}\' number must be equal to " +
+                              "0 or higher").format(repr(sbg.partialrun)))
+    elif sbg.partialrun == 0:
+        sbg.partialrun = None
 
     sbg.verbose = opts.get('--verbose', sbg.verbose)
     sbg.verbose_mails = opts.get('--verbose-mails', sbg.verbose_mails)
