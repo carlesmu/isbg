@@ -1,5 +1,4 @@
 [![Build Status](https://travis-ci.org/carlesmu/isbg.svg?branch=v2.0-dev)](https://travis-ci.org/carlesmu/isbg)
-[![Code Health](https://landscape.io/github/carlesmu/isbg/v2.0-dev/landscape.svg?style=plastic)](https://landscape.io/github/carlesmu/isbg/v2.0-dev)
 [![Maintainability](https://api.codeclimate.com/v1/badges/c487d0d5ee45186aded1/maintainability)](https://codeclimate.com/github/carlesmu/isbg/maintainability)
 [![Test Coverage](https://api.codeclimate.com/v1/badges/c487d0d5ee45186aded1/test_coverage)](https://codeclimate.com/github/carlesmu/isbg/test_coverage)
 [![codecov](https://codecov.io/gh/carlesmu/isbg/branch/v2.0-dev/graph/badge.svg)](https://codecov.io/gh/carlesmu/isbg)
