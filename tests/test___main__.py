@@ -132,20 +132,29 @@ def test_parse_args():
     # Parse with bogus partialrun
     del sys.argv[1:]
     for op in ["--imaphost", "localhost", "--imapuser", "anonymous",
+               "--imappasswd", "none", "--dryrun", "--partialrun", "-10"]:
+        sys.argv.append(op)
+    sbg = isbg.ISBG()
+    with pytest.raises(isbg.ISBGError, match="equal to 0 or higher",
+                       message=("It should rise a equal to 0 or higher " +
+                                "ISBGError")):
+        __main__.parse_args(sbg)
+
+    # Parse with 0 partialrun
+    del sys.argv[1:]
+    for op in ["--imaphost", "localhost", "--imapuser", "anonymous",
                "--imappasswd", "none", "--dryrun", "--partialrun", "0"]:
         sys.argv.append(op)
     sbg = isbg.ISBG()
-    with pytest.raises(isbg.ISBGError, match="equal to 1 or higher",
-                       message=("It should rise a equal to 1 or higher " +
-                                "ISBGError")):
-        __main__.parse_args(sbg)
+    __main__.parse_args(sbg)
+    assert sbg.partialrun is None
 
     del sys.argv[1:]
     for op in ["--imaphost", "localhost", "--imapuser", "anonymous",
                "--imappasswd", "none", "--dryrun", "--partialrun", "foo"]:
         sys.argv.append(op)
     sbg = isbg.ISBG()
-    with pytest.raises(ValueError, match="invalid literal",
+    with pytest.raises(isbg.ISBGError, match="must be a integer",
                        message=("It should rise a invalid literal " +
                                 "ValueError")):
         __main__.parse_args(sbg)
