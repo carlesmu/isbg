@@ -15,6 +15,7 @@ python:
 
 # command to install dependencies
 before_script:
+  # For codeclimate:
   - curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
   - chmod +x ./cc-test-reporter
   - ./cc-test-reporter --debug before-build
@@ -23,21 +24,23 @@ before_script:
 install:
   - pip install -r requirements.txt # install requirements
   - python setup.py install         # install isbg package
-  - pip install codecov             # install codecov
-  - pip install pytest-cov          # for codecov usage
   - pip install coverage
+  - pip install codecov             # for codecov
+  - pip install pytest-cov          # for codecov usage
+  - pip install codacy-coverage     # for codacy coverage
 
 # command to run tests
 script:
   - python setup.py bdist       # create binary distribution
   - python setup.py sdist       # create source distribution
-  - pytest --cov-append --cov=isbg tests/   # For codecove usage
+  - pytest --cov-append --cov=isbg tests/   # for codecov usage
 
 after_script:
-  - coverage xml                # for codeclimate
+  - coverage xml                            # for codeclimate
+  - python-codacy-coverage -r coverage.xml  # for cadacy
+  # For codeclimate
   - ./cc-test-reporter after-build --debug --exit-code $TRAVIS_TEST_RESULT
+  - codecov                                 # codecov.io suport
 
 after_success:
-  - codecov                     # codecov.io suport
-  - isbg --version              # show isbg version
-
+  - isbg --version                          # show isbg version
