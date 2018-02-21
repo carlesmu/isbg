@@ -399,13 +399,17 @@ Defaut maximum size can be changed with the use of the `--maxsize` option.
 
 ### Partial runs
 
-By default, isbg scans the whole inbox folder. If you want to restrict the number
-of emails that are scanned, you can use the `--partialrun` option specifying the
-number of unseen (not scanned before) emails you want to check.
+By default, isbg scans 50 emails for operation: spam learn, ham learn and 
+spam detection. If you want to change the default, you can use the 
+`--partialrun` option specifying the number. Isbg tries to read first the new 
+messages and tracks the before seen to not reprocess them.
 
-This may be useful when your inbox has a lot of emails, since deletion and mail
+This is useful when your inbox has a lot of emails, since deletion and mail
 tracking are only performed at the end of the run and full scans can take too
 long.
+
+If you want that isbg does track all the emails you can disable the 
+`partialrun` with `--partialrun=0`.
 
 ## Contact and about
 
