@@ -1,6 +1,8 @@
 [![Build Status](https://travis-ci.org/carlesmu/isbg.svg?branch=v2.0-dev)](https://travis-ci.org/carlesmu/isbg)
-[![Maintainability](https://api.codeclimate.com/v1/badges/c487d0d5ee45186aded1/maintainability)](https://codeclimate.com/github/carlesmu/isbg/maintainability)
-[![Test Coverage](https://api.codeclimate.com/v1/badges/c487d0d5ee45186aded1/test_coverage)](https://codeclimate.com/github/carlesmu/isbg/test_coverage)
+[![Codeclimate Maintainability](https://api.codeclimate.com/v1/badges/c487d0d5ee45186aded1/maintainability)](https://codeclimate.com/github/carlesmu/isbg/maintainability)
+[![Codeclimate Coverage](https://api.codeclimate.com/v1/badges/c487d0d5ee45186aded1/test_coverage)](https://codeclimate.com/github/carlesmu/isbg/test_coverage)
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/e639e80142824c34bed0b13440136a01)](https://www.codacy.com/app/carlesmu/isbg?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=carlesmu/isbg&amp;utm_campaign=Badge_Grade)
+[![Codacy coverage Badge](https://api.codacy.com/project/badge/Coverage/e639e80142824c34bed0b13440136a01)](https://www.codacy.com/app/carlesmu/isbg?utm_source=github.com&utm_medium=referral&utm_content=carlesmu/isbg&utm_campaign=Badge_Coverage)
 [![codecov](https://codecov.io/gh/carlesmu/isbg/branch/v2.0-dev/graph/badge.svg)](https://codecov.io/gh/carlesmu/isbg)
 
 # IMAP Spam Begone
