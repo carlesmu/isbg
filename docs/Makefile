@@ -7,7 +7,7 @@ SPHINXBUILD      = sphinx-build
 SPHINXAPIDOC     = sphinx-apidoc
 SPHINXAPIDOCOPTS = --force --separate --private --follow-links
 SPHINXPROJ       = isbg
-SOURCEDIR        = .
+TMPDIR           = ../build.sphinx
 BUILDDIR         = ../build/sphinx
 SOURCEPYDIR      = ../isbg
 
@@ -22,17 +22,16 @@ help:
 
 # Creates the apidoc
 apidoc:
-	$(SPHINXAPIDOC) -o "$(SOURCEDIR)" "$(SOURCEPYDIR)" $(SPHINXAPIDOCOPTS)
+	$(SPHINXAPIDOC) -o "$(TMPDIR)" "$(SOURCEPYDIR)" $(SPHINXAPIDOCOPTS)
 
 clean-all:
-	@rm -fr $(BUILDDIR)
-	@rm *.rst
-	@rm *.md
+	rm -fr "$(BUILDDIR)"
+	rm -fr "${TMPDIR)"
 
 # Catch-all target: route all unknown targets to Sphinx using the new
 # "make mode" option.  $(O) is meant as a shortcut for $(SPHINXOPTS).
 %: Makefile
-	@cp -f ../*.rst .
-	@cp -f ../*.md .
-	@cp -f src/*.rst .
-	@$(SPHINXBUILD) -M $@ "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(O)
+	cp -f ../*.rst "$(TMPDIR)"
+	cp -f ../*.md "$(TMPDIR)"
+	cp -fr * "$(TMPDIR)"
+	$(SPHINXBUILD) -M $@ "$(TMPDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(O)

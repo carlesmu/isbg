@@ -78,6 +78,7 @@ html: cov
 
 docs-clean:
 	$(MAKE) -C docs clean
+	$(MAKE) -C docs clean-all
 
 docs: apidoc html
 
