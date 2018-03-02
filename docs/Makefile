@@ -25,12 +25,13 @@ apidoc:
 	$(SPHINXAPIDOC) -o "$(TMPDIR)" "$(SOURCEPYDIR)" $(SPHINXAPIDOCOPTS)
 
 clean-all:
-	rm -fr "$(BUILDDIR)"
-	rm -fr "${TMPDIR)"
+	@rm -fr "$(BUILDDIR)"
+	@rm -fr "$(TMPDIR)"
 
 # Catch-all target: route all unknown targets to Sphinx using the new
 # "make mode" option.  $(O) is meant as a shortcut for $(SPHINXOPTS).
 %: Makefile
+	mkdir -p "$(TMPDIR)"
 	cp -f ../*.rst "$(TMPDIR)"
 	cp -f ../*.md "$(TMPDIR)"
 	cp -fr * "$(TMPDIR)"
