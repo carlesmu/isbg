@@ -15,16 +15,19 @@
 
 # Note: required utilities:
 # - For test: pytest
-# - For cov: coverage
+# - For cov: python-pytest-cov and python3-pytest-cov, also
+#            python-coverage
 # - For tox: tox
 # - For docs: sphinx and recommonmark
 TEST   = pytest
-COV    = coverage
+COV    = pytest --cov-append --cov isbg -m 2
+COV3   = pytest-3 --cov-append --cov isbg -m 2
+COVREP = python-coverage
 COVDIR = build/htmlcov
 TOX    = tox
 
 .PHONY: help all test-clean test cov-clean cov tox-clean tox docs clean \
-        distclean apidoc
+        distclean apidoc build build-clean
 
 help:
 	@echo "Please use 'make <target>' where target is one of:"
@@ -34,6 +37,7 @@ help:
 	@echo "  tox        to run tests with 'tox'."
 	@echo "  cov        to check test 'coverage'."
 	@echo "   "
+	@echo "  build      build create a build dist 'python setup.py'."
 	@echo "  docs       build the docs with 'sphinx'."
 	@echo "   "
 	@echo "  clean      clean generates files."
@@ -51,13 +55,13 @@ test:
 	@$(TEST)
 
 cov-clean:
+	@$(COVREP) erase
 	rm -f .coverage
 	rm -fr $(COVDIR)
 
-cov:
-	@$(COV) run -m $(TEST)
-	@$(COV) report
-	@$(COV) html --directory $(COVDIR)
+cov: cov-clean
+	@$(COV)
+	@$(COV3)
 
 tox-clean:
 	rm -fr .tox
@@ -65,25 +69,46 @@ tox-clean:
 tox:
 	@$(TOX)
 
-apidoc: 
+apidoc:
 	$(MAKE) -C docs apidoc
 
-html:
+html: cov
 	$(MAKE) -C docs html
+	@$(COVREP) html --directory $(COVDIR)
 
 docs-clean:
 	$(MAKE) -C docs clean
 
 docs: apidoc html
 
+build-clean:
+	rm -fr build/pybuild
+	python setup.py clean
+
+build:
+	python setup.py build -b build/build -t build/tmp
+	python setup.py sdist -d build/dist --formats=bztar,zip
+	python setup.py bdist -d build/dist
+	python setup.py bdist_egg -d build/dist
+	python setup.py bdist_wheel -d build/dist
+	mkdir -p build/dist/rpms
+	python setup.py bdist_rpm -d build/dist/rpms
+	rm -fr isbg.egg-info
+	rm -fr build/lib.*
+	rm -fr build/bdist.*
+	@echo "   "
+	@echo "  See build/build for generated build files."
+	@echo "  See build/dist for generated dist files."
+
 clean: test-clean
 	find . -name '*.pyc' -exec rm -f {} +
 	rm -fr isbg/__pycache__
 	rm -fr tests/__pycache__
 
-distclean: clean tox-clean cov-clean docs-clean
+distclean: clean tox-clean cov-clean docs-clean build-clean
 	$(MAKE) -C docs clean-all
 	rm -fr build
 	rm -fr dist
 	rm -fr sdist
 	rm -fr isbg.egg-info
+	rm -f installed_files.txt

@@ -18,7 +18,7 @@ with open('isbg/isbg.py', 'rb') as f:
 
 setup(
     name='isbg',
-    version=_VERSION,  # to chenge it dot it in isbg/isbg.py: __version__
+    version=_VERSION,  # to change it, change isbg/isbg.py: __version__
     description=(
         'a script that makes it easy to scan an IMAP inbox for spam using'
         + 'SpamAssassin and get your spam moved to another folder.'),
@@ -34,8 +34,8 @@ setup(
             'sa_unwrap = isbg.sa_unwrap:run',
         ]
     },
-    install_requires=['docopt'],
-    tests_require=['pytest'],
+    install_requires=['docopt', 'chardet'],
+    tests_require=['pytest', 'mock'],
     url='https://github.com/isbg/isbg',
     classifiers=[
         'Development Status :: 5 - Production/Stable',
@@ -45,9 +45,9 @@ setup(
         'License :: OSI Approved',
         'Programming Language :: Python',
         'Programming Language :: Python :: 2',
-        'Programming Language :: Python :: 2.6',
         'Programming Language :: Python :: 2.7',
         'Programming Language :: Python :: 3',
+        'Programming Language :: Python :: 3.5',
         'Programming Language :: Python :: 3.6',
         'Topic :: Communications :: Email :: Post-Office :: IMAP',
         'Topic :: Communications :: Email :: Filters',

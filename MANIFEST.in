@@ -1,6 +1,10 @@
 # Manifest.in file for isbg
-include CHANGELOG CONTRIBUTORS LICENSE README.md TODO.rst NEWS.rst requirements.txt
+include CHANGELOG CONTRIBUTORS LICENSE README.md requirements.txt tox.ini
 
 graft examples
 graft bash_scripts
 recursive-include tests/ *.py
+include *.rst
+include docs/conf.py
+include docs/src/*.rst
+recursive-include . Makefile
