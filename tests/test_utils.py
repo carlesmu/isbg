@@ -23,6 +23,11 @@
 
 """Test cases for utils module."""
 
+from __future__ import absolute_import
+from __future__ import division
+from __future__ import print_function
+from __future__ import unicode_literals
+
 import os
 import sys
 
@@ -39,9 +44,9 @@ from isbg import utils  # noqa: E402
 
 def test_hexof_dehexof():
     """Test the dehexof function."""
-    dehex = utils.dehexof("F02f")
-    assert dehex == "\xf0/"
-    assert utils.hexof(dehex) == "f02f"
+    dehex = utils.dehexof("50402A")
+    assert dehex == "P@*"
+    assert utils.hexof(dehex) == "50402a"
     with pytest.raises(ValueError,
                        match=repr("G") + " is not a valid hexadecimal digit",
                        message="Not error or unexpected error message"):
@@ -51,24 +56,26 @@ def test_hexof_dehexof():
 def test_shorten():
     """Test the shorten function."""
     # We try with dicts:
-    dic = {'1': 'Option 1', '2': 'Option 2', '3': 'Option 3'}
+    dic = {1: 'Option 1', 2: u'Option 2', 3: b'Option 3'}
     assert dic == utils.shorten(dic, 8), "The dicts should be the same."
     dic2 = utils.shorten(dic, 7)
     assert dic != dic2, "The dicts should be diferents."
-    for k in ['1', '2', '3']:
-        assert dic2[k] == '\'Opt...', "Unexpected shortened string."
+    # Note: py2 and py3:
+    assert dic2[1] in ['u\'Opti…', '\'Optio…'], "Unexpected shortened string."
+    assert dic2[2] in ['u\'Opti…', '\'Optio…'], "Unexpected shortened string."
+    assert dic2[3] in ['\'Optio…', 'b\'Opti…'], "Unexpected shortened string."
 
     # We try with lists:
     ls = ['Option 1', 'Option 2', 'Option 3']
     assert ls == utils.shorten(ls, 8)
     ls2 = utils.shorten(ls, 7)
     for k in ls2:
-        assert k == '\'Opt...'
+        assert k in ['u\'Opti…', '\'Optio…'], "Unexpected shortened string."
 
     # We try with strings:
     assert "Option 1" == utils.shorten("Option 1", 8), \
         "Strings should be the same."
-    assert "\'Opt..." == utils.shorten("Option 1", 7), \
+    assert utils.shorten("Option 1", 7) in ['u\'Opti…', "\'Optio…"], \
         "Strings should be diferents."
 
     # Others:
@@ -84,8 +91,12 @@ def test_shorten():
         utils.shorten(1, 7)
     with pytest.raises(TypeError, message="float should raise a TypeError."):
         utils.shorten(1.0, 7)
-    with pytest.raises(ValueError, message="length should be at least 3."):
-        utils.shorten("123", 2)
+    with pytest.raises(ValueError, message="length should be at least 1."):
+        utils.shorten("123", 0)
+    with pytest.raises(TypeError, message="int should be not supported."):
+        assert utils.shorten([1, 2, 3], 2)
+    assert utils.shorten(["111", "2", "3"], 3) == ["111", "2", "3"]
+    assert utils.shorten(("111", "2", "3"), 3) == ("111", "2", "3")
 
 
 def test_BraceMessage():

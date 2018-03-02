@@ -24,23 +24,32 @@
 # From https://docs.python.org/3/howto/logging-cookbook.html
 # Get free of the pylint logging-format-interpolation warning using __
 
-"""Utils for isbg."""
+"""Utils for isbg - IMAP Spam Begone."""
+
+from __future__ import absolute_import
+from __future__ import division
+from __future__ import print_function
+from __future__ import unicode_literals
 
 import os
-from subprocess import Popen, PIPE
-
-
-def dehexof(string):
-    """Tanslate a hexadecimal string to his string value."""
-    res = ""
-    while string:
-        res = res + chr(16 * hexdigit(string[0]) + hexdigit(string[1]))
-        string = string[2:]
-    return res
+import re
+from chardet import detect           # To detect encoding
+from platform import python_version  # To check py version
+from subprocess import Popen, PIPE   # To call Popen
 
 
 def hexdigit(char):
-    """Tanslate a hexadecimal character his decimal (int) value."""
+    """Tanslate a hexadecimal character his decimal (int) value.
+
+    Args:
+        char (str): A hexadecimal number in base 16.
+    Returns:
+        int: the base 10 representation og the number.
+
+    Raises:
+        ValueEroror: if `char` is not a valid hexadecimal character.
+
+    """
     if char >= '0' and char <= '9':
         return ord(char) - ord('0')
     if char >= 'a' and char <= 'f':
@@ -51,51 +60,218 @@ def hexdigit(char):
 
 
 def hexof(string):
-    """Translate a string to a string with its hexadecimal value."""
+    """Translate a string to a string with its hexadecimal value.
+
+    Args:
+        string (str): A string to be translated.
+    Returns:
+        str: The translated string.
+
+    Examples:
+        >>> isbg.utils.hexof('isbg')
+        '69736267'
+
+    """
     res = ""
     for i in string:
         res = res + ("%02x" % ord(i))
     return res
 
 
+def dehexof(string):
+    """Tanslate a hexadecimal string to his string value.
+
+    Args:
+        string (str): A string containing a hexadecimal.
+    Returns:
+        str: The translated string.
+
+    """
+    res = ""
+    while string:
+        res = res + chr(16 * hexdigit(string[0]) + hexdigit(string[1]))
+        string = string[2:]
+    return res
+
+
+def get_ascii_or_value(value):
+    """Try to convert the contents of value to ascii string.
+
+    When the `value` cannot be converted to an ascii string, it returns the
+    value.
+
+    Args:
+        value (dict, list, str): The value to convert.
+    Returns:
+        The `value` object with its contents translated if it was possible.
+
+    Note:
+        In `python3` we get the ``uids`` info as binary when using the
+        methods of :py:class:`isbg.imaputils.IsbgImap4`.
+
+        In `python2` if we get a `UnicodeDecodeError` we try first to get it
+        in the detected encoded using the `chardet` module.
+
+    Examples:
+        `Python2`:
+            >>> get_ascii_or_value('isbg - IMAP Spam Begone')
+            u'isbg - IMAP Spam Begone'
+            >>> d = {'isbg': (u'IMAP',[b'Spam', r'Begone'])}
+            >>> get_ascii_or_value(d)
+            {u'isbg': (u'IMAP', [u'Spam', u'Begone'])}
+
+        `Python3`:
+            >>> get_ascii_or_value('isbg - IMAP Spam Begone')
+            'isbg - IMAP Spam Begone'
+            >>> d = {'isbg': (u'IMAP', [b'Spam', r'Begone'])}
+            >>> get_ascii_or_value(d)
+            {'isbg': ('IMAP', ['Spam', 'Begone'])}
+
+    """
+    def _get_ascii_or_value(val):
+        """Try to convert to string.
+
+        Args:
+            val(str, byte): the value to convert.
+        Returns:
+            The value converted (or nor).
+
+        """
+        #: v2.0: In python3 we get the uids as binary, we try to normalized it
+        #: to ascii or work as bytes.
+        try:
+            return val.decode('ascii')
+        except UnicodeDecodeError:
+            if python_version() > "3":
+                return val
+            else:
+                try:
+                    return val.decode(detect(val)['encoding'])
+                except UnicodeDecodeError:
+                    return val
+
+    if isinstance(value, bytes):
+        return _get_ascii_or_value(value)
+
+    if isinstance(value, (list, tuple)):
+        lis = []
+        for v in value:
+            lis.append(get_ascii_or_value(v))
+        if isinstance(value, tuple):
+            lis = tuple(lis)
+        return lis
+
+    if isinstance(value, dict):
+        dic = {}
+        for k, v in value.items():
+            dic[get_ascii_or_value(k)] = get_ascii_or_value(v)
+        return dic
+
+    return value
+
+
 def popen(cmd):
-    """Call for Popen, helper method."""
+    """Create a :py:class:`subprocess.Popen` instance.
+
+    It calls `Popen(cmd, stdin=PIPE, stdout=PIPE, close_fds=True)`.
+
+    Args:
+        cmd (str): The command to use in the call to Popen.
+    Returns:
+        subprocess.Popen: The `Popen` object.
+
+    """
     if os.name == 'nt':
         return Popen(cmd, stdin=PIPE, stdout=PIPE)
     else:
         return Popen(cmd, stdin=PIPE, stdout=PIPE, close_fds=True)
 
 
+def score_from_mail(mail):
+    """
+    Search the spam score from a mail as a string.
+
+    The returning format is ``d.d/d.d<br>`` and it contains the score found
+    in the email.
+
+    Args:
+        mail (str): A email.message.Message decoded.
+    Returns:
+        str: The score found in the mail message.
+
+    """
+    res = re.search(r"score=(-?\d+(?:\.\d+)?) required=(\d+(?:\.\d+)?)", mail)
+    score = res.group(1) + "/" + res.group(2) + "\n"
+    return score
+
+
 def shorten(inp, length):
-    """Short a dict or a list or other object to a maximus length."""
+    """Short a dict or a list a tuple or a string to a maximus length.
+
+    Args:
+        inp (dict, list, tuple, str): The object to short.
+        length (int): The length.
+    Returns:
+        the shorted object.
+
+    """
     if isinstance(inp, dict):
         return dict([(k, shorten(v, length)) for k, v in inp.items()])
     elif isinstance(inp, (list, tuple)):
-        return [shorten(x, length) for x in inp]
+        lis = [shorten(x, length) for x in inp]
+        if isinstance(inp, tuple):
+            lis = tuple(lis)
+        return lis
     return truncate(inp, length)
 
 
 def truncate(inp, length):
-    """Truncate a string to  a maximus length of his repr."""
-    if length < 3:
-        raise ValueError("length should be 3 or greater")
+    u"""Truncate a string to a maximum length.
+
+    Args:
+        inp (str): The string to be shortened to his maximum length.
+        length (int): The length.
+
+    Returns:
+        (str): the shorted string.
+
+        It adds ``…`` at the end if it is shortened.
+
+    Raises:
+        ValueError: If length is low than 1.
+
+    """
+    if length < 1:
+        raise ValueError("length should be 1 or greater")
     if len(inp) > length:
-        return repr(inp)[:length - 3] + '...'
+        return repr(inp)[:length - 1] + '…'
     return inp
 
 
 class BraceMessage(object):
-    """Comodity class to format a string."""
+    """Comodity class to format a string.
+
+    You can call it using: py: class: `~__`
+
+    Example:
+        >> > from isbg.utils import __
+        >> > __("ffoo, boo {}".format(a))
+
+    """
 
     def __init__(self, fmt, *args, **kwargs):
         """Initialize the object."""
-        self.fmt = fmt
-        self.args = args
-        self.kwargs = kwargs
+        self.fmt = fmt        #: The string to be formated.
+        self.args = args      #: The `*args`
+        self.kwargs = kwargs  #: The `**kwargs**`
 
     def __str__(self):
         """Return the string formated."""
         return self.fmt.format(*self.args, **self.kwargs)
+
+    def __repr__(self):
+        """Return the representation formated."""
+        return self.__str__()
 
 
 __ = BraceMessage  # pylint: disable=invalid-name

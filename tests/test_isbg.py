@@ -23,6 +23,11 @@
 
 """Test cases for isbg module."""
 
+from __future__ import absolute_import
+from __future__ import division
+from __future__ import print_function
+from __future__ import unicode_literals
+
 # With atexit._run_exitfuncs()  we free the lockfile, but we lost coverage
 # statistics.
 

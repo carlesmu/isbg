@@ -23,68 +23,19 @@
 
 """isbg scans an IMAP Inbox and runs every entry against SpamAssassin.
 
-Command line Options::
+See Also:
+    :py:mod:`isbg` for instance creation.
 
-  Usage:
-    isbg.py [options]
-    isbg.py (-h | --help)
-    isbg.py --version
+.. versionchanged:: 2.0
+    ``--partialrun`` defaults to 50. Use ``--partialrun=0`` to run without
+    partial run.
 
-  Options:
-    --imaphost hostname    IMAP server name.
-    --imapuser username    Who you login as.
-    --dryrun               Do not actually make any changes.
-    --delete               The spams will be marked for deletion from
-                           your inbox.
-    --deletehigherthan #   Delete any spam with a score higher than #.
-    --exitcodes            Use exitcodes to detail  what happened.
-    --expunge              Cause marked for deletion messages to also be
-                           deleted (only useful if --delete is
-                           specified).
-    --flag                 The spams will be flagged in your inbox.
-    --gmail                Delete by copying to '[Gmail]/Trash' folder.
-    --help                 Show the help screen.
-    --ignorelockfile       Don't stop if lock file is present.
-    --imaplist             List imap directories.
-    --imappasswd passwd    IMAP account password.
-    --imapport port        Use a custom port.
-    --imapinbox mbox       Name of your inbox folder [Default: INBOX].
-    --learnspambox mbox    Name of your learn spam folder.
-    --learnhambox mbox     Name of your learn ham folder.
-    --learnthendestroy     Mark learnt messages for deletion.
-    --learnthenflag        Flag learnt messages.
-    --learnunflagged       Only learn if unflagged
-                           (for  --learnthenflag).
-    --learnflagged         Only learn flagged.
-    --lockfilegrace=<min>  Set the lifetime of the lock file
-                           [default: 240.0].
-    --lockfilename file    Override the lock file name.
-    --maxsize numbytes     Messages larger than this will be ignored as
-                           they are unlikely to be spam.
-    --movehamto mbox       Move ham to folder.
-    --noninteractive       Prevent interactive requests.
-    --noreport             Don't include the SpamAssassin report in the
-                           message copied to your spam folder.
-    --nostats              Don't print stats.
-    --partialrun num       Stop operation after scanning 'num' unseen
-                           emails. Use 0 to run without partial run
-                           [default: 50].
-    --passwdfilename fn    Use a file to supply the password.
-    --savepw               Store the password to be used in future runs.
-    --spamc                Use spamc instead of standalone SpamAssassin
-                           binary.
-    --spaminbox mbox       Name of your spam folder
-                           [Default: INBOX.spam].
-    --nossl                Don't use SSL to connect to the IMAP server.
-    --teachonly            Don't search spam, just learn from folders.
-    --trackfile file       Override the trackfile name.
-    --verbose              Show IMAP stuff happening.
-    --verbose-mails        Show mail bodies (extra-verbose).
-    --version              Show the version information.
-
-    (Your inbox will remain untouched unless you specify --flag or
-    --delete)
 """
+
+from __future__ import absolute_import
+from __future__ import division
+from __future__ import print_function
+from __future__ import unicode_literals
 
 import os
 import sys
@@ -99,29 +50,92 @@ if __package__ is None and not hasattr(sys, 'frozen'):
     # direct call of __main__.py
     path = os.path.realpath(os.path.abspath(__file__))
     sys.path.insert(0, os.path.dirname(os.path.dirname(path)))
+from isbg import isbg  # noqa: E402
 
-try:
-    from isbg import isbg  # normal case
-except ImportError:
-    from . import isbg  # called from pytest
+
+def __cmd_opts__():  # noqa: D207
+    """Isbg scans an IMAP Inbox and runs every entry against SpamAssassin.
+
+Command line Options::
+
+ Usage:
+  isbg.py [options]
+  isbg.py (-h | --help)
+  isbg.py --usage
+  isbg.py --version
+
+ Options:
+  --imaphost hostname    IMAP server name.
+  --imapuser username    Who you login as.
+  --dryrun               Do not actually make any changes.
+  --delete               The spams will be marked for deletion from
+                         your inbox.
+  --deletehigherthan #   Delete any spam with a score higher than #.
+  --exitcodes            Use exitcodes to detail  what happened.
+  --expunge              Cause marked for deletion messages to also be
+                         deleted (only useful if --delete is
+                         specified).
+  --flag                 The spams will be flagged in your inbox.
+  --gmail                Delete by copying to '[Gmail]/Trash' folder.
+  --help                 Show the help screen.
+  --ignorelockfile       Don't stop if lock file is present.
+  --imaplist             List imap directories.
+  --imappasswd passwd    IMAP account password.
+  --imapport port        Use a custom port.
+  --imapinbox mbox       Name of your inbox folder [Default: INBOX].
+  --learnspambox mbox    Name of your learn spam folder.
+  --learnhambox mbox     Name of your learn ham folder.
+  --learnthendestroy     Mark learnt messages for deletion.
+  --learnthenflag        Flag learnt messages.
+  --learnunflagged       Only learn if unflagged
+                         (for  --learnthenflag).
+  --learnflagged         Only learn flagged.
+  --lockfilegrace=<min>  Set the lifetime of the lock file
+                         [default: 240.0].
+  --lockfilename file    Override the lock file name.
+  --maxsize numbytes     Messages larger than this will be ignored as
+                         they are unlikely to be spam.
+  --movehamto mbox       Move ham to folder.
+  --noninteractive       Prevent interactive requests.
+  --noreport             Don't include the SpamAssassin report in the
+                         message copied to your spam folder.
+  --nostats              Don't print stats.
+  --partialrun num       Stop operation after scanning 'num' unseen
+                         emails. Use 0 to run without partial run
+                         [default: 50].
+  --passwdfilename fn    Use a file to supply the password.
+  --savepw               Store the password to be used in future runs.
+  --spamc                Use spamc instead of standalone SpamAssassin
+                         binary.
+  --spaminbox mbox       Name of your spam folder
+                         [Default: INBOX.spam].
+  --nossl                Don't use SSL to connect to the IMAP server.
+  --teachonly            Don't search spam, just learn from folders.
+  --trackfile file       Override the trackfile name.
+  --verbose              Show IMAP stuff happening.
+  --verbose-mails        Show mail bodies (extra-verbose).
+  --version              Show the version information.
+
+    """
+    pass
 
 
 def parse_args(sbg):
     """Argument processing of the command line.
 
-    :param sbg: a isbg.ISBG instance.
+    :param sbg: the `isbg.ISBG` instance which would be updated with the
+                parameters.
     :type sbg: isbg.ISBG
-    :return: None
-    :Example:
+    :return: `None`
 
-        You can run it using::
+    :Example: You can run it using:
 
-            sbg = isbg.ISBG()
-            parse_args(sbg)
+        >>> sbg = isbg.ISBG()
+        >>> parse_args(sbg)
     """
     try:
-        opts = docopt(__doc__, version="isbg version " + isbg.__version__ +
-                      ", from " + os.path.abspath(__file__))
+        opts = docopt(__cmd_opts__.__doc__, version="isbg version " +
+                      isbg.__version__ + ", from " + os.path.abspath(__file__))
         opts = dict([(k, v) for k, v in opts.items()
                      if v is not None])
     except DocoptExit as exc:
@@ -187,10 +201,10 @@ def parse_args(sbg):
 
     sbg.lockfilename = opts.get('--lockfilename', sbg.lockfilename)
 
-    sbg.pastuidsfile = opts.get('--trackfile', sbg.pastuidsfile)
+    sbg.trackfile = opts.get('--trackfile', sbg.trackfile)
 
-    #: v2.0: partialrun now has a default value of 50, use 0 if not partialrun
-    #: shoud be used.
+    #: ..v2.0: partialrun now has a default value of 50, use 0 if not
+    #:         partialrun shoud be used.
     sbg.partialrun = opts.get('--partialrun', sbg.partialrun)
     try:
         sbg.partialrun = int(opts["--partialrun"])
@@ -233,7 +247,11 @@ def parse_args(sbg):
 
 
 def main():
-    """Run when this module is called from the command line."""
+    """Run when this module is called from the command line.
+
+    When the main function ends, it throw a sys.exit with 0 if it has end ok
+    or one of the :py:data:`isbg.isbg.__exitcodes__`
+    """
     sbg = isbg.ISBG()
     try:
         parse_args(sbg)

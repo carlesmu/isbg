@@ -21,23 +21,23 @@
 #  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
 #  MA 02110-1301, USA.
 
-"""Imap module for isbg."""
+"""Imap utils module for isbg - IMAP Spam Begone."""
 
-import email      # To eassily encapsulated emails messages
+from __future__ import absolute_import
+from __future__ import division
+from __future__ import print_function
+from __future__ import unicode_literals
+
+import email      # To easily encapsulated emails messages
 import imaplib
 import re         # For regular expressions
 import socket     # to catch the socket.error exception
 import time
 
-try:
-    from hashlib import md5
-except ImportError:
-    from md5 import md5
+from hashlib import md5
 
-try:
-    from utils import __       # as script: py2 and py3, as module: py3
-except (ValueError, ImportError):
-    from isbg.utils import __  # as module: py3
+from isbg import utils
+from .utils import __
 
 
 def mail_content(mail):
@@ -47,23 +47,32 @@ def mail_content(mail):
             "mail '{}' is not a email.message.Message.".format(repr(mail))))
     try:
         return mail.as_bytes()  # python 3
-    except AttributeError:
+    except (AttributeError, UnicodeEncodeError):
         return mail.as_string()
 
 
 def new_message(body):
     """Get a email.message from a body email."""
-    if isinstance(body, str):
-        mail = email.message_from_string(body)
-        if mail.as_string() in ['', '\n']:
-            raise TypeError(
-                __("body '{}' cannot be empty.".format(repr(body))))
-    else:  # For py3:
-        mail = email.message_from_bytes(body)  # pylint: disable=no-member
-        if mail.as_bytes() in [b'', b'\n']:
-            raise TypeError(
-                __("body '{}' cannot be empty.".format(repr(body))))
+    mail = None
 
+    if isinstance(body, bytes):
+        try:
+            mail = email.message_from_bytes(body)  # pylint: disable=no-member
+            if mail.as_bytes() in [b'', b'\n']:
+                raise TypeError(
+                    __("body '{}' cannot be empty.".format(repr(body))))
+            return mail
+        except AttributeError:  # py2
+            pass
+
+    try:
+        mail = email.message_from_string(body)
+    except UnicodeEncodeError:
+        body = body.encode("ascii", errors='replace')
+        mail = email.message_from_string(body)
+    if mail.as_string() in ['', '\n']:
+        raise TypeError(
+            __("body '{}' cannot be empty.".format(repr(body))))
     return mail
 
 
@@ -94,25 +103,32 @@ def imapflags(flaglist):
     return '(' + ','.join(flaglist) + ')'
 
 
+def bytes_to_ascii(func):
+    """Decorate a method to return his return value as ascii."""
+    def func_wrapper(cls, *args, **kwargs):
+        return utils.get_ascii_or_value(func(cls, *args, **kwargs))
+    return func_wrapper
+
+
 def assertok(name):
-    """Decorate with self.assertok."""
+    """Decorate with assertok."""
     def assertok_decorator(func):
-        def func_wrapper(self, *args, **kwargs):
-            res = func(self, *args, **kwargs)
-            if self.assertok:
+        def func_wrapper(cls, *args, **kwargs):
+            res = func(cls, *args, **kwargs)
+            if cls.assertok:
                 if name == 'login':
-                    self.assertok(res, name, args[0], 'xxxxxxxx')
+                    cls.assertok(res, name, args[0], 'xxxxxxxx')
                 elif name == 'uid':
-                    self.assertok(res, name + " " + args[0], args[1:])
+                    cls.assertok(res, name + " " + args[0], args[1:])
                 else:
-                    self.assertok(res, name, *args, **kwargs)
+                    cls.assertok(res, name, *args, **kwargs)
             return res
         return func_wrapper
     return assertok_decorator
 
 
 class IsbgImap4(object):
-    """Proxy class for imaplib.IMAP4 or imaplib.IMAP4_SSL."""
+    """Proxy class for `imaplib.IMAP4` and `imaplib.IMAP4_SSL`."""
 
     def __init__(self, host='', port=143, nossl=False, assertok=None):
         """Create a imaplib.IMAP4[_SSL] with an assertok method."""
@@ -124,46 +140,55 @@ class IsbgImap4(object):
             self.imap = imaplib.IMAP4_SSL(host, port)
 
     # @assertok('append')  <-- it fails in some servers
+    @bytes_to_ascii
     def append(self, mailbox, flags, date_time, message):
         """Append message to named mailbox."""
         return self.imap.append(mailbox, flags, date_time, message)
 
     @assertok('cabability')
+    @bytes_to_ascii
     def capability(self):
         """Fetch capabilities list from server."""
         return self.imap.capability()
 
     @assertok('expunge')
+    @bytes_to_ascii
     def expunge(self):
         """Permanently remove deleted items from selected mailbox."""
         return self.imap.expunge()
 
     @assertok('list')
+    @bytes_to_ascii
     def list(self, directory='""', pattern='*'):
         """List mailbox names in directory matching pattern."""
         return self.imap.list(directory, pattern)
 
     @assertok('login')
+    @bytes_to_ascii
     def login(self, user, passwd):
         """Identify client using plain text password."""
         return self.imap.login(user, passwd)
 
     @assertok('logout')
+    @bytes_to_ascii
     def logout(self):
         """Shutdown connection to server."""
         return self.imap.logout()
 
     @assertok('status')
+    @bytes_to_ascii
     def status(self, mailbox, names):
         """Request named status conditions for mailbox."""
         return self.imap.status(mailbox, names)
 
     @assertok('select')
+    @bytes_to_ascii
     def select(self, mailbox='INBOX', readonly=False):
         """Select a Mailbox."""
         return self.imap.select(mailbox, readonly)
 
     @assertok('uid')
+    @bytes_to_ascii
     def uid(self, command, *args):
         """Execute "command arg ..." with messages identified by UID."""
         return self.imap.uid(command, *args)
@@ -216,17 +241,20 @@ class ImapSettings(object):
 
     def __init__(self):
         """Set Imap settings."""
-        self.host = 'localhost'
-        self.port = 143
-        self.user = ''
-        self.passwd = None
-        self.nossl = False
-        # Set mailboxes:
+        self.host = 'localhost'      #: IMAP host name or IP.
+        self.port = 143              #: IMAP port to connect.
+        self.user = ''               #: IMAP user name.
+        self.passwd = None           #: Password for the IMAP user name.
+        self.nossl = False           #: Not use ssl for IMAP connection.
+
+        #: Inbox folder, default to ```INBOX```.
         self.inbox = 'INBOX'
+        #: Spam folder, default to ```INBOX.spam```.
         self.spaminbox = 'INBOX.spam'
-        self.learnspambox = None
-        self.learnhambox = None
-        #
+
+        self.learnspambox = None     #: Folder used to learn spam messages.
+        self.learnhambox = None      #: Folder used to learn non-spam messages.
+
         self._hashed_host = None
         self._hashed_user = None
         self._hashed_port = None
@@ -234,7 +262,12 @@ class ImapSettings(object):
 
     @property
     def hash(self):
-        """Get the hash property builf from the host, user and port."""
+        """Get the hash property built from the host, user and port.
+
+        :getter: Gets hash string.
+        :type: str.
+
+        """
         if self._hashed_host != self.host or \
                 self._hashed_user != self.user or \
                 self._hashed_port != self.port:
@@ -246,7 +279,14 @@ class ImapSettings(object):
 
     @staticmethod
     def get_hash(host, user, port):
-        """Get a hash with the host, user and port."""
+        """Get a hash with the host, user and port.
+
+        Args:
+            host (str): IMAP host name.
+            user (str): IMAP user name.
+            port (int): IMAP connection port.
+
+        """
         newhash = md5()
         newhash.update(host.encode())
         newhash.update(user.encode())

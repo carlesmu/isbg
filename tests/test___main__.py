@@ -23,6 +23,11 @@
 
 """Test cases for __main__ file."""
 
+from __future__ import absolute_import
+from __future__ import division
+from __future__ import print_function
+from __future__ import unicode_literals
+
 import os
 import sys
 
@@ -34,7 +39,10 @@ except ImportError:
 try:
     from unittest import mock  # Python 3
 except ImportError:
-    import mock                # Python 2
+    try:
+        import mock                # Python 2
+    except ImportError:
+        pass
 
 # We add the upper dir to the path
 sys.path.insert(0, os.path.abspath(os.path.join(

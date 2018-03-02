@@ -23,6 +23,11 @@
 
 """Tests for spamproc.py."""
 
+from __future__ import absolute_import
+from __future__ import division
+from __future__ import print_function
+from __future__ import unicode_literals
+
 import os
 import sys
 try:
@@ -35,6 +40,36 @@ sys.path.insert(0, os.path.abspath(os.path.join(
     os.path.dirname(__file__), '..')))
 from isbg import spamproc   # noqa: E402
 from isbg import isbg       # noqa: E402
+from isbg.imaputils import new_message  # noqa: E402
+
+# To check if a cmd exists:
+
+
+def cmd_exists(x):
+    """Check for a os command line."""
+    return any(os.access(os.path.join(path, x), os.X_OK)
+               for path in os.environ["PATH"].split(os.pathsep))
+
+
+def test_learn_email():
+    """Tests for learn_email."""
+    if cmd_exists('spamc'):
+        fmail = open('examples/spam.eml', 'rb')
+        ftext = fmail.read()
+        mail = new_message(ftext)
+        fmail.close()
+
+        # We forget the mail:
+        spamproc.learn_mail(mail, 'forget')
+        # We forget the mail:
+        ret, ret_o = spamproc.learn_mail(mail, 'forget')
+        assert ret is 6, "Mail should be already unlearned."
+        # We try to learn it (as spam):
+        ret, ret_o = spamproc.learn_mail(mail, 'spam')
+        assert ret is 5, "Mail should have been learned"
+        # The second time it should be already learned:
+        ret, ret_o = spamproc.learn_mail(mail, 'spam')
+        assert ret is 6, "Mail should be already learned."
 
 
 class Test_Sa_Learn(object):
@@ -44,7 +79,7 @@ class Test_Sa_Learn(object):
         """Test for sa_learn."""
         learn = spamproc.Sa_Learn()
         assert learn.tolearn == 0
-        assert learn.learnt == 0
+        assert learn.learned == 0
         assert len(learn.uids) == 0
         assert len(learn.origpastuids) == 0
 
@@ -54,7 +89,7 @@ class Test_SpamAssassin(object):
 
     _kwargs = ['imap', 'spamc', 'logger', 'partialrun', 'dryrun',
                'learnthendestroy', 'gmail', 'learnthenflag', 'learnunflagged',
-               'learnflagged']
+               'learnflagged', 'deletehigherthan', 'imapsets', 'maxsize']
 
     def test__kwars(self):
         """Test _kwargs is up to date."""

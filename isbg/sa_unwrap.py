@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 r"""
-parse an rfc2822 email message and unwrap it if contains spam attached.
+Parse an *rfc2822* email message and unwrap it if contains spam attached.
 
 To know it it chechks for an x-spam-type=original payload.
 
@@ -12,22 +12,27 @@ Does not perfectly preserve whitespace (esp. \r\n vs. \n and \t vs space), also
 does that differently between python 2 and python 3, but this should not impact
 spam-learning purposes.
 
-Example:
-
+Examples:
     It will return the original mail into a spamassassin mail:
-    >>> import isbg.sa_unwrap
-    >>> f = open('examples/spam.from.spamassassin.eml','rb')
-    >>> spams = isbg.sa_unwrap.unwrap(f)
-    >>> f.close()
-    >>> for spam in spams:
-    >>>     print(spam)
-    or
-    $ sa_unwrap < examples/spam.from.spamassassin.eml
-    $ sa_unwrap < examples/spam.eml
+        >>> import isbg.sa_unwrap
+        >>> f = open('examples/spam.from.spamassassin.eml','rb')
+        >>> spams = isbg.sa_unwrap.unwrap(f)
+        >>> f.close()
+        >>> for spam in spams:
+        >>>     print(spam)
+
+    or::
+
+        $ sa_unwrap < examples/spam.from.spamassassin.eml
+        $ sa_unwrap < examples/spam.eml
 
 """
 
+from __future__ import absolute_import
+from __future__ import division
 from __future__ import print_function  # Now we can use print(...
+from __future__ import unicode_literals
+
 
 import email
 import email.message
@@ -36,7 +41,7 @@ import sys
 
 # works with python 2 and 3
 try:
-    FILE_TYPES = (file, IOBase)
+    FILE_TYPES = (file, IOBase)  #: The `stdin` is also a file.
 except NameError:
     FILE_TYPES = (IOBase,)  # Python 3
 
@@ -49,7 +54,15 @@ except AttributeError:
 
 
 def sa_unwrap_from_email(msg):
-    """Unwrap a email from the spamassasin email."""
+    """Unwrap a email from the spamassasin email.
+
+    Args:
+        msg (email.message.Message): email to unwrap.
+
+    Returns:
+        [email.message.Message]: A list with the unwraped mails.
+
+    """
     if msg.is_multipart():
         parts = []
         ploads = msg.get_payload()
@@ -72,6 +85,13 @@ def unwrap(mail):
 
     the mail could be a email.message.Email, a file or a string or buffer.
     It ruturns a list with all the email.message.Email founds.
+
+    Args:
+        mail (email.message.Message, FILE_TYPES, str): the mail to unwrap.
+
+    Returns:
+        [email.message.Message]: A list with the unwraped mails.
+
     """
     if isinstance(mail, email.message.Message):
         return sa_unwrap_from_email(mail)

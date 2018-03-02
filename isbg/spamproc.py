@@ -24,42 +24,170 @@
 """Spam processing module for isbg."""
 # pylint: disable=no-member
 
+from __future__ import absolute_import
+from __future__ import division
 from __future__ import print_function
+from __future__ import unicode_literals
 
-try:                               # as script: py2 and py3, as module: py3
-    import isbg
-    import imaputils
-    import sa_unwrap
-    import utils
-    from utils import __
-except (ValueError, ImportError):  # as module: py3
-    from isbg import isbg
-    from isbg import imaputils
-    from isbg import sa_unwrap
-    from isbg import utils
-    from isbg.utils import __
+import isbg
+
+from isbg import imaputils
+from isbg import sa_unwrap
+from isbg import utils
+
+from .utils import __
 
 import logging
 
+#: Used to detect already our successfully (un)learned messages.
+__spamc_msg__ = {
+    'already': 'Message was already un/learned',
+    'success': 'Message successfully un/learned'
+}
+
+
+def learn_mail(mail, learn_type):
+    """Process a email and try to learn or unlearn it.
+
+    Args:
+        mail (email.message.Message): email to learn.
+        learn_type (str): ```spam``` to learn spam, ```ham``` to learn
+            nonspam or ```forget```.
+    Returns:
+        int, int: It returns a pair of `int`
+
+        The first integer:
+            A return code of ``6`` means it was already learned or forgotten,
+            a return code of ``5`` means it has been learned or forgotten,
+            a ``-9999`` means an error communicating with ``spamc``. If
+            ``spamc`` returns an exit code, it returns it.
+
+        The second integer:
+            It's the original exit code from ``spamc``
+
+    Notes:
+        See `Exit Codes` section of the man page of ``spamc`` for more
+        information about other exit codes.
+
+    """
+    out = ""
+    orig_code = None
+    proc = utils.popen(["spamc", "--learntype=" + learn_type])
+    try:
+        out = proc.communicate(imaputils.mail_content(mail))
+        code = int(proc.returncode)
+        orig_code = code
+    except Exception:  # pylint: disable=broad-except
+        code = -9999
+
+    proc.stdin.close()
+
+    if code == 0:
+        out = out[0].decode(errors='ignore').strip()
+        if out == __spamc_msg__['already']:
+            code = 6
+        elif out == __spamc_msg__['success']:
+            code = 5
+
+    return code, orig_code
+
+
+def test_mail(mail, spamc=False, cmd=False):
+    """Test a email with spamassassin."""
+    score = "0/0\n"
+    orig_code = None
+
+    cmd_score = ["spamassassin", "--exit-code"]
+    if cmd:
+        satest = cmd
+    elif spamc:
+        satest = ["spamc", "-c"]
+    else:
+        satest = ["spamassaxssin", "--exit-code"]
+
+    proc = utils.popen(satest)
+    try:
+        score = proc.communicate(imaputils.mail_content(mail)
+                                 )[0].decode(errors='ignore')
+        if cmd_score == satest:
+            score = utils.score_from_mail(score)
+        orig_code = proc.returncode
+
+    except Exception:  # pylint: disable=broad-except
+        score = "-9999"
+
+    proc.stdin.close()
+
+    return score, orig_code
+
+
+def feed_mail(mail, spamc=False, cmd=False):
+    """Feed a email with spamassassin report."""
+    new_mail = ""
+    orig_code = None
+
+    if cmd:
+        sasave = cmd
+    elif spamc:
+        sasave = ["spamc"]
+    else:
+        sasave = ["spamassassin"]
+
+    proc = utils.popen(sasave)
+    try:
+        new_mail = proc.communicate(imaputils.mail_content(mail))[0]
+        orig_code = proc.returncode
+    except Exception:  # pylint: disable=broad-except
+        new_mail = "-9999"
+
+    proc.stdin.close()
+
+    return new_mail, orig_code
+
 
 class Sa_Learn(object):
-    """Comodity class to store information about learning processes."""
+    """Commodity class to store information about learning processes."""
 
-    tolearn = 0
-    learnt = 0
-    uids = []
-    origpastuids = []
+    def __init__(self):
+        """Initialize `SA_Learn`."""
+        self.tolearn = 0         #: Number of messages to learn.
+        self.learned = 0         #: Number of messages learned.
+        self.uids = []           #: The list of ``uids``.
+        self.origpastuids = []   #: The original past ``uids``.
+
+
+class Sa_Process(object):
+    """Commodity class to store information about processes."""
+
+    def __init__(self):
+        """Initialize `SA_Process`."""
+        self.nummsg = 0          #: Number of processed messages.
+        self.numspam = 0         #: Number of spams found.
+        self.spamdeleted = 0     #: Number of deleted spam.
+        self.uids = []           #: The list of ``uids``.
+        self.origpastuids = []   #: The original past ``uids``.
 
 
 class SpamAssassin(object):
-    """Learn and process spams from a imap account."""
+    """Learn and process spams from a imap account.
 
-    alreadylearnt = "Message was already un/learned"
+    You usually will create an instance of it using
+    :py:func:`create_from_isbg`:
 
+        >>> sa = isbg.spamproc.SpamAssassin.create_from_isbg(self)
+
+    Or, if you are extending :py:class:`~isbg.ISBG`, it is created every
+    time that you call to :py:func:`isbg.ISBG.do_spamassassin`.
+
+    """
+
+    #: key args required when initialized.
     _required_kwargs = []
+
+    #: Key args that will be used.
     _kwargs = ['imap', 'spamc', 'logger', 'partialrun', 'dryrun',
                'learnthendestroy', 'gmail', 'learnthenflag', 'learnunflagged',
-               'learnflagged']
+               'learnflagged', 'deletehigherthan', 'imapsets', 'maxsize']
 
     def __init__(self, **kwargs):
         """Initialize a SpamAssassin object."""
@@ -102,7 +230,16 @@ class SpamAssassin(object):
 
     @classmethod
     def create_from_isbg(cls, sbg):
-        """Return a instance with the required args from ```ISBG```."""
+        """Return a instance with the required args from ```ISBG```.
+
+        Args:
+            sbg (isbg.ISBG): His attributes will be used to initialize a
+                SpamAssassin instance.
+        Returns:
+            SpamAssassin: A new created object with the required attributes
+                based based `sbg` attributes.
+
+        """
         kw = dict()
         for k in cls._kwargs:
             kw[k] = getattr(sbg, k)
@@ -110,7 +247,20 @@ class SpamAssassin(object):
 
     @staticmethod
     def get_formated_uids(uids, origpastuids, partialrun):
-        """Get the uids formated."""
+        """Get the uids formated.
+
+        Args:
+            uids (list(str)): The new ``uids``.
+            origpastuids (list(int)): The original past ``uids``.
+            partialrun (int): If not none the number of ``uids`` to return.
+        Returns:
+            list(str): The ``uids`` formated.
+
+            It sorts the uids, remove those that are in `origpastuids` and
+            returns the number defined by `partialrun`. If `partialrun` is
+            ```None``` it return all.
+
+        """
         uids = sorted(uids[0].split(), key=int, reverse=True)
         origpastuids = [u for u in origpastuids if str(u) in uids]
         uids = [u for u in uids if int(u) not in origpastuids]
@@ -120,7 +270,29 @@ class SpamAssassin(object):
         return uids, origpastuids
 
     def learn(self, folder, learn_type, move_to, origpastuids):
-        """Learn the spams (and if requested deleted or move them)."""
+        """Learn the spams (and if requested deleted or move them).
+
+        Args:
+            folder (str): The IMAP folder.
+            leart_type (str): ```spam``` to learn spam, ```ham``` to learn
+                nonspam.
+            move_to (str): If not ```None```, the imap folder where the emails
+                will be moved.
+            origpastuids (list(int)): ``uids`` to not process.
+        Returns:
+            Sa_Learn:
+                It contains the information about the result of the process.
+
+            It will call ``spamc`` to learn the emails.
+
+        Raises:
+            isbg.ISBGError: if learn_type is unknown.
+
+
+        TODO:
+            Add suport to ``learn_type=forget``.
+
+        """
         sa_learning = Sa_Learn()
 
         # Sanity checks:
@@ -158,33 +330,35 @@ class SpamAssassin(object):
                 mail = unwrapped[0]
 
             if self.dryrun:
-                out = self.alreadylearnt
-                code = 0
+                code, code_orig = (0, 0)
             else:
-                proc = utils.popen(["spamc", "--learntype=" + learn_type])
-                try:
-                    out = proc.communicate(imaputils.mail_content(mail))[0]
-                except Exception:  # pylint: disable=broad-except
-                    self.logger.exception('spamc error for mail {}'.format(
-                        uid))
-                    self.logger.debug(repr(imaputils.mail_content(mail)))
-                    continue
-                code = proc.returncode
-                proc.stdin.close()
+                code, code_orig = learn_mail(mail, learn_type)
 
-            if code == 69 or code == 74:
+            if code == -9999:  # error processing email, try next.
+                self.logger.exception('spamc error for mail {}'.format(uid))
+                self.logger.debug(repr(imaputils.mail_content(mail)))
+                continue
+
+            if code in [69, 74]:
                 raise isbg.ISBGError(
                     isbg.__exitcodes__['flags'],
-                    "spamd is misconfigured (use --allow-tell)")
+                    "spamassassin is misconfigured (use --allow-tell)")
 
-            if out.strip() == self.alreadylearnt or code == 6:
+            if code == 5:  # learned.
+                sa_learning.learned += 1
                 self.logger.debug(__(
-                    "Already learnt {} (spamc return code {})".format(uid,
-                                                                      code)))
+                    "Learned {} (spamc return code {})".format(uid,
+                                                               code_orig)))
+
+            elif code == 6:  # already learn,
+                self.logger.debug(__(
+                    "Already learn {} (spamc return code {})".format(
+                        uid, code_orig)))
+
             else:
-                sa_learning.learnt += 1
-                self.logger.debug(__(
-                    "Learnt {} (spamc return code {})".format(uid, code)))
+                raise isbg.ISBGError(-1, ("{}: Unknown return code {} from " +
+                                          "spamc").format(uid, code_orig))
+
             sa_learning.uids.append(int(uid))
 
             if not self.dryrun:
@@ -201,3 +375,154 @@ class SpamAssassin(object):
                                   "(\\Flagged)")
 
         return sa_learning
+
+    def _process_spam(self, uid, score, mail, spamdeletelist):
+        self.logger.debug(__("{} is spam".format(uid)))
+
+        if (self.deletehigherthan is not None and
+                float(score.split('/')[0]) > self.deletehigherthan):
+            spamdeletelist.append(uid)
+            return False
+
+        # do we want to include the spam report
+        if self.noreport is False:
+            if self.dryrun:
+                self.logger.info("Skipping report because of --dryrun")
+            else:
+                mail = feed_mail(mail, cmd=self.cmd_save)
+                if mail == "-9999":
+                    self.logger.exception(
+                        '{} error for mail {}'.format(self.cmd_save, uid))
+                    self.logger.debug(repr(imaputils.mail_content(mail)))
+                    if uid in spamdeletelist:
+                        spamdeletelist.remove(uid)
+                    return False
+
+                res = self.imap.append(self.imapsets.spaminbox, None, None,
+                                       imaputils.mail_content(mail))
+                # The above will fail on some IMAP servers for various
+                # reasons. We print out what happened and continue
+                # processing
+                if res[0] != 'OK':
+                    self.logger.error(__(
+                        ("{} failed for uid {}: {}. Leaving original" +
+                         "message alone.").format(
+                            repr(["append", self.imapsets.spaminbox,
+                                  "{email}"]),
+                            repr(uid), repr(res))))
+                    if uid in spamdeletelist:
+                        spamdeletelist.remove(uid)
+                    return False
+        else:
+            # No report:
+            if self.dryrun:
+                self.logger.info("Skipping copy to spambox because" +
+                                 " of --dryrun")
+            else:
+                # just copy it as is
+                self.imap.uid("COPY", uid, self.imapsets.spaminbox)
+
+        return True
+
+    def process_inbox(self, origpastuids):
+        """Run spamassassin in the folder for spam."""
+        sa_proc = Sa_Process()
+
+        spamlist = []
+        spamdeletelist = []
+
+        # select inbox
+        self.imap.select(self.imapsets.inbox, 1)
+
+        # get the uids of all mails with a size less then the maxsize
+        typ, uids = self.imap.uid("SEARCH", None, "SMALLER", str(self.maxsize))
+
+        uids, sa_proc.origpastuids = SpamAssassin.get_formated_uids(
+            uids, origpastuids, self.partialrun)
+
+        self.logger.debug(__('Got {} mails to check'.format(len(uids))))
+
+        if self.dryrun:
+            processednum = 0
+            fakespammax = 1
+            processmax = 5
+
+        # Main loop that iterates over each new uid we haven't seen before
+        for uid in uids:
+            # Retrieve the entire message
+            mail = imaputils.get_message(self.imap, uid, sa_proc.uids,
+                                         logger=self.logger)
+
+            # Unwrap spamassassin reports
+            unwrapped = sa_unwrap.unwrap(mail)
+            if unwrapped is not None and unwrapped:  # len(unwrapped) > 0
+                mail = unwrapped[0]
+
+            # Feed it to SpamAssassin in test mode
+            if self.dryrun:
+                if processednum > processmax:
+                    break
+                if processednum < fakespammax:
+                    self.logger.info("Faking spam mail")
+                    score = "10/10"
+                    code = 1
+                else:
+                    self.logger.info("Faking ham mail")
+                    score = "0/10"
+                    code = 0
+                processednum = processednum + 1
+            else:
+                score, code = test_mail(mail, cmd=self.cmd_test)
+                if score == "-9999":
+                    self.logger.exception(
+                        '{} error for mail {}'.format(self.cmd_test, uid))
+                    self.logger.debug(repr(imaputils.mail_content(mail)))
+                    uids.remove(uid)
+                    continue
+
+            if score == "0/0\n":
+                raise isbg.ISBGError(isbg.__exitcodes__['spamc'],
+                                     "spamc -> spamd error - aborting")
+
+            self.logger.debug(__(
+                "Score for uid {}: {}".format(uid, score.strip())))
+
+            if code != 0:
+                # Message is spam, delete it or move it to spaminbox
+                # (optionally with report)
+                if not self._process_spam(uid, score, mail, spamdeletelist):
+                    continue
+                spamlist.append(uid)
+
+        sa_proc.nummsg = len(uids)
+        sa_proc.spamdeleted = len(spamdeletelist)
+        sa_proc.numspam = len(spamlist) + sa_proc.spamdeleted
+
+        # If we found any spams, now go and mark the original messages
+        if sa_proc.numspam or sa_proc.spamdeleted:
+            if self.dryrun:
+                self.logger.info('Skipping labelling/expunging of mails ' +
+                                 ' because of --dryrun')
+            else:
+                self.imap.select(self.imapsets.inbox)
+                # Only set message flags if there are any
+                if self.spamflags:  # len(self.smpamflgs) > 0
+                    for uid in spamlist:
+                        self.imap.uid("STORE", uid, self.spamflagscmd,
+                                      imaputils.imapflags(self.spamflags))
+                        sa_proc.append(uid)
+                # If its gmail, and --delete was passed, we actually copy!
+                if self.delete and self.gmail:
+                    for uid in spamlist:
+                        self.imap.uid("COPY", uid, "[Gmail]/Trash")
+                # Set deleted flag for spam with high score
+                for uid in spamdeletelist:
+                    if self.gmail is True:
+                        self.imap.uid("COPY", uid, "[Gmail]/Trash")
+                    else:
+                        self.imap.uid("STORE", uid, self.spamflagscmd,
+                                      "(\\Deleted)")
+                if self.expunge:
+                    self.imap.expunge()
+
+        return sa_proc

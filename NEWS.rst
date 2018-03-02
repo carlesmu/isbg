@@ -1,15 +1,18 @@
-New
-===
+News
+====
 
 New in 2.0
 ----------
 
+* Using standard cache `xdg_cache_home` to store information, usually 
+  `$HOME/.cache/isbg/`. If you have stored your password with and old releases
+  you should re-store it and delete the old stored files, you would find the
+  old ones as `$HOME/.isbg*`.
 * A more robust package, it can be used as a module and a script.
 * Better documentation: using sphinx.
 * Using main() to run as script.
-* Using standard cache `xdg_cache_home` to store information.
-* python3 suport.
-* Added a default partialrun of 50.
+* python3 support.
+* Added a default `--partialrun` of 50.
 
 News in old releases
 --------------------
@@ -21,13 +24,16 @@ New in 1.00
 need to stop using it! SSL is now used by default. If you want not to use
 it, please use the `--nossl` parameter.
 
-* The CLI interface is now implemented with docopt
-* The README now includes the documentation
-* New command `--imaplist` lists the directories in IMAP account
-* Code now follows PEP-8 style guide
-* Renamed variables to be consistent
-* Added gmail integration (thanks to Orkim!)
-* Added bash scripts for use with multiple accounts
-* SSL is now used by default and "--ssl" parameter is now a "--nossl" parameter
-* New command `--trackfile` now permits trackfile name configuration (thanks naevtamarkus!)
-* New command `--partialrun` now enable isbg to run for only a few emails (thanks naevtamarkus!)
+* The CLI interface is now implemented with docopt.
+* The README now includes the documentation.
+* New command `--imaplist` lists the directories in IMAP account.
+* Code now follows PEP-8 style guide.
+* Renamed variables to be consistent.
+* Added gmail integration (thanks to Orkim!).
+* Added bash scripts for use with multiple accounts.
+* SSL is now used by default and "--ssl" parameter is now a "--nossl"
+  parameter.
+* New command `--trackfile` now permits trackfile name configuration (thanks
+  naevtamarkus!).
+* New command `--partialrun` now enable isbg to run for only a few emails
+  (thanks naevtamarkus!).

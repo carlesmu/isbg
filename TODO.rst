@@ -14,7 +14,7 @@ Other stuff
 * ☐ Easily upload to pypy.
 * ☐ Auto report messages to Razor (high scoring ones that are definitely spam)
 * ☐ Delete the semi-encryption of passwords (Security through obscurity !=
-  security)
+  security) and use `keyring` to store and retrieve them.
 * ☐ Seperate out messages that may be false positives (scores close to
   SpamAssassin thresholds) from the definite spam ones.
 * ☑ Correct the use of subprocess Popen (pipe.communicate() is the way to go)
