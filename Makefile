@@ -27,7 +27,7 @@ COVDIR = build/htmlcov
 TOX    = tox
 
 .PHONY: help all test-clean test cov-clean cov tox-clean tox docs clean \
-        distclean apidoc build build-clean
+        distclean build build-clean
 
 help:
 	@echo "Please use 'make <target>' where target is one of:"
@@ -62,6 +62,7 @@ cov-clean:
 cov: cov-clean
 	@$(COV)
 	@$(COV3)
+	@$(COVREP) html --directory $(COVDIR)
 
 tox-clean:
 	rm -fr .tox
@@ -69,18 +70,17 @@ tox-clean:
 tox:
 	@$(TOX)
 
-apidoc:
-	$(MAKE) -C docs apidoc
-
-html: cov
-	$(MAKE) -C docs html
-	@$(COVREP) html --directory $(COVDIR)
+html:
+	mkdir -p build.sphinx
+	cp -fr docs/* build.sphinx
+	$(MAKE) -C build.sphinx html
 
 docs-clean:
 	$(MAKE) -C docs clean
 	$(MAKE) -C docs clean-all
+	rm -fr build.sphinx
 
-docs: apidoc html
+docs: html
 
 build-clean:
 	rm -fr build/pybuild

@@ -287,9 +287,34 @@ def run_apidoc(_):
     sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
     cur_dir = os.path.abspath(os.path.dirname(__file__))
     module = os.path.join(cur_dir, "..", project)
-    main(['-e', '-o', cur_dir, module, '--force'])
+    main(['-e', '-o', cur_dir, module, '--force', '--separate', '--private',
+          '--follow-links'])
+
+
+def import_rsts(_):
+    """Copy rst files from base dir to cur dir."""
+    import glob
+    import shutil
+    import os
+    import sys
+    cur_dir = os.path.abspath(os.path.dirname(__file__))
+    for file in glob.glob('../*.rst'):
+        shutil.copy2(file, cur_dir)
+
+
+def import_mds(_):
+    """Copy md files from base dir to cur dir."""
+    import glob
+    import shutil
+    import os
+    import sys
+    cur_dir = os.path.abspath(os.path.dirname(__file__))
+    for file in glob.glob('../*.md'):
+        shutil.copy2(file, cur_dir)
 
 
 def setup(app):
     """Configure sphinx."""
     app.connect('builder-inited', run_apidoc)
+    app.connect('builder-inited', import_rsts)
+    app.connect('builder-inited', import_mds)
