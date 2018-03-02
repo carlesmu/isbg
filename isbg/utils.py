@@ -44,10 +44,10 @@ def hexdigit(char):
     Args:
         char (str): A hexadecimal number in base 16.
     Returns:
-        int: the base 10 representation og the number.
+        int: the base 10 representation of the number.
 
     Raises:
-        ValueEroror: if `char` is not a valid hexadecimal character.
+        ValueError: if `char` is not a valid hexadecimal character.
 
     """
     if char >= '0' and char <= '9':
