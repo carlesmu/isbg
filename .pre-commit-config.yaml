@@ -6,17 +6,25 @@
 # hooks using:
 # ~/.local/bin/pre-commit run --all-files
 #
+# See: https://pre-commit.com/
+
+
 repos:
 -   repo: git://github.com/pre-commit/pre-commit-hooks
     sha: v1.1.1
     hooks:
     -   id: autopep8-wrapper
     -   id: flake8
+        exclude: >
+          (?x)^(
+              docs/conf.py
+          )$
 
 -   repo: git://github.com/pre-commit/mirrors-pylint
-    sha: v1.8.1
+    sha: v1.8.2
     hooks:
     -   id: pylint
+        language: system
         args: [--errors-only]
 
 -   repo: git://github.com/chewse/pre-commit-mirrors-pydocstyle

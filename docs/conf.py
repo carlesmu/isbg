@@ -17,6 +17,8 @@
 import re
 from ast import literal_eval
 
+import recommonmark
+
 # If extensions (or modules to document with autodoc) are in another directory,
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
@@ -37,11 +39,14 @@ sys.path.insert(0, os.path.abspath('..'))
 extensions = ['sphinx.ext.autodoc',
               'sphinx.ext.doctest',
               'sphinx.ext.intersphinx',
-              'sphinx.ext.todo',
+              'sphinx.ext.napoleon',
               'sphinx.ext.coverage',
               'sphinx.ext.mathjax',
               'sphinx.ext.ifconfig',
-              'sphinx.ext.githubpages']
+              'sphinx.ext.githubpages',
+              'sphinx.ext.autosummary',
+              'sphinx.ext.todo'
+              ]
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
@@ -93,9 +98,38 @@ exclude_patterns = ['src/*']
 # The name of the Pygments (syntax highlighting) style to use.
 pygments_style = 'sphinx'
 
+# -- Options for todo extension -------------------------------------------
 # If true, `todo` and `todoList` produce output, else they produce nothing.
 todo_include_todos = True
 
+# -- Options for autodoc extension ----------------------------------------
+# autoclass_content = 'both'
+autodoc_member_order = 'bysource'
+autodoc_default_flags = ['members',
+                         # 'undoc-members',
+                         # 'private-members',
+                         # 'special-members',
+                         # 'inherited-members',
+                         # 'include-private',
+                         # 'show-inheritance'
+                         ]
+
+autodoc_docstring_signature = False
+autodoc_mock_imports = []
+autodoc_warningiserror = True
+
+# -- Options for napoleon extension ---------------------------------------
+napoleon_google_docstring = True
+napoleon_numpy_docstring = False
+napoleon_include_init_with_doc = True
+napoleon_include_private_with_doc = False
+napoleon_include_special_with_doc = True
+napoleon_use_admonition_for_examples = False
+napoleon_use_admonition_for_notes = True
+napoleon_use_admonition_for_references = True
+napoleon_use_ivar = True
+napoleon_use_param = True
+napoleon_use_rtype = True
 
 # -- Options for HTML output ----------------------------------------------
 
@@ -103,12 +137,20 @@ todo_include_todos = True
 # a list of builtin themes.
 #
 html_theme = 'alabaster'
+#html_theme = 'classic'
+#html_theme = 'agogo'
 
 # Theme options are theme-specific and customize the look and feel of a theme
 # further.  For a list of options available for each theme, see the
 # documentation.
 #
 # html_theme_options = {}
+"""# For theme 'classic':
+html_theme_options = {
+    "rightsidebar": "true",
+    "relbarbgcolor": "black"
+}"""
+# For theme 'alabaster':
 html_theme_options = {
     #    'logo': logo.png,
     'github_user': 'carlesmu',
@@ -116,16 +158,17 @@ html_theme_options = {
     'show_related': True,
     'body_text_align': 'justify',
     'show_powered_by': True,
-    'fixed_sidebar': True,
+    'fixed_sidebar': False,
     'github_button': True,
     'travis_button': True,
     'codecov_button': True,
     'gratipay_user': False,
-    # 'sidebar_collapse': True,
+    #    'sidebar_collapse': False,
     'extra_nav_links': {
-        #  u"🚀 Github": "https://github.com/carlesmu/isbg",
+        u"🚀 Github": "https://github.com/carlesmu/isbg",
         u"💾 Download Releases": "https://pypi.python.org/pypi/isbg",
-        u"🖴  Code coverage": "../../htmlcov/index.html"
+        u"🖴  Code coverage": "../../htmlcov/index.html",
+        # u"📒 API Refence": "api_index.html"
     }
 }
 
