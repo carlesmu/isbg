@@ -167,7 +167,7 @@ html_theme_options = {
     'extra_nav_links': {
         u"🚀 Github": "https://github.com/carlesmu/isbg",
         u"💾 Download Releases": "https://pypi.python.org/pypi/isbg",
-        u"🖴  Code coverage": "../../htmlcov/index.html",
+        # u"🖴  Code coverage": "../../htmlcov/index.html",
         # u"📒 API Refence": "api_index.html"
     }
 }
@@ -273,3 +273,23 @@ epub_exclude_files = ['search.html']
 
 # Example configuration for intersphinx: refer to the Python standard library.
 intersphinx_mapping = {'https://docs.python.org/': None}
+
+
+#
+# -- read the docs integration: generate the documentation from sources -----
+#
+
+def run_apidoc(_):
+    """Run apidoc."""
+    from sphinx.apidoc import main
+    import os
+    import sys
+    sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
+    cur_dir = os.path.abspath(os.path.dirname(__file__))
+    module = os.path.join(cur_dir, "..", project)
+    main(['-e', '-o', cur_dir, module, '--force'])
+
+
+def setup(app):
+    """Configure sphinx."""
+    app.connect('builder-inited', run_apidoc)
