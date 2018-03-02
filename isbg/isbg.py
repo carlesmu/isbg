@@ -43,7 +43,7 @@ except ImportError:
 
 try:
     from exceptions import Exception  # py2
-except ModuleNotFoundError:  # noqa: F821  # pylint: disable=undefined-variable
+except ImportError:
     pass
 
 # xdg base dir specification (only xdg_cache_home is used)
