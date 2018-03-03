@@ -250,7 +250,8 @@ class SpamAssassin(object):
         """Get the uids formated.
 
         Args:
-            uids (list(str)): The new ``uids``.
+            uids (list(str)): The new ``uids``. It's formated as:
+                ```['1 2 3 4']```
             origpastuids (list(int)): The original past ``uids``.
             partialrun (int): If not none the number of ``uids`` to return.
         Returns:
