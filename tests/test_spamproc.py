@@ -168,7 +168,7 @@ def test_feed_mail():
             spamproc.feed_mail(mail, cmd=["spamassassin"])
 
     # We try a random cmds (existant and unexistant
-    new_mail, code = spamproc.feed_mail("", "echo")
+    new_mail, code = spamproc.feed_mail("", ["echo"])
     assert new_mail == u'-9999', 'It should return a error'
     assert code is None, 'It should return a error'
     with pytest.raises(OSError, match="No such file",
@@ -206,7 +206,8 @@ class Test_SpamAssassin(object):
 
     _kwargs = ['imap', 'spamc', 'logger', 'partialrun', 'dryrun',
                'learnthendestroy', 'gmail', 'learnthenflag', 'learnunflagged',
-               'learnflagged', 'deletehigherthan', 'imapsets', 'maxsize']
+               'learnflagged', 'deletehigherthan', 'imapsets', 'maxsize',
+               'noreport']
 
     def test__kwars(self):
         """Test _kwargs is up to date."""
@@ -293,3 +294,23 @@ class Test_SpamAssassin(object):
         print(ret)
         assert ret == [u'4', u'2']
         assert oripast == [3, 1], "Unexpected new orig past uids."
+
+    def test_process_spam(self):
+        """Test _process_spam."""
+        sbg = isbg.ISBG()
+        sa = spamproc.SpamAssassin.create_from_isbg(sbg)
+        with pytest.raises(AttributeError, match="has no attribute",
+                           message="Should rise error, IMAP not created."):
+            sa._process_spam(1, u"3/10\n", "", [])
+
+        sa.noreport = True
+        sa.deletehigherthan = 2
+        sa._process_spam(1, u"3/10\n", "", [])
+
+    def test_process_inbox(self):
+        """Test process_inbox."""
+        sbg = isbg.ISBG()
+        sa = spamproc.SpamAssassin.create_from_isbg(sbg)
+        with pytest.raises(AttributeError, match="has no attribute",
+                           message="Should rise error, IMAP not created."):
+            sa.process_inbox([])
