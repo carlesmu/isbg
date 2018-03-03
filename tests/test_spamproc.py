@@ -300,10 +300,10 @@ class Test_SpamAssassin(object):
         sbg = isbg.ISBG()
         sa = spamproc.SpamAssassin.create_from_isbg(sbg)
 
-        # with pytest.raises(AttributeError, match="has no attribute",
-        #                   message="Should rise error, IMAP not created."):
-        #    sa._process_spam(1, u"3/10\n", "", [])
-        sa._process_spam(1, u"3/10\n", "", [])
+        # OSError required when it's run without spamassassin (travis-cl)
+        with pytest.raises((AttributeError, OSError),
+                           message="Should rise error, IMAP not created."):
+            sa._process_spam(1, u"3/10\n", "", [])
 
         sa.noreport = True
         sa.deletehigherthan = 2
