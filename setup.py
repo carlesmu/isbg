@@ -35,7 +35,7 @@ setup(
         ]
     },
     install_requires=['docopt', 'chardet'],
-    tests_require=['pytest', 'mock', 'spamc'],
+    tests_require=['pytest', 'mock', 'pytest-cov'],
     url='https://github.com/isbg/isbg',
     classifiers=[
         'Development Status :: 5 - Production/Stable',
