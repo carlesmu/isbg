@@ -119,8 +119,8 @@ def test_test_mail():
                            message="Should rise OSError."):
             spamproc.test_mail(mail, cmd=["spamassassin", "--exit-code"])
 
-    # We try a random cmds (existant and unexistant
-    score, code = spamproc.test_mail("", ["echo"])
+    # We try a random cmds (existant and unexistant):
+    score, code = spamproc.test_mail("", ["help"])
     assert score == u'-9999', 'It should return a error'
     assert code is None, 'It should return a error'
     with pytest.raises(OSError, match="No such file",
@@ -168,7 +168,7 @@ def test_feed_mail():
             spamproc.feed_mail(mail, cmd=["spamassassin"])
 
     # We try a random cmds (existant and unexistant
-    new_mail, code = spamproc.feed_mail("", ["echo"])
+    new_mail, code = spamproc.feed_mail("", ["help"])
     assert new_mail == u'-9999', 'It should return a error'
     assert code is None, 'It should return a error'
     with pytest.raises(OSError, match="No such file",
