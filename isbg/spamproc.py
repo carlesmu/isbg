@@ -187,7 +187,8 @@ class SpamAssassin(object):
     #: Key args that will be used.
     _kwargs = ['imap', 'spamc', 'logger', 'partialrun', 'dryrun',
                'learnthendestroy', 'gmail', 'learnthenflag', 'learnunflagged',
-               'learnflagged', 'deletehigherthan', 'imapsets', 'maxsize']
+               'learnflagged', 'deletehigherthan', 'imapsets', 'maxsize',
+               'noreport']
 
     def __init__(self, **kwargs):
         """Initialize a SpamAssassin object."""
