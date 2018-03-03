@@ -53,12 +53,12 @@ def cmd_exists(x):
 
 def test_learn_email():
     """Tests for learn_email."""
-    if cmd_exists('spamc'):
-        fmail = open('examples/spam.eml', 'rb')
-        ftext = fmail.read()
-        mail = new_message(ftext)
-        fmail.close()
+    fmail = open('examples/spam.eml', 'rb')
+    ftext = fmail.read()
+    mail = new_message(ftext)
+    fmail.close()
 
+    if cmd_exists('spamc'):
         # We forget the mail:
         spamproc.learn_mail(mail, 'forget')
         # We forget the mail:
@@ -70,6 +70,11 @@ def test_learn_email():
         # The second time it should be already learned:
         ret, ret_o = spamproc.learn_mail(mail, 'spam')
         assert ret is 6, "Mail should be already learned."
+    else:
+        # We forget the mail:
+        with pytest.raises(OSError, match="No such file",
+                           message="Should rise OSError."):
+            spamproc.learn_mail(mail, 'forget')
 
 
 class Test_Sa_Learn(object):
@@ -82,6 +87,19 @@ class Test_Sa_Learn(object):
         assert learn.learned == 0
         assert len(learn.uids) == 0
         assert len(learn.origpastuids) == 0
+
+
+class Test_Sa_Process(object):
+    """Tests for SA_Process."""
+
+    def test_sa_process(self):
+        """Test for sa_process."""
+        proc = spamproc.Sa_Process()
+        assert proc.nummsg == 0
+        assert proc.numspam == 0
+        assert proc.spamdeleted == 0
+        assert len(proc.uids) == 0
+        assert len(proc.origpastuids) == 0
 
 
 class Test_SpamAssassin(object):
