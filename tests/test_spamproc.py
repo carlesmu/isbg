@@ -77,6 +77,89 @@ def test_learn_mail():
             spamproc.learn_mail(mail, 'forget')
 
 
+def test_test_mail():
+    """Tests for learn_mail."""
+    fmail = open('examples/spam.eml', 'rb')
+    ftext = fmail.read()
+    mail = new_message(ftext)
+    fmail.close()
+
+    if cmd_exists('spamc'):
+        # We test the mail with spamc:
+        score1, code1 = spamproc.test_mail(mail, True)
+        score2, code2 = spamproc.test_mail(mail, cmd=["spamc", "-c"])
+        assert score1 == score2, "The score should be the same."
+        assert code1 == code2, "The return code should be the same."
+        score, code = spamproc.test_mail("", True)
+        assert score == u'-9999', 'It should return a error'
+        assert code is None, 'It should return a error'
+    else:
+        with pytest.raises(OSError, match="No such file",
+                           message="Should rise OSError."):
+            spamproc.test_mail(mail, True)
+        with pytest.raises(OSError, match="No such file",
+                           message="Should rise OSError."):
+            spamproc.test_mail(mail, cmd=["spamc", "-c"])
+
+    if cmd_exists('spamassassin'):
+        # We test the mail with spamassassin:
+        score3, code3 = spamproc.test_mail(mail, False)
+        score4, code4 = spamproc.test_mail(mail, cmd=["spamassassin",
+                                                      "--exit-code"])
+        assert score3 == score4, "The score should be the same."
+        assert code3 == code4, "The return code should be the same."
+        score, code = spamproc.test_mail("", False)
+        assert score == u'-9999', 'It should return a error'
+        assert code is None, 'It should return a error'
+    else:
+        with pytest.raises(OSError, match="No such file",
+                           message="Should rise OSError."):
+            spamproc.test_mail(mail, False)
+        with pytest.raises(OSError, match="No such file",
+                           message="Should rise OSError."):
+            spamproc.test_mail(mail, cmd=["spamassassin", "--exit-code"])
+
+
+def test_feed_mail():
+    """Test feed_mail."""
+    fmail = open('examples/spam.eml', 'rb')
+    ftext = fmail.read()
+    mail = new_message(ftext)
+    fmail.close()
+
+    if cmd_exists('spamc'):
+        # We test the mail with spamc:
+        new_mail1, code1 = spamproc.feed_mail(mail, True)
+        new_mail2, code2 = spamproc.feed_mail(mail, cmd=["spamc"])
+        assert code1 == code2, "The return code should be the same."
+        new_mail, code = spamproc.feed_mail("", True)
+        assert new_mail == '-9999', 'It should return a error'
+        assert code is None, 'It should return a error'
+    else:
+        with pytest.raises(OSError, match="No such file",
+                           message="Should rise OSError."):
+            spamproc.feed_mail(mail, True)
+        with pytest.raises(OSError, match="No such file",
+                           message="Should rise OSError."):
+            spamproc.feed_mail(mail, cmd=["spamc"])
+
+    if cmd_exists('spamassassin'):
+        # We test the mail with spamassassin:
+        new_mail3, code3 = spamproc.feed_mail(mail, False)
+        new_mail4, code4 = spamproc.test_mail(mail, cmd=["spamassassin"])
+        assert code3 == code4, "The return code should be the same."
+        new_mail, code = spamproc.test_mail("", False)
+        assert new_mail == u'-9999', 'It should return a error'
+        assert code is None, 'It should return a error'
+    else:
+        with pytest.raises(OSError, match="No such file",
+                           message="Should rise OSError."):
+            spamproc.test_mail(mail, False)
+        with pytest.raises(OSError, match="No such file",
+                           message="Should rise OSError."):
+            spamproc.test_mail(mail, cmd=["spamassassin"])
+
+
 class Test_Sa_Learn(object):
     """Tests for SA_Learn."""
 
@@ -163,3 +246,34 @@ class Test_SpamAssassin(object):
         with pytest.raises(isbg.ISBGError, match="Imap is required",
                            message="Should rise error."):
             sa.learn('Spam', 'ham', None, [])
+
+    def test_get_formated_uids(self):
+        """Test get_formated_uids."""
+        sbg = isbg.ISBG()
+        sa = spamproc.SpamAssassin.create_from_isbg(sbg)
+
+        # Test sorted and partialrun
+        ret, oripast = sa.get_formated_uids(uids=[u'1 2 3'],
+                                            origpastuids=[], partialrun=None)
+        assert ret == [u'3', u'2', u'1']
+        assert oripast == [], "List should be empty."
+
+        ret, oripast = sa.get_formated_uids(uids=[u'1 2 3'],
+                                            origpastuids=[], partialrun=3)
+        assert ret == [u'3', u'2', u'1']
+        assert oripast == [], "List should be empty."
+
+        ret, oripast = sa.get_formated_uids(uids=[u'1 2 3'],
+                                            origpastuids=[], partialrun=2)
+        assert ret == [u'3', u'2']
+        assert oripast == [], "List should be empty."
+
+        # Test sorted and origpastuids. The uid '6' is not in the current uids,
+        # and should be removed from the new origpastuids. And '3' should be
+        # removed from the uids (it has been processed in the past).
+        ret, oripast = sa.get_formated_uids(
+            uids=[u'1 2 4 3'], origpastuids=[3, 1, 6], partialrun=2)
+        print(oripast)
+        print(ret)
+        assert ret == [u'4', u'2']
+        assert oripast == [3, 1], "Unexpected new orig past uids."
