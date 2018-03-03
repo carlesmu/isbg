@@ -103,7 +103,7 @@ def test_mail(mail, spamc=False, cmd=False):
     elif spamc:
         satest = ["spamc", "-c"]
     else:
-        satest = ["spamassaxssin", "--exit-code"]
+        satest = ["spamassassin", "--exit-code"]
 
     proc = utils.popen(satest)
     try:
