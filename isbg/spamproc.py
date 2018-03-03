@@ -218,16 +218,14 @@ class SpamAssassin(object):
         """Is the command that dumps out a munged message including report."""
         if self.spamc:  # pylint: disable=no-member
             return ["spamc"]
-        else:
-            return ["spamassassin"]
+        return ["spamassassin"]
 
     @property
     def cmd_test(self):
         """Is the command to use to test if the message is spam."""
         if self.spamc:  # pylint: disable=no-member
             return ["spamc", "-c"]
-        else:
-            return ["spamassassin", "--exit-code"]
+        return ["spamassassin", "--exit-code"]
 
     @classmethod
     def create_from_isbg(cls, sbg):

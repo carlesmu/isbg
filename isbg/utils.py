@@ -183,8 +183,7 @@ def popen(cmd):
     """
     if os.name == 'nt':
         return Popen(cmd, stdin=PIPE, stdout=PIPE)
-    else:
-        return Popen(cmd, stdin=PIPE, stdout=PIPE, close_fds=True)
+    return Popen(cmd, stdin=PIPE, stdout=PIPE, close_fds=True)
 
 
 def score_from_mail(mail):
