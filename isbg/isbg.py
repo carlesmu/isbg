@@ -41,11 +41,6 @@ try:
 except ImportError:
     from md5 import md5
 
-try:
-    from exceptions import Exception  # py2
-except ImportError:
-    pass
-
 # xdg base dir specification (only xdg_cache_home is used)
 try:
     from xdg.BaseDirectory import xdg_cache_home
