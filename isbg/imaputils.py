@@ -43,8 +43,8 @@ from .utils import __
 def mail_content(mail):
     """Get the email message content."""
     if not isinstance(mail, email.message.Message):
-        raise email.errors.MessageError(__(
-            "mail '{}' is not a email.message.Message.".format(repr(mail))))
+        raise email.errors.MessageError(
+            "mail '{}' is not a email.message.Message.".format(repr(mail)))
     try:
         return mail.as_bytes()  # python 3
     except (AttributeError, UnicodeEncodeError):

@@ -185,7 +185,7 @@ class Test_Sa_Learn(object):
         assert learn.tolearn == 0
         assert learn.learned == 0
         assert len(learn.uids) == 0
-        assert len(learn.origpastuids) == 0
+        assert len(learn.newpastuids) == 0
 
 
 class Test_Sa_Process(object):
@@ -198,7 +198,7 @@ class Test_Sa_Process(object):
         assert proc.numspam == 0
         assert proc.spamdeleted == 0
         assert len(proc.uids) == 0
-        assert len(proc.origpastuids) == 0
+        assert len(proc.newpastuids) == 0
 
 
 class Test_SpamAssassin(object):
@@ -207,7 +207,7 @@ class Test_SpamAssassin(object):
     _kwargs = ['imap', 'spamc', 'logger', 'partialrun', 'dryrun',
                'learnthendestroy', 'gmail', 'learnthenflag', 'learnunflagged',
                'learnflagged', 'deletehigherthan', 'imapsets', 'maxsize',
-               'noreport']
+               'noreport', "spamflags"]
 
     def test__kwars(self):
         """Test _kwargs is up to date."""

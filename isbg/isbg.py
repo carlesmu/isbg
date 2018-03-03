@@ -397,7 +397,7 @@ class ISBG(object):
             res = utils.shorten(res, 140)
         if 'SEARCH' in args[0]:
             res = utils.shorten(res, 140)
-        self.logger.debug(__("{} = {}".format(args, res)))
+        self.logger.debug("{} = {}".format(args, res))
         if res[0] not in ["OK", "BYE"]:
             self.logger.error(
                 __("{} returned {} - aborting".format(args, res)))
@@ -539,7 +539,7 @@ class ISBG(object):
             origpastuids = self.pastuid_read(uidvalidity, 'spam')
             s_learned = sa.learn(self.imapsets.learnspambox, 'spam', None,
                                  origpastuids)
-            self.pastuid_write(uidvalidity, s_learned.origpastuids,
+            self.pastuid_write(uidvalidity, s_learned.newpastuids,
                                s_learned.uids, 'spam')
 
         # SpamAssassin training: Learn ham
@@ -549,7 +549,7 @@ class ISBG(object):
             origpastuids = self.pastuid_read(uidvalidity, 'ham')
             h_learned = sa.learn(self.imapsets.learnhambox, 'ham',
                                  self.movehamto, origpastuids)
-            self.pastuid_write(uidvalidity, h_learned.origpastuids,
+            self.pastuid_write(uidvalidity, h_learned.newpastuids,
                                h_learned.uids, 'ham')
 
         if not self.teachonly:
@@ -559,7 +559,7 @@ class ISBG(object):
             uidvalidity = self.imap.get_uidvalidity(self.imapsets.inbox)
             origpastuids = self.pastuid_read(uidvalidity)
             proc = sa.process_inbox(origpastuids)
-            self.pastuid_write(uidvalidity, proc.origpastuids, proc.uids)
+            self.pastuid_write(uidvalidity, proc.newpastuids, proc.uids)
 
         if self.nostats is False:
             if self.imapsets.learnspambox is not None:

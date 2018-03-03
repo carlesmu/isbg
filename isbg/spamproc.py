@@ -140,6 +140,9 @@ def feed_mail(mail, spamc=False, cmd=False):
     except Exception:  # pylint: disable=broad-except
         new_mail = "-9999"
 
+    if new_mail != "-9999":
+        new_mail = imaputils.new_message(new_mail)
+
     proc.stdin.close()
 
     return new_mail, orig_code
@@ -153,7 +156,7 @@ class Sa_Learn(object):
         self.tolearn = 0         #: Number of messages to learn.
         self.learned = 0         #: Number of messages learned.
         self.uids = []           #: The list of ``uids``.
-        self.origpastuids = []   #: The original past ``uids``.
+        self.newpastuids = []    #: The new past ``uids``.
 
 
 class Sa_Process(object):
@@ -165,7 +168,7 @@ class Sa_Process(object):
         self.numspam = 0         #: Number of spams found.
         self.spamdeleted = 0     #: Number of deleted spam.
         self.uids = []           #: The list of ``uids``.
-        self.origpastuids = []   #: The original past ``uids``.
+        self.newpastuids = []    #: The new past ``uids``.
 
 
 class SpamAssassin(object):
@@ -188,7 +191,7 @@ class SpamAssassin(object):
     _kwargs = ['imap', 'spamc', 'logger', 'partialrun', 'dryrun',
                'learnthendestroy', 'gmail', 'learnthenflag', 'learnunflagged',
                'learnflagged', 'deletehigherthan', 'imapsets', 'maxsize',
-               'noreport']
+               'noreport', "spamflags"]
 
     def __init__(self, **kwargs):
         """Initialize a SpamAssassin object."""
@@ -262,12 +265,12 @@ class SpamAssassin(object):
 
         """
         uids = sorted(uids[0].split(), key=int, reverse=True)
-        origpastuids = [u for u in origpastuids if str(u) in uids]
-        uids = [u for u in uids if int(u) not in origpastuids]
+        newpastuids = [u for u in origpastuids if str(u) in uids]
+        uids = [u for u in uids if int(u) not in newpastuids]
         # Take only X elements if partialrun is enabled
         if partialrun:
             uids = uids[:int(partialrun)]
-        return uids, origpastuids
+        return uids, newpastuids
 
     def learn(self, folder, learn_type, move_to, origpastuids):
         """Learn the spams (and if requested deleted or move them).
@@ -312,7 +315,7 @@ class SpamAssassin(object):
         else:
             typ, uids = self.imap.uid("SEARCH", None, "ALL")
 
-        uids, sa_learning.origpastuids = SpamAssassin.get_formated_uids(
+        uids, sa_learning.newpastuids = SpamAssassin.get_formated_uids(
             uids, origpastuids, self.partialrun)
 
         sa_learning.tolearn = len(uids)
@@ -391,10 +394,12 @@ class SpamAssassin(object):
             if self.dryrun:
                 self.logger.info("Skipping report because of --dryrun")
             else:
-                mail = feed_mail(mail, cmd=self.cmd_save)
+                mail, code = feed_mail(mail, cmd=self.cmd_save)
+                print(type(mail))
                 if mail == "-9999":
                     self.logger.exception(__(
-                        '{} error for mail {}'.format(self.cmd_save, uid)))
+                        '{} error for mail {} (ret code {})'.format(
+                            self.cmd_save, uid, code)))
                     self.logger.debug(repr(imaputils.mail_content(mail)))
                     if uid in spamdeletelist:
                         spamdeletelist.remove(uid)
@@ -439,7 +444,7 @@ class SpamAssassin(object):
         # get the uids of all mails with a size less then the maxsize
         typ, uids = self.imap.uid("SEARCH", None, "SMALLER", str(self.maxsize))
 
-        uids, sa_proc.origpastuids = SpamAssassin.get_formated_uids(
+        uids, sa_proc.newpastuids = SpamAssassin.get_formated_uids(
             uids, origpastuids, self.partialrun)
 
         self.logger.debug(__('Got {} mails to check'.format(len(uids))))
@@ -512,7 +517,7 @@ class SpamAssassin(object):
                     for uid in spamlist:
                         self.imap.uid("STORE", uid, self.spamflagscmd,
                                       imaputils.imapflags(self.spamflags))
-                        sa_proc.append(uid)
+                        sa_proc.newpastuids.append(uid)
                 # If its gmail, and --delete was passed, we actually copy!
                 if self.delete and self.gmail:
                     for uid in spamlist:
