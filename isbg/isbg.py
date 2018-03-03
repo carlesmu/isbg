@@ -388,8 +388,8 @@ class ISBG(object):
                  "(max accepted is %d)").format(len(passwd),
                                                 self.passwordhashlen)))
         res = list(shash)
-        for i in range(0, len(passwd)):
-            res[i] = chr(ord(res[i]) ^ ord(passwd[i]))
+        for i, pasw in enumerate(passwd):
+            res[i] = chr(ord(res[i]) ^ ord(pasw))
         return ''.join(res)
 
     def assertok(self, res, *args):
