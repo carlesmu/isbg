@@ -97,7 +97,7 @@ class TestISBG(object):
             # pylint: disable=no-member
             pas = base64.encodebytes(bytes(pas, "utf-8"))   # py3
             pas = pas.decode("utf-8")
-        except TypeError:
+        except (TypeError, AttributeError):
             pas = base64.encodestring(pas)                  # py2
         res = """QVMVEGQ2ODYxMzdjODY0NWQ0NDAyNDA5NmEwZWQ0NDEwNjdlYmQxMTY0ZGUyMDliMWQ1ZjgzODMw
 YzBjMDBlYWE3OWI1NzU1MzEzZmUzNmU3M2YzMGM5MmU1NmE2YjFlMDM0NTIxZTg1MWFlNzM0MTgy
