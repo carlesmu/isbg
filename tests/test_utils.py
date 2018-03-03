@@ -51,6 +51,25 @@ def test_hexof_dehexof():
                        match=repr("G") + " is not a valid hexadecimal digit",
                        message="Not error or unexpected error message"):
         utils.dehexof("G")
+    dehex = utils.dehexof("50402a")
+    assert dehex == "P@*"
+    assert utils.hexof(dehex) == "50402a"
+
+
+def test_get_ascii_or_value():
+    """Test get_ascii_or_value."""
+    ret = utils.get_ascii_or_value(b'IMAP Spam Begone')
+    assert ret == u'IMAP Spam Begone', 'should return IMAP Spam Begone'
+    ret = utils.get_ascii_or_value(u'IMAP Spam Begone')
+    assert ret == u'IMAP Spam Begone', 'should return IMAP Spam Begone'
+    ret = utils.get_ascii_or_value('IMAP Spam Begone')
+    assert ret == u'IMAP Spam Begone', 'should return IMAP Spam Begone'
+    ret = utils.get_ascii_or_value(22)
+    assert ret == 22, 'should return 22 (int)'
+
+    d = {'isbg': (u'IMAP', [b'Spam', r'Begone'])}
+    ret = utils.get_ascii_or_value(d)
+    assert ret == {u'isbg': (u'IMAP', [u'Spam', u'Begone'])}, 'error'
 
 
 def test_shorten():
