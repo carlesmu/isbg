@@ -51,8 +51,8 @@ def cmd_exists(x):
                for path in os.environ["PATH"].split(os.pathsep))
 
 
-def test_learn_email():
-    """Tests for learn_email."""
+def test_learn_mail():
+    """Tests for learn_mail."""
     fmail = open('examples/spam.eml', 'rb')
     ftext = fmail.read()
     mail = new_message(ftext)
