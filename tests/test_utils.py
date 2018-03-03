@@ -72,6 +72,22 @@ def test_get_ascii_or_value():
     assert ret == {u'isbg': (u'IMAP', [u'Spam', u'Begone'])}, 'error'
 
 
+def test_score_from_mail():
+    """Test score_from_mail."""
+    # Without score:
+    fmail = open('examples/spam.eml', 'rb')
+    ftext = fmail.read()
+    fmail.close()
+    with pytest.raises(AttributeError, message="Should rise AttributeError."):
+        ret = utils.score_from_mail(ftext.decode(errors='ignore'))
+    # With score:
+    fmail = open('examples/spam.from.spamassassin.eml', 'rb')
+    ftext = fmail.read()
+    fmail.close()
+    ret = utils.score_from_mail(ftext.decode(errors='ignore'))
+    assert ret == u"6.4/5.0\n", "Unexpected score."
+
+
 def test_shorten():
     """Test the shorten function."""
     # We try with dicts:
