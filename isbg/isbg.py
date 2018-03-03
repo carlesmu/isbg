@@ -402,7 +402,7 @@ class ISBG(object):
             res = utils.shorten(res, 140)
         if 'SEARCH' in args[0]:
             res = utils.shorten(res, 140)
-        self.logger.debug("{} = {}".format(args, res))
+        self.logger.debug(__("{} = {}".format(args, res)))
         if res[0] not in ["OK", "BYE"]:
             self.logger.error(
                 __("{} returned {} - aborting".format(args, res)))

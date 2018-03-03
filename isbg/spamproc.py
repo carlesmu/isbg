@@ -301,7 +301,8 @@ class SpamAssassin(object):
         if self.imap is None:
             raise isbg.ISBGError(-1, message="Imap is required")
 
-        self.logger.debug("Teach {} to SA from: {}".format(learn_type, folder))
+        self.logger.debug(__(
+            "Teach {} to SA from: {}".format(learn_type, folder)))
 
         self.imap.select(folder)
         if self.learnunflagged:
@@ -322,9 +323,9 @@ class SpamAssassin(object):
             # Unwrap spamassassin reports
             unwrapped = sa_unwrap.unwrap(mail)
             if unwrapped is not None:
-                self.logger.debug("{} Unwrapped: {}".format(
+                self.logger.debug(__("{} Unwrapped: {}".format(
                     uid, utils.shorten(imaputils.mail_content(
-                        unwrapped[0]), 140)))
+                        unwrapped[0]), 140))))
 
             if unwrapped is not None and unwrapped:  # len(unwrapped)>0
                 mail = unwrapped[0]
@@ -335,7 +336,8 @@ class SpamAssassin(object):
                 code, code_orig = learn_mail(mail, learn_type)
 
             if code == -9999:  # error processing email, try next.
-                self.logger.exception('spamc error for mail {}'.format(uid))
+                self.logger.exception(__(
+                    'spamc error for mail {}'.format(uid)))
                 self.logger.debug(repr(imaputils.mail_content(mail)))
                 continue
 
@@ -391,8 +393,8 @@ class SpamAssassin(object):
             else:
                 mail = feed_mail(mail, cmd=self.cmd_save)
                 if mail == "-9999":
-                    self.logger.exception(
-                        '{} error for mail {}'.format(self.cmd_save, uid))
+                    self.logger.exception(__(
+                        '{} error for mail {}'.format(self.cmd_save, uid)))
                     self.logger.debug(repr(imaputils.mail_content(mail)))
                     if uid in spamdeletelist:
                         spamdeletelist.remove(uid)
@@ -474,8 +476,8 @@ class SpamAssassin(object):
             else:
                 score, code = test_mail(mail, cmd=self.cmd_test)
                 if score == "-9999":
-                    self.logger.exception(
-                        '{} error for mail {}'.format(self.cmd_test, uid))
+                    self.logger.exception(__(
+                        '{} error for mail {}'.format(self.cmd_test, uid)))
                     self.logger.debug(repr(imaputils.mail_content(mail)))
                     uids.remove(uid)
                     continue
