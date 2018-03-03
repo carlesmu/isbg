@@ -120,7 +120,7 @@ def test_test_mail():
             spamproc.test_mail(mail, cmd=["spamassassin", "--exit-code"])
 
     # We try a random cmds (existant and unexistant
-    score, code = spamproc.test_mail("", "echo")
+    score, code = spamproc.test_mail("", ["echo"])
     assert score == u'-9999', 'It should return a error'
     assert code is None, 'It should return a error'
     with pytest.raises(OSError, match="No such file",
