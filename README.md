@@ -1,14 +1,17 @@
 | Stable:
 [![Documentation Status](https://readthedocs.org/projects/isbg/badge/?version=stable)](http://isbg.readthedocs.io/en/stable/?badge=stable)
+
 | Default:
 [![Build Status](https://travis-ci.org/carlesmu/isbg.svg?branch=v2.0-dev)](https://travis-ci.org/carlesmu/isbg)
 [![Codeclimate Maintainability](https://api.codeclimate.com/v1/badges/c487d0d5ee45186aded1/maintainability)](https://codeclimate.com/github/carlesmu/isbg/maintainability)
 [![Codeclimate Coverage](https://api.codeclimate.com/v1/badges/c487d0d5ee45186aded1/test_coverage)](https://codeclimate.com/github/carlesmu/isbg/test_coverage)
 [![codecov](https://codecov.io/gh/carlesmu/isbg/branch/v2.0-dev/graph/badge.svg)](https://codecov.io/gh/carlesmu/isbg)
+
 | Master:
 [![Documentation Status](https://readthedocs.org/projects/isbg/badge/?version=latest)](http://isbg.readthedocs.io/en/latest/?badge=latest)
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/e639e80142824c34bed0b13440136a01?branch=master)](https://www.codacy.com/app/carlesmu/isbg?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=carlesmu/isbg&amp;utm_campaign=Badge_Grade)
 [![Codacy coverage Badge](https://api.codacy.com/project/badge/Coverage/e639e80142824c34bed0b13440136a01?branch=master)](https://www.codacy.com/app/carlesmu/isbg?utm_source=github.com&utm_medium=referral&utm_content=carlesmu/isbg&utm_campaign=Badge_Coverage)
+
 | v2.0-dev:
 [![Documentation Status](https://readthedocs.org/projects/isbg/badge/?version=v2.0-dev)](http://isbg.readthedocs.io/en/v2.0-dev/?badge=v2.0-dev)
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/e639e80142824c34bed0b13440136a01?branch=v2.0-dev)](https://www.codacy.com/app/carlesmu/isbg?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=carlesmu/isbg&amp;utm_campaign=Badge_Grade)
