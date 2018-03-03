@@ -38,6 +38,8 @@ try:
 except ImportError:
     pass
 
+import base64
+
 # We add the upper dir to the path
 sys.path.insert(0, os.path.abspath(os.path.join(
     os.path.dirname(__file__), '..')))
@@ -70,6 +72,49 @@ class TestISBG(object):
         sbg = isbg.ISBG()
         sbg.do_passwordhash()
         assert len(sbg.passwordhash) == sbg.passwordhashlen
+
+    def test_removelock(self):
+        """Test removelock."""
+        sbg = isbg.ISBG()
+        sbg.removelock()
+        assert os.path.exists(sbg.lockfilename) is False, \
+            "File should not exist."
+        lockfile = open(sbg.lockfilename, 'w')
+        lockfile.write(repr(os.getpid()))
+        lockfile.close()
+        assert os.path.exists(sbg.lockfilename), "File should exist."
+        sbg.removelock()
+        assert os.path.exists(sbg.lockfilename) is False, \
+            "File should not exist."
+
+    def test_setpwd(self):
+        """Test setpwd."""
+        sbg = isbg.ISBG()
+        sbg.do_passwordhash()
+        # We construct a password:
+        pas = sbg.setpw(u"test", sbg.passwordhash)
+        pas = pas.encode("base64")
+        res = """QVMVEGQ2ODYxMzdjODY0NWQ0NDAyNDA5NmEwZWQ0NDEwNjdlYmQxMTY0ZGUyMDliMWQ1ZjgzODMw
+YzBjMDBlYWE3OWI1NzU1MzEzZmUzNmU3M2YzMGM5MmU1NmE2YjFlMDM0NTIxZTg1MWFlNzM0MTgy
+NDQ5NDNlYWU1N2YwMzI0M2VhYTI0MTAyYTgwOWZkYjA5ZTBmZjkzM2UwYzIwZWI4YzhiZjZiMTRh
+NTZlOTUwYjUyNjM5MzdhNTNjMWNmOWFjNGY3ODQyZDE4MWMxNWNkMDA0MjRkODZiNmQ4NzZjM2Ez
+NTk2YTEyMDIyYTM4ZDc3YjM3Mzk2OGNlMzc1Yg==
+"""
+        assert pas == res, "Unexpected password encoded"
+
+    def test_getpwd(self):
+        """Test getpwd."""
+        sbg = isbg.ISBG()
+        sbg.do_passwordhash()
+        pas = """QVMVEGQ2ODYxMzdjODY0NWQ0NDAyNDA5NmEwZWQ0NDEwNjdlYmQxMTY0ZGUyMDliMWQ1ZjgzODMw
+YzBjMDBlYWE3OWI1NzU1MzEzZmUzNmU3M2YzMGM5MmU1NmE2YjFlMDM0NTIxZTg1MWFlNzM0MTgy
+NDQ5NDNlYWU1N2YwMzI0M2VhYTI0MTAyYTgwOWZkYjA5ZTBmZjkzM2UwYzIwZWI4YzhiZjZiMTRh
+NTZlOTUwYjUyNjM5MzdhNTNjMWNmOWFjNGY3ODQyZDE4MWMxNWNkMDA0MjRkODZiNmQ4NzZjM2Ez
+NTk2YTEyMDIyYTM4ZDc3YjM3Mzk2OGNlMzc1Yg==
+"""
+        pas = base64.b64decode(pas).decode("utf-8")
+        ret = sbg.getpw(pas, sbg.passwordhash)
+        assert ret == u"test"
 
     def test_do_isbg(self):
         """Test do_isbg."""
