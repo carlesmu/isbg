@@ -1,7 +1,31 @@
-1.00 (20160106)
-=====================
-What has been done since last release
+Changelog
+=========
 
+Development
+-----------
+What has been done since last release.
+
+* Using standard cache *xdg_cache_home* to store information, usually 
+  *$HOME/.cache/isbg/*. If you have stored your password with and old releases
+  you should re-store it and delete the old stored files, you would find the
+  old ones as *$HOME/.isbg*.
+* A more robust package, it can be used as a module and a script.
+* Now we depend of *chardet* for better detect the mails encodings.
+* Using main() to run as script.
+* python3 support.
+* Modularized.
+* Added a default --partialrun of 50. Use partialrun=0 to retain the
+  old behaviour.
+* Ddocumentation: use sphinx and suport to upload it to `Read the docs`__.
+
+.. __: https://isbg.readthedocs.io/
+
+
+Released
+--------
+
+isbg 1.00 (20160106)
+~~~~~~~~~~~~~~~~~~~~
   * The CLI interface is now implemented with docopt
   * The README now includes the documentation
   * New command --imaplist lists the directories in IMAP account
@@ -13,8 +37,8 @@ What has been done since last release
   * New command "--trackfile" now permits trackfile name configuration (thanks naevtamarkus!)
   * New command "--partialrun" now enable isbg to run for only a few emails (thanks naevtamarkus!)
 
-0.99 (20100303)
-===============
+isbg 0.99 (20100303)
+~~~~~~~~~~~~~~~~~~~~
   * Drastic speed enhancement (thanks to Ajenbo!)
   * deletehighterthen, fix expunge, movehamto (thanks to AJenbo!)
   * Learn spam/ham before scanning
@@ -24,7 +48,7 @@ What has been done since last release
   * Bug fix: SSL now work.
   * Don't crash anymore when parsing weird attachement (like MS Office files)
 
-0.98 (20091201)
-===============
+isbg 0.98 (20091201)
+~~~~~~~~~~~~~~~~~~~~
   * Teach spam and ham from specific folders
   * Compatibility from py2.4 to py2.6
