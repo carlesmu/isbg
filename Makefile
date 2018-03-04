@@ -27,7 +27,7 @@ COVDIR = build/htmlcov
 TOX    = tox
 
 .PHONY: help all test-clean test cov-clean cov tox-clean tox docs clean \
-        distclean build build-clean
+        distclean build build-clean man sphinx sphinx-clean
 
 help:
 	@echo "Please use 'make <target>' where target is one of:"
@@ -39,6 +39,8 @@ help:
 	@echo "   "
 	@echo "  build      build create a build dist 'python setup.py'."
 	@echo "  docs       build the docs with 'sphinx'."
+	@echo "    html     build only html pages"
+	@echo "    man      build only manpages"
 	@echo "   "
 	@echo "  clean      clean generates files."
 	@echo "  distclean  clean all generates files."
@@ -46,13 +48,19 @@ help:
 
 all: help
 
-
+# -------------------------------------------------------------------- #
 test-clean:
 	rm -fr .pytest_cache
 	rm -fr .cache
 
 test:
 	@$(TEST)
+
+tox-clean:
+	rm -fr .tox
+
+tox:
+	@$(TOX)
 
 cov-clean:
 	@$(COVREP) erase
@@ -64,27 +72,10 @@ cov: cov-clean
 	@$(COV3)
 	@$(COVREP) html --directory $(COVDIR)
 
-tox-clean:
-	rm -fr .tox
-
-tox:
-	@$(TOX)
-
-html:
-	mkdir -p build.sphinx
-	cp -fr docs/* build.sphinx
-	$(MAKE) -C build.sphinx html
-
-docs-clean:
-	$(MAKE) -C docs clean
-	$(MAKE) -C docs clean-all
-	rm -fr build.sphinx
-
-docs: html
-
+# -------------------------------------------------------------------- #
 build-clean:
-	rm -fr build/pybuild
 	python setup.py clean
+	rm -fr build/build
 
 build:
 	python setup.py build -b build/build -t build/tmp
@@ -97,11 +88,34 @@ build:
 	rm -fr isbg.egg-info
 	rm -fr build/lib.*
 	rm -fr build/bdist.*
+	mv -f dist/* build/dist
+	rmdir dist
 	@echo "   "
 	@echo "  See build/build for generated build files."
 	@echo "  See build/dist for generated dist files."
 
-clean: test-clean
+# -------------------------------------------------------------------- #
+sphinx-clean:
+	rm -fr build.sphinx
+
+sphinx:
+	mkdir -p build.sphinx
+	cp -fr docs/* build.sphinx
+
+html: sphinx
+	$(MAKE) -C build.sphinx html
+
+man: sphinx
+	$(MAKE) -C build.sphinx man
+
+docs-clean: sphinx-clean
+	$(MAKE) -C docs clean
+	$(MAKE) -C docs clean-all
+
+docs: html, man
+
+# -------------------------------------------------------------------- #
+clean: test-clean, sphinx-clean
 	find . -name '*.pyc' -exec rm -f {} +
 	rm -fr isbg/__pycache__
 	rm -fr tests/__pycache__
