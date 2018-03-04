@@ -1,18 +1,14 @@
-News
-====
+News [#]_
+=========
 
 New in 2.0
 ----------
 
-* Using standard cache `xdg_cache_home` to store information, usually 
-  `$HOME/.cache/isbg/`. If you have stored your password with and old releases
-  you should re-store it and delete the old stored files, you would find the
-  old ones as `$HOME/.isbg*`.
-* A more robust package, it can be used as a module and a script.
-* Better documentation: using sphinx.
-* Using main() to run as script.
-* python3 support.
+* Use of standard localization folders. You must store your password again.
+* Added documentation in `Read the docs`__.
 * Added a default `--partialrun` of 50.
+
+.. __: https://isbg.readthedocs.io/
 
 News in old releases
 --------------------
@@ -37,3 +33,6 @@ it, please use the `--nossl` parameter.
   naevtamarkus!).
 * New command `--partialrun` now enable isbg to run for only a few emails
   (thanks naevtamarkus!).
+
+
+.. [#] To read a more detailed information about changes, see :doc:`CHANGELOG`.
