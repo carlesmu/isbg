@@ -11,8 +11,9 @@
    :hidden:
 
    README
-   manpage.isbg
    NEWS
+   manpage.isbg
+   CHANGELOG
    TODO
    api_index
 

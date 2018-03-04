@@ -1,42 +1,46 @@
 .. isbg documentation master file, initially created by
    pandoc --from=markdown_github --to=rst --output=README.rst README.md
 
-Stable: |Documentation Status stable|
 
-.. |Documentation Status stable| image:: https://readthedocs.org/projects/isbg/badge/?version=stable
+Stable: |travis stable| |rtd stable|
+
+.. |travis stable| image:: https://travis-ci.org/carlesmu/isbg.svg?branch=stable
+   :target: https://travis-ci.org/carlesmu/isbg
+.. |rtd stable| image:: https://readthedocs.org/projects/isbg/badge/?version=stable
    :target: http://isbg.readthedocs.io/en/stable/?badge=stable
 
-Default: |Build Status default| |Codeclimate Maintainability default|
-|Codeclimate Coverage default| |codecov default|
+Default: |ccli mant default| |ccli cov default| |codecov default|
 
-.. |Build Status default| image:: https://travis-ci.org/carlesmu/isbg.svg?branch=v2.0-dev
-   :target: https://travis-ci.org/carlesmu/isbg
-.. |Codeclimate Maintainability default| image:: https://api.codeclimate.com/v1/badges/c487d0d5ee45186aded1/maintainability
+.. |ccli mant default| image:: https://api.codeclimate.com/v1/badges/c487d0d5ee45186aded1/maintainability
    :target: https://codeclimate.com/github/carlesmu/isbg/maintainability
-.. |Codeclimate Coverage default| image:: https://api.codeclimate.com/v1/badges/c487d0d5ee45186aded1/test_coverage
+.. |ccli cov default| image:: https://api.codeclimate.com/v1/badges/c487d0d5ee45186aded1/test_coverage
    :target: https://codeclimate.com/github/carlesmu/isbg/test_coverage
 .. |codecov default| image:: https://codecov.io/gh/carlesmu/isbg/branch/v2.0-dev/graph/badge.svg
    :target: https://codecov.io/gh/carlesmu/isbg
 
-Master: |Documentation Status master| |Codacy Badge master|
-|Codacy coverage Badge master|
+Master: |travis master| |rtd master| |codacy master| |codacy cov master|
 
-.. |Documentation Status master| image:: https://readthedocs.org/projects/isbg/badge/?version=latest
+.. |travis master| image:: https://travis-ci.org/carlesmu/isbg.svg?branch=master
+   :target: https://travis-ci.org/carlesmu/isbg
+.. |rtd master| image:: https://readthedocs.org/projects/isbg/badge/?version=latest
    :target: http://isbg.readthedocs.io/en/latest/?badge=latest
-.. |Codacy Badge master| image:: https://api.codacy.com/project/badge/Grade/e639e80142824c34bed0b13440136a01?branch=master
+.. |codacy master| image:: https://api.codacy.com/project/badge/Grade/e639e80142824c34bed0b13440136a01?branch=master
    :target: https://www.codacy.com/app/carlesmu/isbg?utm_source=github.com&utm_medium=referral&utm_content=carlesmu/isbg&utm_campaign=Badge_Grade
-.. |Codacy coverage Badge master| image:: https://api.codacy.com/project/badge/Coverage/e639e80142824c34bed0b13440136a01?branch=master
+.. |codacy cov master| image:: https://api.codacy.com/project/badge/Coverage/e639e80142824c34bed0b13440136a01?branch=master
    :target: https://www.codacy.com/app/carlesmu/isbg?utm_source=github.com&utm_medium=referral&utm_content=carlesmu/isbg&utm_campaign=Badge_Coverage
 
-v2.0-dev: |Documentation Status v2.0-dev| |Codacy Badge v2.0-dev|
-|Codacy coverage Badge v2.0-dev|
+v2.0-dev: |travis v2.0-dev| |rtd v2.0-dev| |codacy v2.0-dev|
+|codacy cov v2.0-dev|
 
-.. |Documentation Status v2.0-dev| image:: https://readthedocs.org/projects/isbg/badge/?version=v2.0-dev
+.. |travis v2.0-dev| image:: https://travis-ci.org/carlesmu/isbg.svg?branch=v2.0-dev
+   :target: https://travis-ci.org/carlesmu/isbg
+.. |rtd v2.0-dev| image:: https://readthedocs.org/projects/isbg/badge/?version=v2.0-dev
    :target: http://isbg.readthedocs.io/en/v2.0-dev/?badge=v2.0-dev
-.. |Codacy Badge v2.0-dev| image:: https://api.codacy.com/project/badge/Grade/e639e80142824c34bed0b13440136a01?branch=v2.0-dev
-   :target: https://www.codacy.com/app/carlesmu/isbg?utm_source=github.com&utm_medium=referral&utm_content=carlesmu/isbg&utm_campaign=Badge_Grade
-.. |Codacy coverage Badge v2.0-dev| image:: https://api.codacy.com/project/badge/Coverage/e639e80142824c34bed0b13440136a01?branch=v2.0-dev
+.. |codacy v2.0-dev| image:: https://api.codacy.com/project/badge/Grade/e639e80142824c34bed0b13440136a01?branch=v2.0-dev
+   :target: https://www.codacy.com/app/carlesmu/isbg?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=carlesmu/isbg&amp;utm_campaign=Badge_Grade
+.. |codacy cov v2.0-dev| image:: https://api.codacy.com/project/badge/Coverage/e639e80142824c34bed0b13440136a01?branch=v2.0-dev
    :target: https://www.codacy.com/app/carlesmu/isbg?utm_source=github.com&utm_medium=referral&utm_content=carlesmu/isbg&utm_campaign=Badge_Coverage
+
 
 IMAP Spam Begone
 ================
@@ -207,7 +211,9 @@ I use one named 'spam'.
 
 Run isbg with the ``--help`` option to see what options are available or check
 his manual page with ``$ man isbg``.  You can see it in :doc:`manpage.isbg`
-page.
+page or if you are reading this from `github manpage.isbg doc`__
+
+.. __: docs/manpage.isbg.rst
 
 
 How does it work?

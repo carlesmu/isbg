@@ -145,6 +145,7 @@ Do your first run
 
 Will request the password for your user account and store it obfuscated for
 future use, after login, it will show the IMAP folder list:
+
     *[u'  INBOX"', u'  INBOX.Esborranys"', u'  INBOX.Spam"', u'  INBOX.Sent"',
     u'  INBOX.NOSPAM"', u'  INBOX.Archive"', u'  INBOX.Drafts"',
     u'  INBOX.Trash"', u'  INBOX.Paperera"']*
@@ -194,6 +195,7 @@ If you never want to see them in your inbox, also specify the
 ``--expunge`` option after ``--delete`` and they will be removed when
 isbg logs out of the IMAP server.  
 
+
 SpamAssassin
 ~~~~~~~~~~~~
 
@@ -202,7 +204,9 @@ nervous about it being too good and taking out legitimate email, or not
 taking out enough spam. It has an easily adustable threshold to change
 how aggressive it is. Run the following command to create your
 preferences file (*$HOME/.spamassassin/user\_prefs*)::
+
     $ spamassassin </dev/null >/dev/null
+
 
 Your Folder Names
 ~~~~~~~~~~~~~~~~~
