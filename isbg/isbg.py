@@ -98,7 +98,7 @@ Key              Val cmd? [1]_ Description
 ``'tty'``         20    no     The program was not launched in an interactive
                                terminal.
 ``'locked'``      30    no     Error with the *lock* file, is another instance
-                               of ''isbg'' must be running.
+                               of ``isbg`` must be running.
 ``'error'``       -1    no     Other errors.
 ================ === ========= ===============================================
 
