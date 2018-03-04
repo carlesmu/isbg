@@ -118,7 +118,7 @@ docs: html man
 	@echo "  See build/sphinx/man for generated manpages."
 
 # -------------------------------------------------------------------- #
-clean: test-clean, sphinx-clean
+clean: test-clean sphinx-clean
 	find . -name '*.pyc' -exec rm -f {} +
 	rm -fr isbg/__pycache__
 	rm -fr tests/__pycache__
