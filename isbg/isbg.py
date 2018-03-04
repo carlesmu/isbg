@@ -81,20 +81,21 @@ __exitcodes__ = {
 """Exit codes used as return in the command line usage in
 :py:func:`sys.exit`.
 
-================ === ========= =========================================
+================ === ========= ===========================================
 Key              Val cmd? [1]_ Description
-================ === ========= =========================================
+================ === ========= ===========================================
 ``'ok'``           0    no     All has finished ok.
 ``'newmsgs'``      1   yes     There are new messages.
 ``'newspam'``      2   yes     There are new spam.
 ``'newmsgspam'``   3   yes     There are new messages detected as spam.
 ``'flags'``       10    no     Error with the command line options.
-``'imap'``        11    no     Error with imap connection.
+``'imap'``        11    no     The IMAP server reported an error or error
+                               with the IMAP connection.
 ``'spamc'``       12    no     Error with spamc/spamassassin call.
 ``'tty'``         20    no     Error with tty connection.
 ``'locked'``      30    no     Error with the lock file.
 ``'error'``       -1    no     Other errors.
-================ === ========= =========================================
+================ === ========= ===========================================
 
 .. [1] ``--exitcodes`` required.
 """
