@@ -180,21 +180,34 @@ Your first step is to create a new folder to receive suspected spam.
 
 Run isbg with the `--help` option to see what options are available:
 
+   Usage:
+    isbg.py --imaphost <hostname> --imapuser <username> [options]
+    isbg.py --imaphost <hostname> --imapuser <username> --imaplist [options]
+    isbg.py (-h | --help)
+    isbg.py --usage
+    isbg.py --version
+
+   Options:
     --imaphost hostname    IMAP server name.
     --imapuser username    Who you login as.
+
+    --imaplist             List imap directories.
+
+    -h, --help             Show the help screen.
+    --usage                Show the usage information.
+    --version              Show the version information.
+
     --dryrun               Do not actually make any changes.
-    --delete               The spams will be marked for deletion from 
+    --delete               The spams will be marked for deletion from
                            your inbox.
     --deletehigherthan #   Delete any spam with a score higher than #.
     --exitcodes            Use exitcodes to detail  what happened.
     --expunge              Cause marked for deletion messages to also be
-                           deleted (only useful if --delete is 
+                           deleted (only useful if --delete is
                            specified).
     --flag                 The spams will be flagged in your inbox.
     --gmail                Delete by copying to '[Gmail]/Trash' folder.
-    --help                 Show the help screen.
     --ignorelockfile       Don't stop if lock file is present.
-    --imaplist             List imap directories.
     --imappasswd passwd    IMAP account password.
     --imapport port        Use a custom port.
     --imapinbox mbox       Name of your inbox folder [Default: INBOX].
@@ -205,7 +218,7 @@ Run isbg with the `--help` option to see what options are available:
     --learnunflagged       Only learn if unflagged
                            (for  --learnthenflag).
     --learnflagged         Only learn flagged.
-    --lockfilegrace=min    Set the lifetime of the lock file
+    --lockfilegrace=<min>  Set the lifetime of the lock file
                            [default: 240.0].
     --lockfilename file    Override the lock file name.
     --maxsize numbytes     Messages larger than this will be ignored as
@@ -229,10 +242,9 @@ Run isbg with the `--help` option to see what options are available:
     --trackfile file       Override the trackfile name.
     --verbose              Show IMAP stuff happening.
     --verbose-mails        Show mail bodies (extra-verbose).
-    --version              Show the version information.
-    
-    (Your inbox will remain untouched unless you specify --flag or 
-    --delete)
+  
+    (Your inbox will remain untouched unless you specify --flag or
+     --delete)
 
 You can specify your imap password using `--imappasswd`.
 This however is a really bad idea since any user on the system can run `ps` and
@@ -242,14 +254,12 @@ then set the password here.
 
 ### Do your first run
 
-<pre>
-$ isbg.py --imaphost mail.example.com  --savepw
-IMAP password for rogerb@mail.example.com:
-</pre>
+    $ isbg.py --imaphost mail.foo.com --imapuser rogerb@mail.foo.com --savepw
+    IMAP password for rogerb@mail.foo.com:
 
 The amount of time it takes will be proportional to the size of your
- inbox. You can specify `--verbose` if you want to see the gory details of
- what is going on.
+inbox. You can specify `--verbose` if you want to see the gory details of
+what is going on.
 
 You can now examine your spam folder and will see what spam was
 detected. You can change the SpamAssassin threshold in your `user_prefs`

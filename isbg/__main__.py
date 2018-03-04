@@ -59,7 +59,8 @@ def __cmd_opts__():  # noqa: D207
 Command line Options::
 
  Usage:
-  isbg.py [options]
+  isbg.py --imaphost <hostname> --imapuser <username> [options]
+  isbg.py --imaphost <hostname> --imapuser <username> --imaplist [options]
   isbg.py (-h | --help)
   isbg.py --usage
   isbg.py --version
@@ -67,6 +68,13 @@ Command line Options::
  Options:
   --imaphost hostname    IMAP server name.
   --imapuser username    Who you login as.
+
+  --imaplist             List imap directories.
+
+  -h, --help             Show the help screen.
+  --usage                Show the usage information.
+  --version              Show the version information.
+
   --dryrun               Do not actually make any changes.
   --delete               The spams will be marked for deletion from
                          your inbox.
@@ -77,9 +85,7 @@ Command line Options::
                          specified).
   --flag                 The spams will be flagged in your inbox.
   --gmail                Delete by copying to '[Gmail]/Trash' folder.
-  --help                 Show the help screen.
   --ignorelockfile       Don't stop if lock file is present.
-  --imaplist             List imap directories.
   --imappasswd passwd    IMAP account password.
   --imapport port        Use a custom port.
   --imapinbox mbox       Name of your inbox folder [Default: INBOX].
@@ -114,8 +120,9 @@ Command line Options::
   --trackfile file       Override the trackfile name.
   --verbose              Show IMAP stuff happening.
   --verbose-mails        Show mail bodies (extra-verbose).
-  --version              Show the version information.
 
+  (Your inbox will remain untouched unless you specify --flag or
+   --delete)
     """
     pass
 
