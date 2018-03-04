@@ -35,6 +35,8 @@ try:
 except ImportError:
     pass
 
+from email.errors import MessageError
+
 # We add the upper dir to the path
 sys.path.insert(0, os.path.abspath(os.path.join(
     os.path.dirname(__file__), '..')))
@@ -301,7 +303,7 @@ class Test_SpamAssassin(object):
         sa = spamproc.SpamAssassin.create_from_isbg(sbg)
 
         # OSError required when it's run without spamassassin (travis-cl)
-        with pytest.raises((AttributeError, OSError),
+        with pytest.raises((AttributeError, OSError, MessageError),
                            message="Should rise error, IMAP not created."):
             sa._process_spam(1, u"3/10\n", "", [])
 

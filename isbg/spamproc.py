@@ -138,10 +138,7 @@ def feed_mail(mail, spamc=False, cmd=False):
         new_mail = proc.communicate(imaputils.mail_content(mail))[0]
         orig_code = proc.returncode
     except Exception:  # pylint: disable=broad-except
-        new_mail = "-9999"
-
-    if new_mail != "-9999":
-        new_mail = imaputils.new_message(new_mail)
+        new_mail = u"-9999"
 
     proc.stdin.close()
 
@@ -191,7 +188,7 @@ class SpamAssassin(object):
     _kwargs = ['imap', 'spamc', 'logger', 'partialrun', 'dryrun',
                'learnthendestroy', 'gmail', 'learnthenflag', 'learnunflagged',
                'learnflagged', 'deletehigherthan', 'imapsets', 'maxsize',
-               'noreport', "spamflags"]
+               'noreport', 'spamflags', 'delete', 'expunge']
 
     def __init__(self, **kwargs):
         """Initialize a SpamAssassin object."""
@@ -394,19 +391,18 @@ class SpamAssassin(object):
             if self.dryrun:
                 self.logger.info("Skipping report because of --dryrun")
             else:
-                mail, code = feed_mail(mail, cmd=self.cmd_save)
-                print(type(mail))
-                if mail == "-9999":
-                    self.logger.exception(__(
+                new_mail, code = feed_mail(mail, cmd=self.cmd_save)
+                if new_mail == u"-9999":
+                    self.logger.exception(
                         '{} error for mail {} (ret code {})'.format(
-                            self.cmd_save, uid, code)))
+                            self.cmd_save, uid, code))
                     self.logger.debug(repr(imaputils.mail_content(mail)))
                     if uid in spamdeletelist:
                         spamdeletelist.remove(uid)
                     return False
 
                 res = self.imap.append(self.imapsets.spaminbox, None, None,
-                                       imaputils.mail_content(mail))
+                                       new_mail)
                 # The above will fail on some IMAP servers for various
                 # reasons. We print out what happened and continue
                 # processing
@@ -483,7 +479,7 @@ class SpamAssassin(object):
                 if score == "-9999":
                     self.logger.exception(__(
                         '{} error for mail {}'.format(self.cmd_test, uid)))
-                    self.logger.debug(repr(imaputils.mail_content(mail)))
+                    self.logger.debug(repr(mail))
                     uids.remove(uid)
                     continue
 
