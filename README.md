@@ -180,14 +180,14 @@ Your first step is to create a new folder to receive suspected spam.
 
 Run isbg with the `--help` option to see what options are available:
 
-   Usage:
+    Usage:
     isbg.py --imaphost <hostname> --imapuser <username> [options]
     isbg.py --imaphost <hostname> --imapuser <username> --imaplist [options]
     isbg.py (-h | --help)
     isbg.py --usage
-    isbg.py --version
+    isbg.py --version 
 
-   Options:
+    Options:
     --imaphost hostname    IMAP server name.
     --imapuser username    Who you login as.
 
