@@ -1,4 +1,4 @@
-command line usage
+Command line usage
 ==================
 
 SYNOPSIS
