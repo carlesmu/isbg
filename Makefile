@@ -112,7 +112,7 @@ docs-clean: sphinx-clean
 	$(MAKE) -C docs clean
 	$(MAKE) -C docs clean-all
 
-docs: html, man
+docs: html man
 
 # -------------------------------------------------------------------- #
 clean: test-clean, sphinx-clean
