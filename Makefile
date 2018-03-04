@@ -113,6 +113,9 @@ docs-clean: sphinx-clean
 	$(MAKE) -C docs clean-all
 
 docs: html man
+	@echo "   "
+	@echo "  See build/sphinx/html for generated html docs."
+	@echo "  See build/sphinx/man for generated manpages."
 
 # -------------------------------------------------------------------- #
 clean: test-clean, sphinx-clean

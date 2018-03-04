@@ -66,7 +66,7 @@ master_doc = 'index'
 # General information about the project.
 project = u'isbg'
 copyright = u'2018, the isbg developers'
-author = u'Carles Muñoz Gorriz'
+author = u'Carles Muñoz Gorriz <carlesmu@internautas.org>'
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
@@ -233,7 +233,8 @@ latex_documents = [
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
 man_pages = [
-    (master_doc, 'isbg', u'isbg Documentation',
+    ('manpage.isbg', 'isbg', u'scans an IMAP Inbox and runs every entry ' +
+     u'against SpamAssassin.',
      [author], 1)
 ]
 
