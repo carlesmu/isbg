@@ -136,7 +136,8 @@ napoleon_use_rtype = True
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
 #
-html_theme = 'alabaster'
+html_theme = 'sphinx_rtd_theme'
+#html_theme = 'alabaster'
 #html_theme = 'classic'
 #html_theme = 'agogo'
 
@@ -145,13 +146,25 @@ html_theme = 'alabaster'
 # documentation.
 #
 # html_theme_options = {}
-"""# For theme 'classic':
+
+# For theme 'sphinx_rtd_theme':
 html_theme_options = {
-    "rightsidebar": "true",
-    "relbarbgcolor": "black"
-}"""
+    'canonical_url': '',
+    'analytics_id': '',
+    'logo_only': False,
+    'display_version': True,
+    'prev_next_buttons_location': 'bottom',
+    #    'style_external_links': False,
+    #    'vcs_pageview_mode': '',
+    # Toc options
+    'collapse_navigation': False,
+    'sticky_navigation': True,
+    'navigation_depth': 3,
+    #    'includehidden': True,
+    #    'titles_only': False
+}
 # For theme 'alabaster':
-html_theme_options = {
+"""html_theme_options = {
     #    'logo': logo.png,
     'github_user': 'carlesmu',
     'github_repo': 'isbg',
@@ -170,7 +183,12 @@ html_theme_options = {
         # u"🖴  Code coverage": "../../htmlcov/index.html",
         # u"📒 API Refence": "api_index.html"
     }
-}
+}"""
+"""# For theme 'classic':
+html_theme_options = {
+    "rightsidebar": "true",
+    "relbarbgcolor": "black"
+}"""
 
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
