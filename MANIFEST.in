@@ -1,5 +1,5 @@
 # Manifest.in file for isbg
-include CHANGELOG CONTRIBUTORS LICENSE README.md requirements.txt tox.ini
+include CHANGELOG CONTRIBUTORS LICENSE README.rst requirements.txt tox.ini
 
 graft examples
 graft bash_scripts
