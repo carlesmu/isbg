@@ -8,7 +8,7 @@ import re
 
 from setuptools import setup
 
-LDESC = open(os.path.join(os.path.dirname(__file__), 'README.md')).read()
+LDESC = open(os.path.join(os.path.dirname(__file__), 'README.rst')).read()
 
 # We get the version from isbg/isbg.py
 _VERSION_RE = re.compile(r'__version__\s+=\s+(.*)')
