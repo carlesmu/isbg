@@ -55,6 +55,7 @@ where your mailbox actually is. So this is the perfect tool to take good care
 of your ISP mailbox without having to leave it.
 
 .. contents:: Table of Contents
+   :depth: 3
 
 Features
 --------
