@@ -13,18 +13,36 @@
 #
 # All configuration values have a default; values that are commented out
 # serve to show the default.
-
 import re
 from ast import literal_eval
-
+import os
+import sys
 import recommonmark
+
+# -- Custom variables -----------------------------------------------------
+cvar_github_base_uri = 'https://github.com/'
+cvar_github_prj = 'carlesmu'
+cvar_github_usr = 'isbg'
+cvar_github_uri = cvar_github_base_uri + cvar_github_prj + '/' + \
+    cvar_github_usr
+cvar_pypi_uri = 'https://pypi.python.org/pypi/isbg'
+
+master_doc = 'index'  # The master toctree document.
+
+project = u'isbg'
+copyright = u'2018, the isbg developers'
+author = u'Carles Muñoz Gorriz <carlesmu@internautas.org>'
+
+# We get the version from isbg/isbg.py
+_VERSION_RE = re.compile(r'__version__\s+=\s+(.*)')
+with open('../isbg/isbg.py', 'rb') as f:
+    _VERSION = str(literal_eval(_VERSION_RE.search(
+        f.read().decode('utf-8')).group(1)))
 
 # If extensions (or modules to document with autodoc) are in another directory,
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
 #
-import os
-import sys
 sys.path.insert(0, os.path.abspath('..'))
 
 # -- General configuration ------------------------------------------------
@@ -33,6 +51,7 @@ sys.path.insert(0, os.path.abspath('..'))
 #
 # needs_sphinx = '1.0'
 
+# -- Extensions -----------------------------------------------------------
 # Add any Sphinx extension module names here, as strings. They can be
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
@@ -43,6 +62,7 @@ extensions = ['sphinx.ext.autodoc',
               'sphinx.ext.coverage',
               'sphinx.ext.mathjax',
               'sphinx.ext.ifconfig',
+              'sphinx.ext.extlinks',
               'sphinx.ext.githubpages',
               'sphinx.ext.autosummary',
               'sphinx.ext.todo'
@@ -55,28 +75,15 @@ templates_path = ['_templates']
 # You can specify multiple suffix as a list of string:
 #
 # source_suffix = ['.rst', '.md']
-source_parsers = {
-    '.md': 'recommonmark.parser.CommonMarkParser',
-}
-source_suffix = ['.rst', '.md']
-
-# The master toctree document.
-master_doc = 'index'
-
-# General information about the project.
-project = u'isbg'
-copyright = u'2018, the isbg developers'
-author = u'Carles Muñoz Gorriz <carlesmu@internautas.org>'
+# source_parsers = {
+#    '.md': 'recommonmark.parser.CommonMarkParser',
+#}
+source_suffix = ['.rst']
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
 # built documents.
 #
-# We get the version from isbg/isbg.py
-_VERSION_RE = re.compile(r'__version__\s+=\s+(.*)')
-with open('../isbg/isbg.py', 'rb') as f:
-    _VERSION = str(literal_eval(_VERSION_RE.search(
-        f.read().decode('utf-8')).group(1)))
 
 # The short X.Y version.
 version = _VERSION
@@ -93,7 +100,7 @@ language = None
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
 # This patterns also effect to html_static_path and html_extra_path
-exclude_patterns = ['']
+#exclude_patterns = ['']
 
 # The name of the Pygments (syntax highlighting) style to use.
 pygments_style = 'sphinx'
@@ -131,6 +138,12 @@ napoleon_use_ivar = True
 napoleon_use_param = True
 napoleon_use_rtype = True
 
+# -- Options for extlinks extension ---------------------------------------
+extlinks = {
+    'issue': (cvar_github_uri + '/issues/%s', 'issue '),  # e.g. :issue:`12`
+    'pull': (cvar_github_uri + '/pull/%s', 'pull ')      # e.g. :pull:`11`
+}
+
 # -- Options for HTML output ----------------------------------------------
 
 # The theme to use for HTML and HTML Help pages.  See the documentation for
@@ -145,7 +158,7 @@ html_theme = 'sphinx_rtd_theme'
 # further.  For a list of options available for each theme, see the
 # documentation.
 #
-# html_theme_options = {}
+html_theme_options = {}
 
 # For theme 'sphinx_rtd_theme':
 html_theme_options = {
@@ -166,8 +179,8 @@ html_theme_options = {
 # For theme 'alabaster':
 """html_theme_options = {
     #    'logo': logo.png,
-    'github_user': 'carlesmu',
-    'github_repo': 'isbg',
+    'github_user': cvar_github_usr,
+    'github_repo': cvar_github_prj,
     'show_related': True,
     'body_text_align': 'justify',
     'show_powered_by': True,
@@ -178,8 +191,8 @@ html_theme_options = {
     'gratipay_user': False,
     #    'sidebar_collapse': False,
     'extra_nav_links': {
-        u"🚀 Github": "https://github.com/carlesmu/isbg",
-        u"💾 Download Releases": "https://pypi.python.org/pypi/isbg",
+        u"🚀 Github": cvar_github_uri,
+        u"💾 Download Releases": cvar_pypi_uri,
         # u"🖴  Code coverage": "../../htmlcov/index.html",
         # u"📒 API Refence": "api_index.html"
     }
@@ -255,8 +268,6 @@ man_pages = [
      u'against SpamAssassin.',
      [author], 1)
 ]
-
-
 # -- Options for Texinfo output -------------------------------------------
 
 # Grouping the document tree into Texinfo files. List of tuples
@@ -267,7 +278,6 @@ texinfo_documents = [
      author, 'isbg', 'One line description of project.',
      'Miscellaneous'),
 ]
-
 
 # -- Options for Epub output ----------------------------------------------
 
@@ -336,4 +346,3 @@ def setup(app):
     """Configure sphinx."""
     app.connect('builder-inited', run_apidoc)
     app.connect('builder-inited', import_rsts)
-    app.connect('builder-inited', import_mds)

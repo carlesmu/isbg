@@ -4,7 +4,7 @@
 #
 
 # You can set these variables from the command line.
-SPHINXOPTS       = -a -E -n
+SPHINXOPTS       = -a -E -n -t autobuild
 SPHINXBUILD      = sphinx-build
 SPHINXAPIDOC     = sphinx-apidoc
 SPHINXAPIDOCOPTS = --force --separate --private --follow-links
