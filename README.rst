@@ -1,21 +1,15 @@
 .. isbg documentation master file, initially created by
    pandoc --from=markdown_github --to=rst --output=README.rst README.md
 
-.. only:: none
 
-    Stable: |travis stable| |rtd stable|
-
-    Default: |ccli mant default| |ccli cov default| |codecov default|
-
-    Master: |travis master| |rtd master| |codacy master| |codacy cov master|
-
-    v2.0-dev: |travis v2.0-dev| |rtd v2.0-dev| |codacy v2.0-dev|
-    |codacy cov v2.0-dev|
+Stable: |travis stable| |rtd stable|
 
 .. |travis stable| image:: https://travis-ci.org/carlesmu/isbg.svg?branch=stable
    :target: https://travis-ci.org/carlesmu/isbg
 .. |rtd stable| image:: https://readthedocs.org/projects/isbg/badge/?version=stable
    :target: http://isbg.readthedocs.io/en/stable/?badge=stable
+
+Default: |ccli mant default| |ccli cov default| |codecov default|
 
 .. |ccli mant default| image:: https://api.codeclimate.com/v1/badges/c487d0d5ee45186aded1/maintainability
    :target: https://codeclimate.com/github/carlesmu/isbg/maintainability
@@ -23,6 +17,8 @@
    :target: https://codeclimate.com/github/carlesmu/isbg/test_coverage
 .. |codecov default| image:: https://codecov.io/gh/carlesmu/isbg/branch/v2.0-dev/graph/badge.svg
    :target: https://codecov.io/gh/carlesmu/isbg
+
+Master: |travis master| |rtd master| |codacy master| |codacy cov master|
 
 .. |travis master| image:: https://travis-ci.org/carlesmu/isbg.svg?branch=master
    :target: https://travis-ci.org/carlesmu/isbg
@@ -32,6 +28,9 @@
    :target: https://www.codacy.com/app/carlesmu/isbg?utm_source=github.com&utm_medium=referral&utm_content=carlesmu/isbg&utm_campaign=Badge_Grade
 .. |codacy cov master| image:: https://api.codacy.com/project/badge/Coverage/e639e80142824c34bed0b13440136a01?branch=master
    :target: https://www.codacy.com/app/carlesmu/isbg?utm_source=github.com&utm_medium=referral&utm_content=carlesmu/isbg&utm_campaign=Badge_Coverage
+
+v2.0-dev: |travis v2.0-dev| |rtd v2.0-dev| |codacy v2.0-dev|
+|codacy cov v2.0-dev|
 
 .. |travis v2.0-dev| image:: https://travis-ci.org/carlesmu/isbg.svg?branch=v2.0-dev
    :target: https://travis-ci.org/carlesmu/isbg
@@ -55,8 +54,10 @@ be involved in mail delivery, and can run on completely different machines to
 where your mailbox actually is. So this is the perfect tool to take good care
 of your ISP mailbox without having to leave it.
 
-.. contents:: Table of Contents
-   :depth: 3
+.. only:: html
+
+    .. contents:: Table of Contents
+       :depth: 3
 
 Features
 --------
