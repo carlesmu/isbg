@@ -76,6 +76,7 @@ cov: cov-clean
 build-clean:
 	python setup.py clean
 	rm -fr build/build
+	rm -fr .eggs
 
 build:
 	python setup.py build -b build/build -t build/tmp
@@ -118,12 +119,12 @@ docs: html man
 	@echo "  See build/sphinx/man for generated manpages."
 
 # -------------------------------------------------------------------- #
-clean: test-clean sphinx-clean
+clean: test-clean sphinx-clean build-clean
 	find . -name '*.pyc' -exec rm -f {} +
 	rm -fr isbg/__pycache__
 	rm -fr tests/__pycache__
 
-distclean: clean tox-clean cov-clean docs-clean build-clean
+distclean: clean tox-clean cov-clean docs-clean
 	$(MAKE) -C docs clean-all
 	rm -fr build
 	rm -fr dist
