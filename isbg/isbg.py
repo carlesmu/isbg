@@ -616,7 +616,8 @@ class ISBG(object):
             self.do_passwordhash()
 
         self.logger.debug(__("Lock file is {}".format(self.lockfilename)))
-        self.logger.debug(__("Trackfile is {}".format(self.trackfile)))
+        self.logger.debug(__("Trackfile starts with {}".format(self.trackfile))
+                          )
         self.logger.debug(__(
             "Password file is {}".format(self.passwdfilename)))
         self.logger.debug(__("SpamFlags are {}".format(self.spamflags)))
