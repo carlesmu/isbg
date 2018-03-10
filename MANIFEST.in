@@ -6,5 +6,5 @@ graft bash_scripts
 recursive-include tests/ *.py
 include *.rst
 include docs/conf.py
-include docs/src/*.rst
+include docs/*.rst
 recursive-include . Makefile
