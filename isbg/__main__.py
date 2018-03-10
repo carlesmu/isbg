@@ -41,7 +41,8 @@ import os
 import sys
 
 try:
-    from docopt import docopt, DocoptExit  # Creating command-line interface
+    # Creating command-line interface
+    from docopt import docopt, DocoptExit, printable_usage
 except ImportError:
     sys.stderr.write("Missing dependency: docopt\n")
     raise
@@ -124,7 +125,13 @@ Command line Options::
   (Your inbox will remain untouched unless you specify --flag or
    --delete)
     """
-    pass
+
+
+__license__ = \
+    """License GPLv3: GNU GPL version 3 https://gnu.org/licenses/gpl.html
+
+This is free software: you are free to change and redistribute it. There is NO
+WARRANTY, to the extent permitted by law."""
 
 
 def parse_args(sbg):
@@ -142,19 +149,17 @@ def parse_args(sbg):
     """
     try:
         opts = docopt(__cmd_opts__.__doc__, version="isbg version " +
-                      isbg.__version__ + ", from " + os.path.abspath(__file__))
+                      isbg.__version__ + ", from :" +
+                      os.path.abspath(__file__) + "\n\n" + __license__)
         opts = dict([(k, v) for k, v in opts.items()
                      if v is not None])
     except DocoptExit as exc:
         raise isbg.ISBGError(isbg.__exitcodes__['flags'],
                              "Option processing failed - " + str(exc))
 
-    # Check for required options:
-    if not opts.get("--help") and not opts.get("--version"):
-        for opt in ['--imaphost', '--imapuser']:
-            if opts.get(opt) is None:
-                raise isbg.ISBGError(isbg.__exitcodes__['flags'],
-                                     "Missed required option: " + opt)
+    if opts.get("--usage"):
+        print(printable_usage(__cmd_opts__.__doc__))
+        return 1
 
     if opts.get("--deletehigherthan") is not None:
         try:
@@ -261,7 +266,8 @@ def main():
     """
     sbg = isbg.ISBG()
     try:
-        parse_args(sbg)
+        if parse_args(sbg) == 1:  # usage option
+            sys.exit(0)
         return sbg.do_isbg()  # return the exit code.
     except isbg.ISBGError as err:
         sys.stderr.write(err.message)
