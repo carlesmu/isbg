@@ -35,6 +35,7 @@ setup(
         ]
     },
     install_requires=['docopt', 'chardet'],
+    setup_requires=['pytest_runner'],
     tests_require=['pytest', 'mock', 'pytest-cov'],
     url='https://github.com/isbg/isbg',
     classifiers=[
