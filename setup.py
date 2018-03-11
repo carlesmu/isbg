@@ -5,6 +5,7 @@
 import ast
 import os
 import re
+import sys
 
 from setuptools import setup
 
@@ -17,6 +18,10 @@ _VERSION_RE = re.compile(r'__version__\s+=\s+(.*)')
 with open(os.path.join(os.path.dirname(__file__), 'isbg/isbg.py'), 'rb') as f:
     _VERSION = str(ast.literal_eval(_VERSION_RE.search(
         f.read().decode('utf-8')).group(1)))
+
+# Only setup_require pytest-runner when test are called
+needs_pytest = {'pytest', 'test', 'ptr'}.intersection(sys.argv)
+pytest_runner = ['pytest-runner'] if needs_pytest else []
 
 setup(
     name='isbg',
@@ -37,7 +42,7 @@ setup(
         ]
     },
     install_requires=['docopt', 'chardet'],
-    setup_requires=['pytest_runner'],
+    setup_requires=pytest_runner,
     tests_require=['pytest', 'mock', 'pytest-cov'],
     url='https://github.com/isbg/isbg',
     classifiers=[
