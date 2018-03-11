@@ -11,12 +11,12 @@ What has been done since last release.
   old ones as *$HOME/.isbg*.
 * A more robust package, it can be used as a module and a script.
 * Now we depend of *chardet* for better detect the mails encodings.
-* Using main() to run as script.
+* Using isbg/__main__ or ``python -m isbg`` to run as script.
 * python3 support.
 * Modularized.
 * Added a default --partialrun of 50. Use partialrun=0 to retain the
   old behaviour.
-* Ddocumentation: use sphinx and suport to upload it to `Read the docs`__.
+* Documentation: use sphinx and suport to upload it to `Read the docs`__.
 
 .. __: https://isbg.readthedocs.io/
 
