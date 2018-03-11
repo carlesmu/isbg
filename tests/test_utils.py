@@ -42,6 +42,12 @@ sys.path.insert(0, os.path.abspath(os.path.join(
 from isbg import utils  # noqa: E402
 
 
+def test_detect_enc():
+    """Test the detenct_enc function."""
+    assert 'encoding' in utils.detect_enc(b"foo")
+    assert 'encoding' in utils.detect_enc(b"")
+
+
 def test_hexof_dehexof():
     """Test the dehexof function."""
     dehex = utils.dehexof("50402A")

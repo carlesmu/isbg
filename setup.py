@@ -41,7 +41,11 @@ setup(
             'sa_unwrap = isbg.sa_unwrap:run',
         ]
     },
-    install_requires=['docopt', 'chardet'],
+    install_requires=['docopt'],
+    extras_require={
+        'chardet': ['chardet'],
+        'cchardet': ['cchardet'],
+    },
     setup_requires=pytest_runner,
     tests_require=['pytest', 'mock', 'pytest-cov'],
     url='https://github.com/isbg/isbg',

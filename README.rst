@@ -98,17 +98,18 @@ can be found on the `SpamAssassin wiki`_. *SpamAssassin* should be on your
 
 To run, ``isbg`` also depends on some python modules.
 
-- `chardet`_  for encoding detection.
-
 - `docopt`_ for command line options.
+
+- `cchardet`_ or `chardet`_  for encoding detection.
 
 - `xdg`_ to found the ``.cache`` directory. ``xdg`` is not required, if it's
   not installed, **isbg** will try to found ``.cache``.
 
 .. _Python home page: https://www.python.org/
 .. _SpamAssassin wiki: https://wiki.apache.org/spamassassin/FrontPage
-.. _chardet: https://pypi.python.org/pypi/chardet
 .. _docopt: https://pypi.python.org/pypi/docopt
+.. _cchardet: https://pypi.python.org/pypi/cchardet
+.. _chardet: https://pypi.python.org/pypi/chardet
 .. _xdg: https://pypi.python.org/pypi/docopt
 
 

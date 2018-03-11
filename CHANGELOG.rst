@@ -9,14 +9,15 @@ What has been done since last release.
   *$HOME/.cache/isbg/*. If you have stored your password with and old releases
   you should re-store it and delete the old stored files, you would find the
   old ones as *$HOME/.isbg*.
+* We use *cchardet* and *chardet* if installed for better detect the mails
+  encoding.
 * A more robust package, it can be used as a module and a script.
-* Now we depend of *chardet* for better detect the mails encodings.
 * Using isbg/__main__ or ``python -m isbg`` to run as script.
 * python3 support.
 * Modularized.
-* Added a default --partialrun of 50. Use partialrun=0 to retain the
+* Added a default --partialrun of 50. Use ``--partialrun=0`` to retain the
   old behaviour.
-* Documentation: use sphinx and suport to upload it to `Read the docs`__.
+* Documentation: use sphinx and support to upload it to `Read the docs`__.
 
 .. __: https://isbg.readthedocs.io/
 

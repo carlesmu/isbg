@@ -33,9 +33,50 @@ from __future__ import unicode_literals
 
 import os
 import re
-from chardet import detect           # To detect encoding
 from platform import python_version  # To check py version
 from subprocess import Popen, PIPE   # To call Popen
+
+try:
+    # C implementation:
+    import cchardet
+except ImportError:
+    try:
+        # Pure python implementation:
+        import chardet
+    except ImportError:
+        pass
+
+
+def detect_enc(byte_sring):
+    """Try to detect a encoding.
+
+    It uses the ``cchardet`` and ``chardet`` modules to detect the encoding.
+    If none of them are installed, it returns None.
+
+    Args:
+        byte_string (str | bytes): the byte string to detect.
+
+    Return:
+        dict: with at least the 'encoding' informed as returned by
+            :py:func:`cchardet.detect` and :py:func:`chardet.detect`.
+
+    """
+    try:
+        ret = cchardet.detect(byte_sring)
+    except NameError:
+        ret = None
+
+    if not ret or 'encoding' not in ret or not ret['encoding'] or \
+            ret['encoding'] == '':
+        try:
+            ret = chardet.detect(byte_sring)
+        except NameError:
+            pass
+
+    if not ret or not ret['encoding']:
+        return {'encoding': None}
+
+    return ret
 
 
 def hexdigit(char):
@@ -110,7 +151,7 @@ def get_ascii_or_value(value):
         methods of :py:class:`isbg.imaputils.IsbgImap4`.
 
         In `python2` if we get a `UnicodeDecodeError` we try first to get it
-        in the detected encoded using the `chardet` module.
+        in the detected encoded using the `cchardet` or `chardet` module.
 
     Examples:
         `Python2`:
@@ -146,8 +187,8 @@ def get_ascii_or_value(value):
                 return val
             else:
                 try:
-                    return val.decode(detect(val)['encoding'])
-                except UnicodeDecodeError:
+                    return val.decode(detect_enc(val)['encoding'])
+                except (UnicodeDecodeError, TypeError):
                     return val
 
     if isinstance(value, bytes):
