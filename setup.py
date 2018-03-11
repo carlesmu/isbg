@@ -8,11 +8,13 @@ import re
 
 from setuptools import setup
 
-LDESC = open(os.path.join(os.path.dirname(__file__), 'README.rst')).read()
+# We get the isbg README.rst as package long description:
+with open(os.path.join(os.path.dirname(__file__), 'README.rst'), 'rb') as f:
+    LDESC = f.read().decode('utf-8')
 
-# We get the version from isbg/isbg.py
+# We get the version from isbg/isbg.py:
 _VERSION_RE = re.compile(r'__version__\s+=\s+(.*)')
-with open('isbg/isbg.py', 'rb') as f:
+with open(os.path.join(os.path.dirname(__file__), 'isbg/isbg.py'), 'rb') as f:
     _VERSION = str(ast.literal_eval(_VERSION_RE.search(
         f.read().decode('utf-8')).group(1)))
 
