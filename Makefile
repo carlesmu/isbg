@@ -63,7 +63,7 @@ tox:
 	@$(TOX)
 
 cov-clean:
-	@$(COVREP) erase | clean
+	@$(COVREP) erase | true
 	rm -f .coverage
 	rm -fr $(COVDIR)
 
