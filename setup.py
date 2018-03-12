@@ -92,7 +92,7 @@ setup(
         'chardet': ['chardet'],
         'cchardet': ['cchardet'],
     },
-    setup_requires=pytest_runner,
+    setup_requires=pytest_runner + ['sphinx_rtd_theme', 'sphinx'],
     tests_require=['pytest', 'mock', 'pytest-cov'],
     url='https://github.com/isbg/isbg',
     classifiers=[
