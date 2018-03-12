@@ -265,21 +265,3 @@ BUGS
 ----
 
 You can report bugs on https://github.com/carlesmu/isbg/issues 
-
-
-AUTHOR
-------
-
-This software was mainly written Roger Binns <rogerb@rogerbinns.com> and
-maintained by Thomas Lecavelier <thomas@lecavelier.name> since novembre
-2009, and maintained by Carles Muñoz Gorriz <carlesmu@internautas.org>
-since march 2018.  
-
-
-COPYRIGHT
----------
-
-License GPLv3: GNU GPL version 3 https://gnu.org/licenses/gpl.html
-
-This is free software: you are free to change and redistribute it. There is
-NO WARRANTY, to the extent permitted by law.
