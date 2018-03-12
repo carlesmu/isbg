@@ -3,8 +3,9 @@ include CHANGELOG CONTRIBUTORS LICENSE README.rst requirements.txt tox.ini
 
 graft examples
 graft bash_scripts
+graft docs
 recursive-include tests/ *.py
-include *.rst
-include docs/conf.py
-include docs/*.rst
+recursive-include . *.rst
 recursive-include . Makefile
+prune build.sphinx/
+prune .tox/
