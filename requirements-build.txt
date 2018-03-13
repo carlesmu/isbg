@@ -1,4 +1,4 @@
-pytest-runner
-recommonmark
-sphinx_rtd_theme
-sphinx
+pytest-runner=2.11.1
+recommonmark=0.4.0
+sphinx_rtd_theme=0.2.4
+sphinx=1.6.7
