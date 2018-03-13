@@ -41,7 +41,14 @@ from .utils import __
 
 
 def mail_content(mail):
-    """Get the email message content."""
+    """Get the email message content.
+
+    Args:
+        mail (email.message.Message): The email message.
+    Returns:
+        bytes | str: The contents, with headers, of the email message.
+
+    """
     if not isinstance(mail, email.message.Message):
         raise email.errors.MessageError(
             "mail '{}' is not a email.message.Message.".format(repr(mail)))
@@ -52,7 +59,17 @@ def mail_content(mail):
 
 
 def new_message(body):
-    """Get a email.message from a body email."""
+    """Get a email.message from a body email.
+
+    Note: If there are problems encoding it, it will replace it to ascii.
+
+    Args:
+        body (bytes | str): The content, with or witout headers, of a email
+            message.
+    Returns:
+        email.message.Message: The object representing it.
+
+    """
     mail = None
 
     if isinstance(body, bytes):
