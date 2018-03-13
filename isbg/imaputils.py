@@ -28,10 +28,11 @@ from __future__ import division
 from __future__ import print_function
 from __future__ import unicode_literals
 
-import email      # To easily encapsulated emails messages
+import email          # To easily encapsulated emails messages
+import email.message  # required for typing.TypeVar to work in py3
 import imaplib
-import re         # For regular expressions
-import socket     # to catch the socket.error exception
+import re             # For regular expressions
+import socket         # to catch the socket.error exception
 import time
 
 from hashlib import md5
@@ -39,14 +40,26 @@ from hashlib import md5
 from isbg import utils
 from .utils import __
 
+from typing import List, TypeVar, Union
+
+Email = TypeVar(email.message.Message)
+Uid = Union[int, str]
+Uids = List[int]
+
 
 def mail_content(mail):
+    # type: (Email) -> AnyStr
     """Get the email message content.
 
     Args:
         mail (email.message.Message): The email message.
+
     Returns:
-        bytes | str: The contents, with headers, of the email message.
+        :obj:`bytes` or :obj:`str`: The contents, with headers, of the email
+        message. In python 3 it returns `bytes`.
+
+    Raises:
+        email.errors.MessageError:  if mail is not *bytes* nor *str*.
 
     """
     if not isinstance(mail, email.message.Message):
@@ -59,15 +72,20 @@ def mail_content(mail):
 
 
 def new_message(body):
+    # type: (AnyStr) -> Email
     """Get a email.message from a body email.
 
-    Note: If there are problems encoding it, it will replace it to ascii.
+    Note: If there are problems encoding it, it will replace it to *ascii*.
 
     Args:
-        body (bytes | str): The content, with or witout headers, of a email
-            message.
+        body (:obj:`bytes` or :obj:`str`): The content, with or without
+            headers, of a email message.
+
     Returns:
         email.message.Message: The object representing it.
+
+    Raises:
+        TypeError: If the content is empty.
 
     """
     mail = None
@@ -94,7 +112,22 @@ def new_message(body):
 
 
 def get_message(imap, uid, append_to=None, logger=None):
-    """Get a message by uid and optionaly append its uid to a list."""
+    # type: (IsbgImap4, Uid, Optional[Uids], Optional[logging.Logger]) -> Email
+    """Get a message by *uid* and optionally append it to a list.
+
+    Args:
+        imap (IsbgImap4): The imap helper object with the connection.
+        uid (:obj:`int` or :obj:`str`): A integer value with the *uid* of a
+            message to fetch from the *imap* connection.
+        append_to (:obj:`list` of :obj:`int`), optional): The integer value of
+            *uid* is appended to this list. Defaults to *None*.
+        logger (logging.Logger, optional): When a error is raised fetching the
+            mail a warning is written to this logger. Defaults to *None*.
+
+    Returns:
+        email.message.Message: The message fetched from the *imap* connection.
+
+    """
     res = imap.uid("FETCH", uid, "(BODY.PEEK[])")
     mail = email.message.Message()  # an empty email
     if res[0] != "OK":
@@ -116,19 +149,32 @@ def get_message(imap, uid, append_to=None, logger=None):
 
 
 def imapflags(flaglist):
-    """Transform a list to a string as expected for the IMAP4 standard."""
+    # type: (List[str]) -> str
+    """Transform a list to a string as expected for the IMAP4 standard.
+
+    Example:
+        >>> imapflags(['foo', 'boo')]
+        '(foo,boo)'
+
+    Args:
+        flaglist (:obj:`list` of :obj:`str`): The flag list to transform.
+
+    Returns:
+        str: A string with the flag list.
+
+    """
     return '(' + ','.join(flaglist) + ')'
 
 
 def bytes_to_ascii(func):
-    """Decorate a method to return his return value as ascii."""
+    """Decorate a method to return his return value as *ascii*."""
     def func_wrapper(cls, *args, **kwargs):
         return utils.get_ascii_or_value(func(cls, *args, **kwargs))
     return func_wrapper
 
 
 def assertok(name):
-    """Decorate with assertok."""
+    """Decorate with *assertok*."""
     def assertok_decorator(func):
         def func_wrapper(cls, *args, **kwargs):
             res = func(cls, *args, **kwargs)
@@ -145,7 +191,16 @@ def assertok(name):
 
 
 class IsbgImap4(object):
-    """Proxy class for `imaplib.IMAP4` and `imaplib.IMAP4_SSL`."""
+    """Proxy class for :obj:`imaplib.IMAP4` and :obj:`imaplib.IMAP4_SSL`.
+
+    It calls to the *IMAP4* or *IMAP4_SSL* methods but before it adds them
+    decorators to log the calls and to try to convert the returns values to
+    str.
+
+    The only original method is ``get_uidvalidity``, used to return the current
+    *uidvalidity* from a mailbox.
+
+    """
 
     def __init__(self, host='', port=143, nossl=False, assertok=None):
         """Create a imaplib.IMAP4[_SSL] with an assertok method."""
@@ -211,7 +266,16 @@ class IsbgImap4(object):
         return self.imap.uid(command, *args)
 
     def get_uidvalidity(self, mailbox):
-        """Validate a mailbox."""
+        """Validate a mailbox.
+
+        Args:
+            mailbox (str): the mailbox to check for its *uidvalidity*.
+
+        Returns:
+            int: The *uidvalidity* returned from the *imap* server. If it
+            cannot be decoded, it returns 0.
+
+        """
         uidvalidity = 0
         mbstatus = self.imap.status(mailbox, '(UIDVALIDITY)')
         if mbstatus[0] == 'OK':
@@ -254,7 +318,7 @@ def login_imap(imapsets, logger=None, assertok=None):
 
 
 class ImapSettings(object):
-    """Class to stote the imap and boxes settings."""
+    """Class to store the *imap* and imap folders settings."""
 
     def __init__(self):
         """Set Imap settings."""
@@ -279,12 +343,7 @@ class ImapSettings(object):
 
     @property
     def hash(self):
-        """Get the hash property built from the host, user and port.
-
-        :getter: Gets hash string.
-        :type: str.
-
-        """
+        """str: Get the hash property built from the host, user and port."""
         if self._hashed_host != self.host or \
                 self._hashed_user != self.user or \
                 self._hashed_port != self.port:
@@ -302,6 +361,9 @@ class ImapSettings(object):
             host (str): IMAP host name.
             user (str): IMAP user name.
             port (int): IMAP connection port.
+
+        Returns:
+            str: The generated hash.
 
         """
         newhash = md5()
