@@ -213,5 +213,12 @@ def test_main():
                            message="Not error or unexpected error"):
             __main__.main()
 
+    del sys.argv[1:]
+    sys.argv.append("--usage")
+    with mock.patch.object(isbg, "__name__", "__main__"):
+        with pytest.raises(SystemExit,
+                           message="Not Exit or unexpected error"):
+            __main__.main()
+
     # Restore pytest options:
     sys.argv = args[:]

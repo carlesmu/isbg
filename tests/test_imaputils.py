@@ -74,6 +74,10 @@ def test_new_message():
         imaputils.new_message(None)
     with pytest.raises((TypeError, AttributeError)):
         imaputils.new_message(body="")
+    with pytest.raises(TypeError, match="cannot be empty"):
+        imaputils.new_message(body=b"")
+    foo = imaputils.new_message(body=u"From:ñ@ñ.es")
+    assert isinstance(foo, email.message.Message)
 
 
 def test_get_message():
@@ -84,8 +88,7 @@ def test_get_message():
 
 def test_imapflags():
     """Test imapflags."""
-    #  FIXME:
-    pass
+    assert imaputils.imapflags(['foo', 'boo']) == '(foo,boo)'
 
 
 class TestIsbgImap4(object):
