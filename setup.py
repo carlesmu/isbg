@@ -20,7 +20,7 @@ class Build(_build):
         """Create the docs (html and manpage)."""
         ret = subprocess.call(['make', 'docs'])
         if ret != 0:
-            sys.stderr.write(u"Error in call to «make doc»")
+            sys.stderr.write("Error in call to make doc")
             sys.exit(ret)
         _build.run(self)
 
