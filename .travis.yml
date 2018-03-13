@@ -22,15 +22,13 @@ before_script:
 
 # command to install dependencies
 install:
-  - pip install -r requirements.txt # install requirements
-  - python setup.py install         # install isbg package
+  - pip install -r requirements-build.txt # install build requiriments
+  - pip install -r requirements.txt       # install requirements
+  - python setup.py install               # install isbg package
   - pip install coverage
   - pip install codecov             # for codecov
   - pip install pytest-cov          # for codecov usage
   - pip install codacy-coverage     # for codacy coverage
-  - pip install spamc               # For spamc tests
-  - pip install sphinx_rtd_theme    # for creating html
-  - pip install sphinx              # for creating docs
 
 # command to run tests
 script:
