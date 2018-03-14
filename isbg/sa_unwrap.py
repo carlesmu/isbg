@@ -125,7 +125,7 @@ it parses a rfc2822 email message and unwrap it if contains spam attached.
 Command line Options::
 
  Usage:
-  isbg_sa_unwrap.py [--from=<FROM_FILE>] [--to=<TO_FILE>]
+  isbg_sa_unwrap.py [--from <FROM_FILE>] [--to <TO_FILE>]
   isbg_sa_unwrap.py (-h | --help)
   isbg_sa_unwrap.py --usage
   isbg_sa_unwrap.py --version
@@ -160,7 +160,7 @@ def isbg_sa_unwrap():
         return
 
     if opts.get("--from"):
-        file_in = file(opts["--from"], 'rb')
+        file_in = open(opts["--from"], 'rb')
     else:
         file_in = sys.stdin
 
@@ -176,12 +176,15 @@ def isbg_sa_unwrap():
         return
 
     if opts.get("--to"):
-        file_out = file(opts["--to"], 'wb')
+        file_out = open(opts["--to"], 'wb')
     else:
         file_out = sys.stdout
+
     for spam in spams:
         file_out.write(spam.as_string())
-    file_out.close()
+
+    if file_out != sys.stdout:
+        file_out.close()
 
 
 if __name__ == '__main__':
