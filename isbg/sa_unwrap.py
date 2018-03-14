@@ -23,8 +23,8 @@ Examples:
 
     or::
 
-        $ sa_unwrap < examples/spam.from.spamassassin.eml
-        $ sa_unwrap < examples/spam.eml
+        $ isbg_sa_unwrap.py < examples/spam.from.spamassassin.eml
+        $ isbg_sa_unwrap.py < examples/spam.eml
 
 """
 
@@ -33,11 +33,24 @@ from __future__ import division
 from __future__ import print_function  # Now we can use print(...
 from __future__ import unicode_literals
 
-
 import email
 import email.message
 from io import IOBase
+import os
 import sys
+
+if __package__ is None and not hasattr(sys, 'frozen'):
+    # direct call of __sa_unwrap__.py
+    path = os.path.realpath(os.path.abspath(__file__))
+    sys.path.insert(0, os.path.dirname(os.path.dirname(path)))
+import isbg  # noqa: E402
+
+try:
+    # Creating command-line interface
+    from docopt import docopt, DocoptExit, printable_usage
+except ImportError:
+    sys.stderr.write("Missing dependency: docopt\n")
+    raise
 
 # works with python 2 and 3
 try:
@@ -97,25 +110,79 @@ def unwrap(mail):
         return sa_unwrap_from_email(mail)
     if isinstance(mail, FILE_TYPES):  # files are also stdin...
         return sa_unwrap_from_email(PARSE_FILE(mail))
-    return sa_unwrap_from_email(email.message_from_string(mail))
+    try:
+        mail = email.message_from_bytes(mail)  # py3 only
+    except AttributeError:
+        mail = email.message_from_string(mail)
+    return sa_unwrap_from_email(mail)
 
 
-def run():
+def __isbg_sa_unwrap_opts__():  # noqa: D207
+    """isbg-sa-unwrap.py unwrap a mail bundled by SpamAssassin.
+
+it parses a rfc2822 email message and unwrap it if contains spam attached.
+
+Command line Options::
+
+ Usage:
+  isbg_sa_unwrap.py [--from=<FROM_FILE>] [--to=<TO_FILE>]
+  isbg_sa_unwrap.py (-h | --help)
+  isbg_sa_unwrap.py --usage
+  isbg_sa_unwrap.py --version
+
+ Options:
+  -h, --help    Show the help screen.
+  --usage       Show the usage information.
+  --version     Show the version information.
+
+  -f FILE, --from=FILE  Filename of the email to read and unwrap. If not
+                        informed, the stdin will be used.
+  -t FILE, --to=FILE    Filename to write the unwrapped  email. If not
+                        informed, the stdout will be used.
+
+"""
+
+
+def isbg_sa_unwrap():
     """Run when this module is called from the command line."""
-    # select byte streams if they exist (on python 3)
-    if hasattr(sys.stdin, 'buffer'):
-        inb = sys.stdin.buffer    # pylint: disable=no-member
-    else:
-        # on python 2 use regular streams
-        inb = sys.stdin
+    try:
+        opts = docopt(__isbg_sa_unwrap_opts__.__doc__,
+                      version="isbg_sa_unwrap v" + isbg.__version__ +
+                      ", from: " + os.path.abspath(__file__) + "\n\n" +
+                      isbg.__license__)
+    except DocoptExit:
+        sys.stderr.write('Error with options!!!\n')
+        raise
 
-    spams = unwrap(inb)
-    if spams is not None:
-        for spam in spams:
-            print(spam.as_string())
+    if opts.get("--usage"):
+        sys.stdout.write(
+            "{}\n".format(printable_usage(__isbg_sa_unwrap_opts__.__doc__)))
+        return
+
+    if opts.get("--from"):
+        file_in = file(opts["--from"], 'rb')
     else:
-        print("No spam into the mail detected.")
+        file_in = sys.stdin
+
+    if hasattr(file_in, 'buffer'):
+        # select byte streams if they exist (on python 3)
+        file_in = file_in.buffer    # pylint: disable=no-member
+
+    spams = unwrap(file_in.read())
+    file_in.close()
+
+    if spams is None:
+        sys.stderr.write("No spam into the mail detected.\n")
+        return
+
+    if opts.get("--to"):
+        file_out = file(opts["--to"], 'wb')
+    else:
+        file_out = sys.stdout
+    for spam in spams:
+        file_out.write(spam.as_string())
+    file_out.close()
 
 
 if __name__ == '__main__':
-    run()
+    isbg_sa_unwrap()

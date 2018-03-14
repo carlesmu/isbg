@@ -79,7 +79,7 @@ setup(
     entry_points={
         'console_scripts': [
             'isbg = isbg.__main__:main',
-            'sa_unwrap = isbg.sa_unwrap:run',
+            'isbg_sa_unwrap = isbg.sa_unwrap:isbg_sa_unwrap',
         ]
     },
     cmdclass={
