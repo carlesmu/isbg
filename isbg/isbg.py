@@ -66,6 +66,12 @@ Note:
 
 __version__ = "2.0-dev"  #: The current isbg version
 
+__license__ = \
+    """License GPLv3: GNU GPL version 3 https://gnu.org/licenses/gpl.html
+
+This is free software: you are free to change and redistribute it. There is NO
+WARRANTY, to the extent permitted by law."""
+
 __exitcodes__ = {
     'ok': 0,
     'newmsgs': 1,

@@ -127,13 +127,6 @@ Command line Options::
     """
 
 
-__license__ = \
-    """License GPLv3: GNU GPL version 3 https://gnu.org/licenses/gpl.html
-
-This is free software: you are free to change and redistribute it. There is NO
-WARRANTY, to the extent permitted by law."""
-
-
 def parse_args(sbg):
     """Argument processing of the command line.
 
@@ -148,9 +141,9 @@ def parse_args(sbg):
         >>> parse_args(sbg)
     """
     try:
-        opts = docopt(__cmd_opts__.__doc__, version="isbg version " +
-                      isbg.__version__ + ", from :" +
-                      os.path.abspath(__file__) + "\n\n" + __license__)
+        opts = docopt(__cmd_opts__.__doc__, version="isbg_v" +
+                      isbg.__version__ + ", from: " +
+                      os.path.abspath(__file__) + "\n\n" + isbg.__license__)
         opts = dict([(k, v) for k, v in opts.items()
                      if v is not None])
     except DocoptExit as exc:
