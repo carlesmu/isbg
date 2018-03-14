@@ -109,21 +109,36 @@ def test_unwrap():
     assert sa_unwrap.unwrap(email.message.Message()) is None
 
 
-def test_run(capsys):
+def test_isbg_sa_unwrap(capsys):
     """Test no multipart spam mail."""
-    f = open('examples/spam.eml').read()
-    sys.stdin = f
-    sa_unwrap.run()
+    # Remove pytest options:
+    args = sys.argv[:]
+    del sys.argv[1:]
+
+    sys.argv.append('-f')
+    sys.argv.append('examples/spam.eml')
+    sa_unwrap.isbg_sa_unwrap()
     out, err = capsys.readouterr()
-    assert out == "No spam into the mail detected.\n"
+    assert err == "No spam into the mail detected.\n"
+
+    # Restore pytest options:
+    sys.argv = args[:]
+    print(sys.argv)
 
 
-def test_run_main(capsys):
+def test_isbg_sa_unwrap_main(capsys):
     """Test multipart spam mail. Returns the multipart message."""
+    # Remove pytest options:
+    args = sys.argv[:]
+    del sys.argv[1:]
+
     with mock.patch.object(sa_unwrap, "__name__", "__main__"):
-        f = open('examples/spam.from.spamassassin.eml').read()
-        sys.stdin = f
-        sa_unwrap.run()
+        sys.argv.append('-f')
+        sys.argv.append('examples/spam.from.spamassassin.eml')
+        sa_unwrap.isbg_sa_unwrap()
         out, err = capsys.readouterr()
         assert (out.startswith("Return-Path: <2587-84-162546-580") or
                 out.startswith("Return-Path: \n <2587-84-162546-580"))
+
+    # Restore pytest options:
+    sys.argv = args[:]
