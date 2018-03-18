@@ -1,5 +1,5 @@
-Command line usage
-==================
+Manual page for isbg
+====================
 
 SYNOPSIS
 --------
@@ -37,14 +37,17 @@ OPTIONS
     IMAP server name
 **--imapuser** *username*
     Who you login as
+
 **--imaplist**
     List imap directories
+
 **-h**, **--help**
     Show the help screen
 **--usage**
     Show usage information
 **--version**
-    Show the version information
+    Show version information
+
 **--dryrun**
     Do not actually make any changes
 **--delete**
@@ -155,6 +158,7 @@ Scan your account for spam
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 In future uses you can scan for spam with:
+
     ``isbg --imaphost  mail.foo.com --imapuser rogerb@mail.foo.com``
 
 After some time, it will return the stats:
