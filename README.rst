@@ -2,10 +2,8 @@
    pandoc --from=markdown_github --to=rst --output=README.rst README.md
 
 
-Stable: |travis stable| |rtd stable|
+Stable: |rtd stable|
 
-.. |travis stable| image:: https://travis-ci.org/carlesmu/isbg.svg?branch=stable
-   :target: https://travis-ci.org/carlesmu/isbg
 .. |rtd stable| image:: https://readthedocs.org/projects/isbg/badge/?version=stable
    :target: http://isbg.readthedocs.io/en/stable/?badge=stable
 
