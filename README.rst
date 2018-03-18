@@ -220,13 +220,13 @@ You can also unwrap *SpamAssassin* bundled emails with ``isbg_sa_unwrap``,
 you can use the ``--help`` option to check the available options or
 ``$ man isbg_sa_unwrap`` to check its manual page [#]_.
 
-.. [#] You can see it in :doc:`manpage.isbg`
-page or if you are reading this from `github manpage.isbg doc`__
+.. [#] You can see it in :doc:`manpage.isbg` page or if you are reading this
+   from `github manpage.isbg doc`__
+
+.. [#] You can see it in :doc:`manpage.isbg_sa_unwrap` page or if you are
+   reading this from `github manpage.isbg_sa_unwrap doc`__
 
 .. __: docs/manpage.isbg.rst
-
-.. [#] You can see it in :doc:`manpage.isbg_sa_unwrap`
-page or if you are reading this from `github manpage.isbg_sa_unwrap doc`__
 
 .. __: docs/manpage.isbg_sa_unwrap.rst
 
