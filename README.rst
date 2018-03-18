@@ -29,18 +29,6 @@ Master: |travis master| |rtd master| |codacy master| |codacy cov master|
 .. |codacy cov master| image:: https://api.codacy.com/project/badge/Coverage/e639e80142824c34bed0b13440136a01?branch=master
    :target: https://www.codacy.com/app/carlesmu/isbg?utm_source=github.com&utm_medium=referral&utm_content=carlesmu/isbg&utm_campaign=Badge_Coverage
 
-v2.0-dev: |travis v2.0-dev| |rtd v2.0-dev| |codacy v2.0-dev|
-|codacy cov v2.0-dev|
-
-.. |travis v2.0-dev| image:: https://travis-ci.org/carlesmu/isbg.svg?branch=v2.0-dev
-   :target: https://travis-ci.org/carlesmu/isbg
-.. |rtd v2.0-dev| image:: https://readthedocs.org/projects/isbg/badge/?version=v2.0-dev
-   :target: http://isbg.readthedocs.io/en/v2.0-dev/?badge=v2.0-dev
-.. |codacy v2.0-dev| image:: https://api.codacy.com/project/badge/Grade/e639e80142824c34bed0b13440136a01?branch=v2.0-dev
-   :target: https://www.codacy.com/app/carlesmu/isbg?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=carlesmu/isbg&amp;utm_campaign=Badge_Grade
-.. |codacy cov v2.0-dev| image:: https://api.codacy.com/project/badge/Coverage/e639e80142824c34bed0b13440136a01?branch=v2.0-dev
-   :target: https://www.codacy.com/app/carlesmu/isbg?utm_source=github.com&utm_medium=referral&utm_content=carlesmu/isbg&utm_campaign=Badge_Coverage
-
 
 IMAP Spam Begone
 ================
