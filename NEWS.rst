@@ -1,8 +1,15 @@
 News [#]_
 =========
 
+News in x.x.x
+-------------
+
+
+News in old releases
+--------------------
+
 New in 2.0.0
-------------
+~~~~~~~~~~~~
 
 * Use of standard localization folders. You must store your password again.
 * Added documentation in `Read the docs`__.
@@ -10,11 +17,8 @@ New in 2.0.0
 
 .. __: https://isbg.readthedocs.io/
 
-News in old releases
---------------------
-
 New in 1.00
-^^^^^^^^^^^
+~~~~~~~~~~~
 
 **DEPRECATION NOTICE:** if you used the `--ssl` parameter in 0.99, you now
 need to stop using it! SSL is now used by default. If you want not to use
