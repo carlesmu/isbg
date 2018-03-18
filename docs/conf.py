@@ -273,7 +273,10 @@ latex_documents = [
 man_pages = [
     ('manpage.isbg', 'isbg', u'scans an IMAP Inbox and runs every entry ' +
      u'against SpamAssassin.',
-     [author], 1)
+     [author], 1),
+    ('manpage.isbg_sa_unwrap', 'isbg_sa_unwrap', u'unwraps a email bundeled ' +
+     u'by SpamAssassin.',
+     [author], 1),
 ]
 # -- Options for Texinfo output -------------------------------------------
 

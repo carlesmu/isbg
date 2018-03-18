@@ -12,9 +12,10 @@
 
    README
    NEWS
-   manpage.isbg
    CHANGELOG
    TODO
+   manpage.isbg
+   manpage.isbg_sa_unwrap
    api_index
 
 .. include:: README.rst
