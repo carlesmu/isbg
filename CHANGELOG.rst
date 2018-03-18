@@ -20,6 +20,7 @@ What has been done since last release.
 * Renamed sa_unwrap script to isbg_sa_unwrap, added command line options,
   manual page. Now it also depends of docopt.
 * Documentation: use sphinx and support to upload it to `Read the docs`__.
+* Examples: added a crontab example in the bash_scripts directory.
 
 .. __: https://isbg.readthedocs.io/
 
