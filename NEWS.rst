@@ -1,8 +1,8 @@
 News [#]_
 =========
 
-New in 2.0
-----------
+New in 2.0.0
+------------
 
 * Use of standard localization folders. You must store your password again.
 * Added documentation in `Read the docs`__.

@@ -1,9 +1,13 @@
 Changelog
 =========
 
-Development
------------
 What has been done since last release.
+
+Released
+--------
+
+isbg 2.0.0 (20180318)
+~~~~~~~~~~~~~~~~~~~~~
 
 * Using standard cache *xdg_cache_home* to store information, usually
   *$HOME/.cache/isbg/*. If you have stored your password with and old releases
@@ -24,9 +28,8 @@ What has been done since last release.
 
 .. __: https://isbg.readthedocs.io/
 
-
-Released
---------
+Old Releases
+------------
 
 isbg 1.00 (20160106)
 ~~~~~~~~~~~~~~~~~~~~
