@@ -306,11 +306,11 @@ class SpamAssassin(object):
 
         self.imap.select(folder)
         if self.learnunflagged:
-            typ, uids = self.imap.uid("SEARCH", None, "UNFLAGGED")
+            _, uids = self.imap.uid("SEARCH", None, "UNFLAGGED")
         elif self.learnflagged:
-            typ, uids = self.imap.uid("SEARCH", None, "(FLAGGED)")
+            _, uids = self.imap.uid("SEARCH", None, "(FLAGGED)")
         else:
-            typ, uids = self.imap.uid("SEARCH", None, "ALL")
+            _, uids = self.imap.uid("SEARCH", None, "ALL")
 
         uids, sa_learning.newpastuids = SpamAssassin.get_formated_uids(
             uids, origpastuids, self.partialrun)
@@ -438,7 +438,7 @@ class SpamAssassin(object):
         self.imap.select(self.imapsets.inbox, 1)
 
         # get the uids of all mails with a size less then the maxsize
-        typ, uids = self.imap.uid("SEARCH", None, "SMALLER", str(self.maxsize))
+        _, uids = self.imap.uid("SEARCH", None, "SMALLER", str(self.maxsize))
 
         uids, sa_proc.newpastuids = SpamAssassin.get_formated_uids(
             uids, origpastuids, self.partialrun)
