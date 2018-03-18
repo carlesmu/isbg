@@ -5,7 +5,7 @@ High priority
 -------------
 * ☑ Write program as main()
 * ☑ Set a 50 emails partial run defaut and loop it.
-* ☐ Add a manpage.
+* ☑ Add a manpage.
 
 Other stuff
 -----------

@@ -8,7 +8,7 @@ isbg\_sa\_unwrap [**--from** *<FROM\_FILE>*] [**--to** *<TO\_FILE>*]
 
 isbg\_sa\_unwrap (**-h** \| **--help**)
 
-isbg\_sa\_unwrap **--usage** 
+isbg\_sa\_unwrap **--usage**
 
 isbg\_sa\_unwrap.py **--version**
 
@@ -50,4 +50,4 @@ The full documentation for isbg is maintained in https://isbg.readthedocs.io/
 BUGS
 ----
 
-You can report bugs on https://github.com/carlesmu/isbg/issues 
+You can report bugs on https://github.com/carlesmu/isbg/issues

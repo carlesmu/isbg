@@ -5,7 +5,7 @@ Development
 -----------
 What has been done since last release.
 
-* Using standard cache *xdg_cache_home* to store information, usually 
+* Using standard cache *xdg_cache_home* to store information, usually
   *$HOME/.cache/isbg/*. If you have stored your password with and old releases
   you should re-store it and delete the old stored files, you would find the
   old ones as *$HOME/.isbg*.
@@ -17,6 +17,8 @@ What has been done since last release.
 * Modularized.
 * Added a default --partialrun of 50. Use ``--partialrun=0`` to retain the
   old behaviour.
+* Renamed sa_unwrap script to isbg_sa_unwrap, added command line options,
+  manual page. Now it also depends of docopt.
 * Documentation: use sphinx and support to upload it to `Read the docs`__.
 
 .. __: https://isbg.readthedocs.io/

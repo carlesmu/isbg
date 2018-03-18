@@ -83,13 +83,13 @@ Installation
 ------------
 
 **isbg** install a python package module and also a script to use it ``isbg``,
-it also install another script to unwrap messages: ``sa_unwrap``.
+it also install another script to unwrap messages: ``isbg_sa_unwrap``.
 
 Dependencies
 ~~~~~~~~~~~~
 
 **isbg** is written in the Python language. Python is installed by default on
-most Linux systems. You can can find out more about Python at 
+most Linux systems. You can can find out more about Python at
 `Python home page`_.
 
 Make sure you have *SpamAssassin* installed. All the necessary information
@@ -199,7 +199,7 @@ by::
     OPTIONS="-D --allow-tell --create-prefs --max-children 5 \
     --helper-home-dir"
 
-Don't forget to restart your ``spamd`` server after that (``sudo service 
+Don't forget to restart your ``spamd`` server after that (``sudo service
 spamassassin restart`` on *Debian*).
 
 
@@ -214,10 +214,21 @@ Your first step is to create a new folder to receive suspected spam.
 I use one named 'spam'.
 
 Run isbg with the ``--help`` option to see what options are available or check
-his manual page with ``$ man isbg``.  You can see it in :doc:`manpage.isbg`
+its manual page with ``$ man isbg`` [#]_.
+
+You can also unwrap *SpamAssassin* bundled emails with ``isbg_sa_unwrap``,
+you can use the ``--help`` option to check the available options or
+``$ man isbg_sa_unwrap`` to check its manual page [#]_.
+
+.. [#] You can see it in :doc:`manpage.isbg`
 page or if you are reading this from `github manpage.isbg doc`__
 
 .. __: docs/manpage.isbg.rst
+
+.. [#] You can see it in :doc:`manpage.isbg_sa_unwrap`
+page or if you are reading this from `github manpage.isbg_sa_unwrap doc`__
+
+.. __: docs/manpage.isbg_sa_unwrap.rst
 
 
 How does it work?
@@ -342,7 +353,7 @@ There are two types of deletion on a *Gmail* server.
     option, then a Type 2 delete occurs, only removing the single label.
 
 Reference information was taken from `gmail IMAP usage`_.
- 
+
 .. _gmail IMAP usage: https://support.google.com/mail/answer/78755?hl=en
 
 

@@ -5,7 +5,7 @@
    :maxdepth: 3
    :glob:
    :includehidden:
-   
+
    modules
 
 Main Objects and functions
