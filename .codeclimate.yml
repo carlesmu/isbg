@@ -52,7 +52,7 @@ plugins:
     enabled: true
   pep8:
     enabled: true
-  radon: 
+  radon:
     enabled: true
   markdownlint:
     enabled: true
