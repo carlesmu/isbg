@@ -10,7 +10,7 @@ Other stuff
 -----------
 * ☐ Export documentation.
 * ☐ Add documentation about development.
-* ☐ Easily upload to pypy.
+* ☐ Easily upload to pypi.
 * ☐ Auto report messages to Razor (high scoring ones that are definitely spam)
 * ☐ Seperate out messages that may be false positives (scores close to
   SpamAssassin thresholds) from the definite spam ones.
