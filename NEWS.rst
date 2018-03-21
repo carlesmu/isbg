@@ -4,6 +4,7 @@ News [#]_
 News in x.x.x
 -------------
 
+* Minor improvements.
 
 News in old releases
 --------------------
