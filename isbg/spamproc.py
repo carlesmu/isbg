@@ -352,9 +352,14 @@ class SpamAssassin(object):
                     "Learned {} (spamc return code {})".format(uid,
                                                                code_orig)))
 
-            elif code == 6:  # already learn,
+            elif code == 6:  # already learned.
                 self.logger.debug(__(
-                    "Already learn {} (spamc return code {})".format(
+                    "Already learned {} (spamc return code {})".format(
+                        uid, code_orig)))
+
+            elif code == 98:  # too big.
+                self.logger.warning(__(
+                    "{} is too big (spamc return code {})".format(
                         uid, code_orig)))
 
             else:

@@ -24,6 +24,8 @@ isbg 2.0.0 (20180318)
 * Modularized.
 * Added a default --partialrun of 50. Use ``--partialrun=0`` to retain the
   old behaviour.
+* Don't raise a error when learning a too big email spam (spamc return code
+  98).
 * Renamed sa_unwrap script to isbg_sa_unwrap, added command line options,
   manual page. Now it also depends of docopt.
 * Documentation: use sphinx and support to upload it to `Read the docs`__.
