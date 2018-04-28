@@ -25,7 +25,12 @@ it, e.g.::
     $ git hub pull attach -c master 2 feature/DESCRIPTION
 
 If the the git hub pull command doesn't work, you can use the github
-web interface to do the pull request.
+web interface to do the pull request and attach it adding ``#2`` to
+the pull request.
+
+The working and stable features shhould be merged to master before
+a new release, and also closed. To close the user ``closes 2`` in
+the commit message.
 
 
 Versioning schema
