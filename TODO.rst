@@ -15,6 +15,8 @@ Other stuff
 * ☐ Seperate out messages that may be false positives (scores close to
   SpamAssassin thresholds) from the definite spam ones.
 * ☐ Add documentation for the crontab usage.
+* ☐ Remove the *SpamAssassin* report from a mail when it is in the `ham`
+  folder.
 
 Notes
 ^^^^^
