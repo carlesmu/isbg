@@ -21,8 +21,8 @@ it, e.g.::
     $ ...                               # DO changes and commit them
     $ # Push the changes to github:
     $ git push --set-upstream origin feature/DESCRIPTION
-    $ # Attach the changes to issue 2:
-    $ git hub pull attach -c master 2 feature/DESCRIPTION
+    $ git hub pull attach 2             # Attach the changes to issue 2
+
 
 Versioning schema
 -----------------
