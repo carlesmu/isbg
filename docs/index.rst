@@ -14,6 +14,7 @@
    NEWS
    CHANGELOG
    TODO
+   development
    manpage.isbg
    manpage.isbg_sa_unwrap
    api_index
