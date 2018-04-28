@@ -19,7 +19,8 @@ it, e.g.::
     $ git branch feature/DESCRIPTION    # Creates the new branch
     $ git checkout feature/DESCRIPTION  # Change to the new branch
     $ ...                               # DO changes and commit them
-    $ git push                          # Push the changes to github
+    $ # Push the changes to github:
+    $ git push --set-upstream origin feature/DESCRIPTION
     $ git hub pull attach 2             # Attach the changes to issue 2
 
 
