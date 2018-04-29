@@ -1,10 +1,12 @@
 News [#]_
 =========
 
-News in x.x.x
+News in 2.1.0
 -------------
 
 * Minor improvements.
+* The stored password file format has changed. You must store your password
+  again.
 
 News in old releases
 --------------------

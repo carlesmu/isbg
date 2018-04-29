@@ -6,11 +6,17 @@ What has been done since last release.
 Unreleased
 ----------
 
-* Don't raise a error when learning a too big email spam (spamc return code
-  98).
-
 Released
 --------
+
+isbg 2.1.0 (20180429)
+~~~~~~~~~~~~~~~~~~~~~
+
+* Don't raise a error when learning a too big email spam (spamc return code
+  98).
+* Added development documentation.
+* Password is now stored as json data file.
+
 
 isbg 2.0.0 (20180318)
 ~~~~~~~~~~~~~~~~~~~~~
