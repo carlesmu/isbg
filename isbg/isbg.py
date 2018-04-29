@@ -24,6 +24,7 @@ import os
 import sys     # Because sys.stderr.write() is called bellow
 
 from isbg import imaputils
+from isbg import secrets
 from isbg import spamproc
 from isbg import utils
 
@@ -35,11 +36,6 @@ import json
 import logging
 import re
 import time
-
-try:
-    from hashlib import md5
-except ImportError:
-    from md5 import md5
 
 # xdg base dir specification (only xdg_cache_home is used)
 try:
@@ -262,14 +258,6 @@ class ISBG(object):
             to not reprocess them. Default to ``None`` when initialized and
             initialized the first time that is needed.
 
-    Other attributes not from the command line args:
-
-    Attributes:
-        passwordhash (byte): The obfuscated password. Defaults to
-            ``None``.
-        passwordhashlen (int): Length of the password hash. should be a
-            multiple of 16. Default 256.
-
     """
 
     def __init__(self):
@@ -310,7 +298,6 @@ class ISBG(object):
         self.lockfilegrace = 240.0
         # Password options (a vague level of obfuscation):
         self.passwdfilename, self.savepw = (None, False)
-        self.passwordhash, self.passwordhashlen = (None, 256)
         # Trackfile options:
         self.trackfile, self.partialrun = (None, 50)
 
@@ -376,29 +363,6 @@ class ISBG(object):
         if os.path.exists(self.lockfilename):
             os.remove(self.lockfilename)
 
-    # Password stuff
-    def getpw(self, data, shash):
-        """Deobfuscate IMAP password."""
-        res = ""
-        for i in range(0, self.passwordhashlen):
-            j = ord(data[i]) ^ ord(shash[i])
-            if j == 0:
-                break
-            res = res + chr(j)
-        return res
-
-    def setpw(self, passwd, shash):
-        """Obfuscate password."""
-        if len(passwd) > self.passwordhashlen:
-            raise ValueError(__(
-                ("Password of length %d is too long to store " +
-                 "(max accepted is %d)").format(len(passwd),
-                                                self.passwordhashlen)))
-        res = list(shash)
-        for i, pasw in enumerate(passwd):
-            res[i] = chr(ord(res[i]) ^ ord(pasw))
-        return ''.join(res)
-
     def assertok(self, res, *args):
         """Check that the return code is OK.
 
@@ -459,22 +423,6 @@ class ISBG(object):
         json.dump(struct, wfile)
         wfile.close()
 
-    def do_passwordhash(self):
-        """Create the passwordhash."""
-        # We make hash that the password is xor'ed against
-        mdh = md5()
-        mdh.update(self.imapsets.host.encode())
-        mdh.update(self.imapsets.hash.digest())
-        mdh.update(self.imapsets.user.encode())
-        mdh.update(self.imapsets.hash.digest())
-        mdh.update(repr(self.imapsets.port).encode())
-        mdh.update(self.imapsets.hash.digest())
-        self.passwordhash = self.imapsets.hash.hexdigest()
-        while len(self.passwordhash) < self.passwordhashlen:
-            self.imapsets.hash.update(self.passwordhash.encode())
-            self.passwordhash = self.passwordhash + \
-                self.imapsets.hash.hexdigest()
-
     def _do_lockfile_or_raise(self):
         """Create the lockfile or raise a error if it exists."""
         if (os.path.exists(self.lockfilename) and
@@ -497,9 +445,10 @@ class ISBG(object):
         if (self.savepw is False and
                 os.path.exists(self.passwdfilename) is True):
             try:
-                self.imapsets.passwd = self.getpw(utils.dehexof(open(
-                    self.passwdfilename, "rb").read().decode()),
-                    self.passwordhash)
+                sec = secrets.SecretIsbg(filename=self.passwdfilename,
+                                         imapset=self.imapsets)
+                self.imapsets.passwd = sec.get("password")
+                del sec
                 self.logger.debug("Successfully read password file")
             except Exception:  # pylint: disable=broad-except
                 self.logger.exception('Error reading pw!')
@@ -516,14 +465,13 @@ class ISBG(object):
 
     def _do_save_password(self):
         """Save password to the password file."""
-        wfile = open(self.passwdfilename, "wb+")
         try:
-            os.chmod(self.passwdfilename, 0o600)
+            sec = secrets.SecretIsbg(filename=self.passwdfilename,
+                                     imapset=self.imapsets)
+            sec.set("password", self.imapsets.passwd)
+            del sec
         except Exception:  # pylint: disable=broad-except
             self.logger.exception('Error saving pw!')
-        wfile.write(utils.hexof(self.setpw(self.imapsets.passwd,
-                                           self.passwordhash)).encode())
-        wfile.close()
 
     def do_list_imap(self):
         """List the imap boxes."""
@@ -618,9 +566,6 @@ class ISBG(object):
         if self.passwdfilename is None:
             self.passwdfilename = ISBG.set_filename(self.imapsets, "password")
 
-        if self.passwordhash is None:
-            self.do_passwordhash()
-
         self.logger.debug(__("Lock file is {}".format(self.lockfilename)))
         self.logger.debug(__("Trackfile starts with {}".format(self.trackfile))
                           )
@@ -638,14 +583,14 @@ class ISBG(object):
         if self.imapsets.passwd is None:
             self._do_get_password()
 
-        # Should we save it?
-        if self.savepw:
-            self._do_save_password()
-
         # ***** Main code starts here *****
 
         # Connection with the imaplib server
         self.do_imap_login()
+
+        # Should we save it?
+        if self.savepw:
+            self._do_save_password()
 
         if self.imaplist:
             # List imap directories
