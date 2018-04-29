@@ -5,6 +5,7 @@ What has been done since last release.
 
 Unreleased
 ----------
+* Improved development documentation.
 
 Released
 --------
