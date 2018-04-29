@@ -57,7 +57,5 @@ You should:
 #. Tag the new version in `isbg github releases`_, add the news added for this
    version in ``NEWS.rst`` to the comment. Remember to add '**v**' at the start
    of the version.
-#. Login to `readthedocs`_ and update the available versions.
 
 .. _isbg github releases: https://github.com/carlesmu/isbg/releases
-.. _readthedocs: http://readthedocs.io/
