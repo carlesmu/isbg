@@ -59,7 +59,7 @@ class Secret(object):
         return None
 
     @abc.abstractmethod
-    def set(self, key, value, override=True):
+    def set(self, key, value, overwrite=True):
         """Set a value of a key."""
         pass
 
