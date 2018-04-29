@@ -40,6 +40,10 @@ be involved in mail delivery, and can run on completely different machines to
 where your mailbox actually is. So this is the perfect tool to take good care
 of your ISP mailbox without having to leave it.
 
+You can read the full documentation in `Read the docs`_.
+
+.. _Read the docs: https://isbg.readthedocs.io/
+
 .. only:: html
 
     .. contents:: Table of Contents
