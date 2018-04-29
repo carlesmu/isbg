@@ -187,12 +187,9 @@ class SecretIsbg(Secret):
 
         json_data[key] = utils.hexof(self._obfuscate(value))
 
-        try:
-            with open(self.filename, "w+") as json_file:
-                os.chmod(self.filename, 0o600)
-                json.dump(json_data, json_file)
-        except EnvironmentError as err:
-            raise err
+        with open(self.filename, "w+") as json_file:
+            os.chmod(self.filename, 0o600)
+            json.dump(json_data, json_file)
 
 
 class SecretFileKeyring(Secret):
