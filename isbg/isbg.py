@@ -583,14 +583,14 @@ class ISBG(object):
         if self.imapsets.passwd is None:
             self._do_get_password()
 
-        # Should we save it?
-        if self.savepw:
-            self._do_save_password()
-
         # ***** Main code starts here *****
 
         # Connection with the imaplib server
         self.do_imap_login()
+
+        # Should we save it?
+        if self.savepw:
+            self._do_save_password()
 
         if self.imaplist:
             # List imap directories
