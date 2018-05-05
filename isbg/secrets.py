@@ -40,6 +40,7 @@ except ImportError:
 
 import abc
 import json
+import logging
 import os
 
 from hashlib import md5
@@ -49,39 +50,27 @@ from .utils import __
 
 
 class Secret(object):
-    """Abstract class used to store secret info."""
+    """Abstract class used to store secret info.
 
-    __metaclass__ = abc.ABCMeta
-
-    @abc.abstractmethod
-    def get(self, key):
-        """Get the value a key stored."""
-        return None
-
-    @abc.abstractmethod
-    def set(self, key, value, overwrite=True):
-        """Set a value of a key."""
-        pass
-
-
-class SecretIsbg(Secret):
-    """Class used to store secret info using our own implementation.
-
-    .. versionchanged 2.1.0:
-       It can store more than one key. In older versions it can store a value.
-       It **breaks old secrets stored.**
+    .. versionchanged 2.1.1:
+       Added attribute **logger**.
+       Added method **delete**.
 
     Attributes:
-        filename: the filename used to read or store the key and values.
         imapset (isbg.imaputils.ImapSettings): A imap setings object.
         hashlen (int): Length of the value hash. Must be a multiple of 16.
             Default 256.
 
     """
 
-    def __init__(self, filename, imapset, hashlen=256):
-        """Initialize a SecretISBG object."""
-        self.filename = filename
+    __metaclass__ = abc.ABCMeta
+
+    #: Logger object used to show debug info.
+    logger = logging.getLogger(__name__)
+    logger.addHandler(logging.StreamHandler())
+
+    def __init__(self, imapset, hashlen=256):
+        """Initialize a SecretKeyring object."""
         self.imapset = imapset
         self.hashlen = hashlen
 
@@ -116,6 +105,44 @@ class SecretIsbg(Secret):
             self.imapset.hash.update(the_hash.encode())
             the_hash = the_hash + self.imapset.hash.hexdigest()
         return the_hash
+
+    @abc.abstractmethod
+    def get(self, key):
+        """Get the value a key stored."""
+        return None
+
+    @abc.abstractmethod
+    def set(self, key, value, overwrite=True):
+        """Set a value of a key."""
+        pass
+
+    @abc.abstractmethod
+    def delete(self, key):
+        """Delete a stored key and his value."""
+        pass
+
+
+class SecretIsbg(Secret):
+    """Class used to store secret info using our own implementation.
+
+    .. versionchanged 2.1.0:
+       It can store more than one key. In older versions it can store a value.
+       It **breaks old secrets stored.**
+
+    Attributes:
+        filename: the filename used to read or store the key and values.
+        imapset (isbg.imaputils.ImapSettings): A imap setings object.
+        hashlen (int): Length of the value hash. Must be a multiple of 16.
+            Default 256.
+
+    """
+
+    def __init__(self, filename, imapset, hashlen=256):
+        """Initialize a SecretISBG object."""
+        self.filename = filename
+        super(SecretIsbg, self).__init__(imapset, hashlen)
+        self.logger.debug(
+            "Initialized secret storage: {}".format(self.__class__.__name__))
 
     def _deobfuscate(self, value):
         """Deobfuscate value/password."""
@@ -191,12 +218,103 @@ class SecretIsbg(Secret):
             os.chmod(self.filename, 0o600)
             json.dump(json_data, json_file)
 
+    def delete(self, key):
+        """Delete a key.
 
-class SecretFileKeyring(Secret):
+        If no more keys are stored, it deletes the file.
+
+        Args:
+            key (str): The key to store.
+
+        Raises:
+            ValueError: If the key to delete is not found.
+
+        """
+        try:
+            with open(self.filename) as json_file:
+                json_data = json.load(json_file)
+        except (EnvironmentError, ValueError):
+            raise ValueError("Key '%s' not found and cannot be deleted." % key)
+
+        try:
+            del json_data[key]
+        except (KeyError):
+            raise ValueError("Key '%s' not found and cannot be deleted." % key)
+
+        if not json_data:                 # Empty dict.
+            os.remove(self.filename)      # Remove the file.
+        else:
+            with open(self.filename, "w+") as json_file:
+                os.chmod(self.filename, 0o600)
+                json.dump(json_data, json_file)
+
+
+class SecretKeyring(Secret):
     """Class used to store secrets using the *file keyring* implementation.
 
-    .. warning:: Unimplemented
+    .. versionchanged 2.1.1:
+       Added.
+
+    Attributes:
+        imapset (isbg.imaputils.ImapSettings): A imap setings object.
+        hashlen (int): Length of the value hash. Must be a multiple of 16.
+            Default 256.
 
     """
 
-    pass
+    def __init__(self, imapset, hashlen=256):
+        """Initialize a SecretKeyring object."""
+        self.keyring_impl = keyring.get_keyring()
+        super(SecretKeyring, self).__init__(imapset, hashlen)
+        self.logger.debug(
+            "Initialized secret storage {} using keyring storage {}".format(
+                self.__class__.__name__, self.keyring_impl.__class__.__name__))
+
+    def get(self, key):
+        """Get the value a key stored.
+
+        Args:
+            key(str): The key string requested.
+
+        Returns:
+            The value of the key or *None* if it cannot be found.
+
+        """
+        return self.keyring_impl.get_password(self.hash, key)
+
+    def set(self, key, value, overwrite=True):
+        """Set a value of a key.
+
+        If it cannot find the file or their contents are not a right json data,
+        it will overwrite it with the key and value pair.
+
+        Args:
+            key (str): The key to store.
+            value (str): The value to store.
+            overwrite (boolean, optional): If *True* it should overwrite and
+                existing key.
+
+        Raises:
+            ValueError: If not overwrite and the key exists.
+
+        """
+        if not overwrite:
+            if self.get(key):
+                raise ValueError("Key '%s' exists." % key)
+
+        self.keyring_impl.set_password(self.hash, key, value)
+
+    def delete(self, key):
+        """Delete the first occurrence of the key.
+
+        Args:
+            key (str): The key to store.
+
+        Raises:
+            ValueError: If the key to delete is not found.
+
+        """
+        try:
+            self.keyring_impl.delete_password(self.hash, key)
+        except (keyring.errors.PasswordDeleteError):
+            raise ValueError("Key '%s' not found and cannot be deleted." % key)
