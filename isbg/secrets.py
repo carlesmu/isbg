@@ -165,6 +165,13 @@ class SecretIsbg(Secret):
             res[i] = chr(ord(res[i]) ^ ord(v))
         return ''.join(res)
 
+    @staticmethod
+    def _store_data(filename, json_data):
+        """Store json data into a file."""
+        with open(filename, "w+") as json_file:
+            os.chmod(filename, 0o600)
+            json.dump(json_data, json_file)
+
     def get(self, key):
         """Get the value a key stored.
 
@@ -214,9 +221,7 @@ class SecretIsbg(Secret):
 
         json_data[key] = utils.hexof(self._obfuscate(value))
 
-        with open(self.filename, "w+") as json_file:
-            os.chmod(self.filename, 0o600)
-            json.dump(json_data, json_file)
+        SecretIsbg._store_data(self.filename, json_data)
 
     def delete(self, key):
         """Delete a key.
@@ -244,9 +249,7 @@ class SecretIsbg(Secret):
         if not json_data:                 # Empty dict.
             os.remove(self.filename)      # Remove the file.
         else:
-            with open(self.filename, "w+") as json_file:
-                os.chmod(self.filename, 0o600)
-                json.dump(json_data, json_file)
+            SecretIsbg._store_data(self.filename, json_data)
 
 
 class SecretKeyring(Secret):
