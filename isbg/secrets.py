@@ -301,9 +301,8 @@ class SecretKeyring(Secret):
             ValueError: If not overwrite and the key exists.
 
         """
-        if not overwrite:
-            if self.get(key):
-                raise ValueError("Key '%s' exists." % key)
+        if not overwrite and self.get(key):
+            raise ValueError("Key '%s' exists." % key)
 
         self.keyring_impl.set_password(self.hash, key, value)
 
