@@ -354,5 +354,5 @@ def import_mds(_):
 
 def setup(app):
     """Configure sphinx."""
-    app.connect('builder-inited', run_apidoc)
+#    app.connect('builder-inited', run_apidoc)  # It don't work with sphinx 1.7.4
     app.connect('builder-inited', import_rsts)
