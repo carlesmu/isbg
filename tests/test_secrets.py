@@ -65,10 +65,10 @@ def test_test():
         print("not backend")
 
 
-class Test_SecretIsbg():
-    """Test SecretIsbg class."""
+class Test_Secret(object):
+    """Test secret class."""
 
-    def test_hash(self):
+    def test_hash2(self):
         """Test the hash."""
         imapset = imaputils.ImapSettings()
         sec = secrets.SecretIsbg(filename="", imapset=imapset)
@@ -76,6 +76,10 @@ class Test_SecretIsbg():
         sec = secrets.SecretIsbg(filename="", imapset=imapset, hashlen=16)
         sec.hashlen == len(sec.hash)
         sec.hashlen == 16
+
+
+class Test_SecretIsbg(object):
+    """Test SecretIsbg class."""
 
     def test__obfuscate(self):
         """Test _obfuscate."""
@@ -140,5 +144,65 @@ NTk2YTEyMDIyYTM4ZDc3YjM3Mzk2OGNlMzc1Yg==
             sec.set("foo4", 4)
         assert sec.get("foo2") == "boo2"
 
-        # Remove created files
-        os.remove("tmp.txt")
+        # Remove the created keys:
+        sec.delete("foo1")
+        assert sec.get("foo1") is None
+        sec.delete("foo2")
+        assert sec.get("foo2") is None
+
+        # Remove non existant key:
+        with pytest.raises(ValueError, match="Key 'foo4' not",
+                           message="It should raise a ValueError"):
+            sec.delete("foo4")
+
+        # Remove last key, it should delete the file:
+        sec.delete("foo3")
+        assert sec.get("foo3") is None
+        with pytest.raises(EnvironmentError, match="\[Errno 2\]",
+                           message="A EnvironmentError should be raised."):
+            os.remove("tmp.txt")
+
+        # Remove non existant key in non existant file:
+        with pytest.raises(ValueError, match="Key 'foo4' not",
+                           message="It should raise a ValueError"):
+            sec.delete("foo4")
+
+
+class Test_SecretKeyring(object):
+    """Test SecretKeyring class."""
+
+    def test_get_and_set(self):
+        """Test the get and set funcionts."""
+        imapset = imaputils.ImapSettings()
+
+        # Test:
+        sec = secrets.SecretKeyring(imapset=imapset)
+        assert sec.get("foo") is None
+        sec.set("foo1", "boo1")
+        sec.set("foo2", "boo2")
+        sec.set("foo3", "boo3")
+        sec.set("foo3", "boo4")
+        assert sec.get("foo3") == "boo4"
+
+        with pytest.raises(ValueError, match="Key 'foo3' exists.",
+                           message="It should raise a ValueError"):
+            sec.set("foo3", "boo5", overwrite=False)
+
+        # Remove the created keys:
+        sec.delete("foo1")
+        assert sec.get("foo1") is None
+        sec.delete("foo2")
+        assert sec.get("foo2") is None
+
+        # Remove non existant key:
+        with pytest.raises(ValueError, match="Key 'foo4' not",
+                           message="It should raise a ValueError"):
+            sec.delete("foo4")
+
+        sec.delete("foo3")
+        assert sec.get("foo3") is None
+
+        # Remove non existant key:
+        with pytest.raises(ValueError, match="Key 'foo4' not",
+                           message="It should raise a ValueError"):
+            sec.delete("foo4")
