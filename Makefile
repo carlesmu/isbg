@@ -102,6 +102,7 @@ sphinx-clean:
 sphinx:
 	mkdir -p build.sphinx
 	cp -fr docs/* build.sphinx
+	$(MAKE) -C build.sphinx apidoc
 
 html: sphinx
 	$(MAKE) -C build.sphinx html

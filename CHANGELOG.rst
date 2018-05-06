@@ -7,6 +7,7 @@ Unreleased
 ----------
 * Improved development documentation.
 * Improved main documentation.
+* Upgraded documentation build system to sphinx 1.7.4
 
 Released
 --------
