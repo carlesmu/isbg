@@ -53,7 +53,7 @@ You should:
 #. Check if some changes should be updated in ``./README.rst``
 #. If new files have been added or removed: Check ``./MANIFEST.in``.
 #. If dependencies have been updated, added or removed check: ``./setup.py``, 
-   ´´./requirements.txt´´ and/or ´´./requirements-build.txt``.
+   ``./requirements.txt`` and/or ``./requirements-build.txt``.
 #. Commit it to `master`.
 #. Tag the new version in `isbg github releases`_, add the news added for this
    version in ``NEWS.rst`` to the comment. Remember to add '**v**' at the start
