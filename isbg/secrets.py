@@ -132,8 +132,8 @@ class SecretIsbg(Secret):
     Attributes:
         filename: the filename used to read or store the key and values.
         imapset (isbg.imaputils.ImapSettings): A imap setings object.
-        hashlen (int): Length of the value hash. Must be a multiple of 16.
-            Default 256.
+        hashlen (int, optional): Length of the value hash. Must be a multiple
+            of 16. Defaults to 256.
 
     """
 
@@ -203,7 +203,7 @@ class SecretIsbg(Secret):
             key (str): The key to store.
             value (str): The value to store.
             overwrite (boolean, optional): If *True* it should overwrite and
-                existing key.
+                existing key. Defaults to *True*.
 
         Raises:
             EnvironmentError: If it cannot store the file.
@@ -253,21 +253,27 @@ class SecretIsbg(Secret):
 
 
 class SecretKeyring(Secret):
-    """Class used to store secrets using the *file keyring* implementation.
+    """Class used to store secrets using the *keyring* implementation.
 
     .. versionchanged 2.1.1:
        Added.
 
     Attributes:
         imapset (isbg.imaputils.ImapSettings): A imap setings object.
-        hashlen (int): Length of the value hash. Must be a multiple of 16.
-            Default 256.
+        hashlen (int, optional): Length of the value hash. Must be a multiple
+            of 16. Defaults to 256.
+        keyring_backend: A keyring backend.
 
     """
 
-    def __init__(self, imapset, hashlen=256):
+    __SERVICE__ = 'isbg'
+
+    def __init__(self, imapset, hashlen=256, keyring_backend=None):
         """Initialize a SecretKeyring object."""
-        self.keyring_impl = keyring.get_keyring()
+        if keyring_backend:
+            self.keyring_impl = keyring_backend
+        else:
+            self.keyring_impl = keyring.get_keyring()
         super(SecretKeyring, self).__init__(imapset, hashlen)
         self.logger.debug(
             "Initialized secret storage {} using keyring storage {}".format(
@@ -283,7 +289,8 @@ class SecretKeyring(Secret):
             The value of the key or *None* if it cannot be found.
 
         """
-        return self.keyring_impl.get_password(self.hash, key)
+        return self.keyring_impl.get_password(self.__SERVICE__,
+                                              self.hash + "-" + key)
 
     def set(self, key, value, overwrite=True):
         """Set a value of a key.
@@ -295,16 +302,17 @@ class SecretKeyring(Secret):
             key (str): The key to store.
             value (str): The value to store.
             overwrite (boolean, optional): If *True* it should overwrite and
-                existing key.
+                existing key. Defaults to *True*.
 
         Raises:
-            ValueError: If not overwrite and the key exists.
+            ValueError: If overwrite is *False* and the key exists.
 
         """
         if not overwrite and self.get(key):
             raise ValueError("Key '%s' exists." % key)
 
-        self.keyring_impl.set_password(self.hash, key, value)
+        self.keyring_impl.set_password(self.__SERVICE__,
+                                       self.hash + '-' + key, value)
 
     def delete(self, key):
         """Delete the first occurrence of the key.
@@ -317,6 +325,7 @@ class SecretKeyring(Secret):
 
         """
         try:
-            self.keyring_impl.delete_password(self.hash, key)
+            self.keyring_impl.delete_password(self.__SERVICE__,
+                                              self.hash + '-' + key)
         except (keyring.errors.PasswordDeleteError):
             raise ValueError("Key '%s' not found and cannot be deleted." % key)
