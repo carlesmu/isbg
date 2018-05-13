@@ -23,7 +23,7 @@
 
 """Imap secrets module for isbg - IMAP Spam Begone.
 
-.. versionadded:: 2.1.0
+.. versionadded:: 2.0.0
 """
 
 from __future__ import absolute_import
@@ -51,10 +51,6 @@ from .utils import __
 
 class Secret(object):
     """Abstract class used to store secret info.
-
-    .. versionchanged 2.1.1:
-       Added attribute **logger**.
-       Added method **delete**.
 
     Attributes:
         imapset (isbg.imaputils.ImapSettings): A imap setings object.
@@ -124,10 +120,6 @@ class Secret(object):
 
 class SecretIsbg(Secret):
     """Class used to store secret info using our own implementation.
-
-    .. versionchanged 2.1.0:
-       It can store more than one key. In older versions it can store a value.
-       It **breaks old secrets stored.**
 
     Attributes:
         filename: the filename used to read or store the key and values.
@@ -254,9 +246,6 @@ class SecretIsbg(Secret):
 
 class SecretKeyring(Secret):
     """Class used to store secrets using the *keyring* implementation.
-
-    .. versionchanged 2.1.1:
-       Added.
 
     Attributes:
         imapset (isbg.imaputils.ImapSettings): A imap setings object.

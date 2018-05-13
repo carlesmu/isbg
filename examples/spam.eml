@@ -10,7 +10,7 @@ Received: from vr8.mail.ovh.net (unknown [10.101.8.8])
 Received: from in8.mail.ovh.net (unknown [10.101.4.8])
 	by vr8.mail.ovh.net (Postfix) with ESMTP id EC1B43100064
 	for <REMOVED@PERSONALDATA.org>; Thu, 31 Aug 2017 20:13:58 +0200 (CEST)
-Received-SPF: None (no SPF record) identity=mailfrom; client-ip=67.212.164.109; helo=papa.theultimatesurvival.bid; envelope-from=2587-84-162546-580-carlesmu=internautas.org@mail.theultimatesurvival.bid; receiver=carlesmu@internautas.org
+Received-SPF: None (no SPF record) identity=mailfrom; client-ip=67.212.164.109; helo=papa.theultimatesurvival.bid; envelope-from=2587-84-162546-580-REMOVED=PERSONALDATA.org@mail.theultimatesurvival.bid; receiver=REMOVED@PERSONALDATA.org
 Authentication-Results: in8.mail.ovh.net; dkim=fail
 	reason="verification failed; unprotected key"
 	header.d=theultimatesurvival.bid header.i=contact@theultimatesurvival.bid
@@ -35,7 +35,7 @@ Date: Thu, 31 Aug 2017 14:12:00 -0400
 From: "The Coolest Multi Tool" <contact@theultimatesurvival.bid>
 Reply-To: "The EDT Mini-Tool is a powerful tool" <contact@theultimatesurvival.bid>
 Subject: [SPAM] Did You Get Your Free EDT Yet?
-To: <carlesmu@internautas.org>
+To: <REMOVED@PERSONALDATA.org>
 Message-ID: <369a6y74798tq0lu-doo34v1hbhns3e03-27af2@theultimatesurvival.bid>
 X-Ovh-Remote: 67.212.164.109 ([67.212.164.109])
 X-Ovh-Tracer-Id: 5901404362377205760

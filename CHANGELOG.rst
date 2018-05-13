@@ -5,28 +5,13 @@ What has been done since last release.
 
 Unreleased
 ----------
-* Improved development documentation.
-* Improved main documentation.
-* Upgraded documentation build system to sphinx 1.7.4
-
-Released
---------
-
-isbg 2.1.0 (20180429)
-~~~~~~~~~~~~~~~~~~~~~
 
 * Don't raise a error when learning a too big email spam (spamc return code
   98).
-* Added development documentation.
 * Password is now stored as json data file.
-
-
-isbg 2.0.0 (20180318)
-~~~~~~~~~~~~~~~~~~~~~
-
 * Using standard cache *xdg_cache_home* to store information, usually
   *$HOME/.cache/isbg/*. If you have stored your password with and old releases
-  you should re-store it and delete the old stored files, you would find the
+  you should re-store it and delete the old stored files, you should find the
   old ones as *$HOME/.isbg*.
 * We use *cchardet* and *chardet* if installed for better detect the mails
   encoding.
@@ -36,9 +21,12 @@ isbg 2.0.0 (20180318)
 * Modularized.
 * Added a default --partialrun of 50. Use ``--partialrun=0`` to retain the
   old behaviour.
-* Renamed sa_unwrap script to isbg_sa_unwrap, added command line options,
-  manual page. Now it also depends of docopt.
-* Documentation: use sphinx and support to upload it to `Read the docs`__.
+* Renamed sa_unwrap script to isbg_sa_unwrap, added command line options.
+  Now it also depends of docopt.
+* Documentation:
+  * Use sphinx and support to upload it to `Read the docs`__.
+  * Added development documentation.
+  * Added manpages, built with sphinx.
 * Examples: added a crontab example in the bash_scripts directory.
 
 .. __: https://isbg.readthedocs.io/

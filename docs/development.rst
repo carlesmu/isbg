@@ -52,7 +52,7 @@ You should:
 #. Check the ``./TODO.rst`` list and updated it.
 #. Check if some changes should be updated in ``./README.rst``
 #. If new files have been added or removed: Check ``./MANIFEST.in``.
-#. If dependencies have been updated, added or removed check: ``./setup.py``, 
+#. If dependencies have been updated, added or removed check: ``./setup.py``,
    ``./requirements.txt`` and/or ``./requirements-build.txt``.
 #. Commit it to `master`.
 #. Tag the new version in `isbg github releases`_, add the news added for this
@@ -60,5 +60,5 @@ You should:
    of the version.
 #. Login to `readthedocs`_ and update the *stable* version.
 
-.. _isbg github releases: https://github.com/carlesmu/isbg/releases
+.. _isbg github releases: https://github.com/isbg/isbg/releases
 .. _readthedocs: http://readthedocs.io/

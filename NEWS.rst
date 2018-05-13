@@ -1,24 +1,15 @@
 News [#]_
 =========
 
-News in 2.1.0
--------------
-
-* Minor improvements.
-* The stored password file format has changed. You must store your password
-  again.
-
-News in old releases
---------------------
-
-New in 2.0.0
-~~~~~~~~~~~~
+Unreleased
+----------
 
 * Use of standard localization folders. You must store your password again.
 * Added documentation in `Read the docs`__.
 * Added a default `--partialrun` of 50.
 
 .. __: https://isbg.readthedocs.io/
+
 
 New in 1.00
 ~~~~~~~~~~~

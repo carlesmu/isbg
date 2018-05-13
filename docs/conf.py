@@ -21,7 +21,7 @@ import recommonmark
 
 # -- Custom variables -----------------------------------------------------
 cvar_github_base_uri = 'https://github.com/'
-cvar_github_prj = 'carlesmu'
+cvar_github_prj = 'isbg'
 cvar_github_usr = 'isbg'
 cvar_github_uri = cvar_github_base_uri + cvar_github_prj + '/' + \
     cvar_github_usr

@@ -2,32 +2,6 @@
    pandoc --from=markdown_github --to=rst --output=README.rst README.md
 
 
-Stable: |rtd stable|
-
-.. |rtd stable| image:: https://readthedocs.org/projects/isbg/badge/?version=stable
-   :target: http://isbg.readthedocs.io/en/stable/?badge=stable
-
-Default: |ccli mant default| |ccli cov default| |codecov default|
-
-.. |ccli mant default| image:: https://api.codeclimate.com/v1/badges/c487d0d5ee45186aded1/maintainability
-   :target: https://codeclimate.com/github/carlesmu/isbg/maintainability
-.. |ccli cov default| image:: https://api.codeclimate.com/v1/badges/c487d0d5ee45186aded1/test_coverage
-   :target: https://codeclimate.com/github/carlesmu/isbg/test_coverage
-.. |codecov default| image:: https://codecov.io/gh/carlesmu/isbg/branch/v2.0-dev/graph/badge.svg
-   :target: https://codecov.io/gh/carlesmu/isbg
-
-Master: |travis master| |rtd master| |codacy master| |codacy cov master|
-
-.. |travis master| image:: https://travis-ci.org/carlesmu/isbg.svg?branch=master
-   :target: https://travis-ci.org/carlesmu/isbg
-.. |rtd master| image:: https://readthedocs.org/projects/isbg/badge/?version=latest
-   :target: http://isbg.readthedocs.io/en/latest/?badge=latest
-.. |codacy master| image:: https://api.codacy.com/project/badge/Grade/e639e80142824c34bed0b13440136a01?branch=master
-   :target: https://www.codacy.com/app/carlesmu/isbg?utm_source=github.com&utm_medium=referral&utm_content=carlesmu/isbg&utm_campaign=Badge_Grade
-.. |codacy cov master| image:: https://api.codacy.com/project/badge/Coverage/e639e80142824c34bed0b13440136a01?branch=master
-   :target: https://www.codacy.com/app/carlesmu/isbg?utm_source=github.com&utm_medium=referral&utm_content=carlesmu/isbg&utm_campaign=Badge_Coverage
-
-
 IMAP Spam Begone
 ================
 
@@ -385,8 +359,7 @@ You can also hang out with us on IRC, at ``#isbg`` on Freenode.
 
 This software was written by Roger Binns <rogerb@rogerbinns.com> and is
 maintained by Thomas Lecavelier <thomas@lecavelier.name> since november 2009
-with the great help of Anders Jenbo since v0.99, and maintained by Carles
-Muñoz Gorriz <carlesmu@internautas.org> since march 2018.
+with the great help of Anders Jenbo since v0.99.
 
 .. _isbg mailing list: https://mail.python.org/mm3/mailman3/lists/isbg.python.org/
 
