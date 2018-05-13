@@ -320,14 +320,15 @@ intersphinx_mapping = {'https://docs.python.org/': None}
 
 def run_apidoc(_):
     """Run apidoc."""
-    from sphinx.apidoc import main
+    from sphinx.ext.apidoc import main
     import os
     import sys
     sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
     cur_dir = os.path.abspath(os.path.dirname(__file__))
     module = os.path.join(cur_dir, "..", project)
-    main(['-e', '-o', cur_dir, module, '--force', '--separate', '--private',
-          '--follow-links'])
+    params = ['-e', '--force', '--separate', '--private', '--follow-links',
+              '-o', cur_dir, module]
+    main(params)
 
 
 def import_rsts(_):
@@ -354,5 +355,5 @@ def import_mds(_):
 
 def setup(app):
     """Configure sphinx."""
-#    app.connect('builder-inited', run_apidoc)  # It don't work with sphinx 1.7.4
+    app.connect('builder-inited', run_apidoc)
     app.connect('builder-inited', import_rsts)
