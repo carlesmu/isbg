@@ -320,7 +320,10 @@ intersphinx_mapping = {'https://docs.python.org/': None}
 
 def run_apidoc(_):
     """Run apidoc."""
-    from sphinx.ext.apidoc import main
+    try:
+        from sphinx.ext.apidoc import main  # sphinx => 1.7.0b1
+    except ImportError:
+        from sphinx.apidoc import main
     import os
     import sys
     sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
